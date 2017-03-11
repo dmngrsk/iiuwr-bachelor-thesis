@@ -7,8 +7,16 @@ using Remotion.Linq.Parsing;
 
 namespace Thesis.Relinq.PsqlQueryGeneration
 {
-    public class PsqlExpressionTreeVisitor : ExpressionVisitor
+    public class PsqlGeneratingExpressionTreeVisitor : ExpressionVisitor
     {
+        StringBuilder _psqlExpression = new StringBuilder();
+        private readonly ParameterAggregator _parameterAggregator;
+
+        private PsqlGeneratingExpressionTreeVisitor(ParameterAggregator parameterAggregator)
+        {
+            _parameterAggregator = parameterAggregator;
+        }
+
         // FOR ALL METHODS:
         // Parameters:
         //   node:

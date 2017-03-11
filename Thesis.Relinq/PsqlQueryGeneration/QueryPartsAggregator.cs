@@ -14,7 +14,7 @@ namespace Thesis.Relinq.PsqlQueryGeneration
             OrderByParts = new List<string>();
         }
 
-        private string SelectPart { get; set; }
+        public string SelectPart { get; private set; }
         private List<string> FromParts { get; set; }
         private List<string> WhereParts { get; set; }
         private List<string> OrderByParts { get; set; }
@@ -24,12 +24,12 @@ namespace Thesis.Relinq.PsqlQueryGeneration
             SelectPart = selectPart;
         }
 
-        public void AddFromPart (IQuerySource querySource)
+        public void AddFromPart(IQuerySource querySource)
         {
             FromParts.Add(querySource.ItemName);
         }
 
-        public void AddWherePart (string formatString, params object[] args)
+        public void AddWherePart(string formatString, params object[] args)
         {
             WhereParts.Add(string.Format(formatString, args));
         }

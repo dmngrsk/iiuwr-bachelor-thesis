@@ -11,9 +11,8 @@ namespace Thesis.Relinq
             new PsqlQueryExecutor(connection);
 
         public PsqlQueryable (NpgsqlConnection connection)
-         // : base(CreateExecutor(connection)) { }
-            : base((IQueryProvider)CreateExecutor(connection)) { }
-
+            : base(CreateExecutor(connection)) { }
+            
         public PsqlQueryable (IQueryProvider provider, Expression expression)
             : base(provider, expression) { }
     }

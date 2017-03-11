@@ -17,7 +17,27 @@ namespace Thesis.Relinq
 
         public IEnumerable<T> ExecuteCollection<T>(QueryModel queryModel)
         {
-            throw new NotImplementedException();
+            var commandData = PsqlQueryGenerator.GeneratePsqlQuery(queryModel);
+            var query = commandData.CreateQuery(_connection);
+            
+            List<T> rows = new List<T>();
+
+            using (var reader = query.ExecuteReader())
+            {
+                var columnSchema = reader.GetColumnSchema();
+
+                while (reader.Read())
+                {
+                    object[] row = new object[reader.FieldCount];
+                    reader.GetValues(row);
+
+                    // how do I transform object[] to T effectively?
+                    // rows.Add(model);
+                }
+            }
+
+            query.Dispose();
+            return rows;
         }
 
         public T ExecuteScalar<T>(QueryModel queryModel)

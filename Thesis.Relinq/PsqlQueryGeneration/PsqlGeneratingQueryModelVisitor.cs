@@ -7,8 +7,21 @@ using System.Linq;
 
 namespace Thesis.Relinq.PsqlQueryGeneration
 {
-    public class PsqlQueryModelVisitor : QueryModelVisitorBase
+    public class PsqlGeneratingQueryModelVisitor : QueryModelVisitorBase
     {
+        private readonly QueryPartsAggregator _queryParts = new QueryPartsAggregator();
+        private readonly ParameterAggregator _parameterAggregator = new ParameterAggregator();
+
+        public static PsqlCommandData GeneratePsqlQuery(QueryModel queryModel)
+        {
+            var visitor = new PsqlGeneratingQueryModelVisitor();
+            visitor.VisitQueryModel(queryModel);
+            return visitor.GetPsqlCommand();
+        }
+
+        public PsqlCommandData GetPsqlCommand() =>
+            new PsqlCommandData(_queryParts.BuildPsqlString(), _parameterAggregator.GetParameters());
+
         public override void VisitAdditionalFromClause(AdditionalFromClause fromClause, QueryModel queryModel, int index)
         {
             throw new NotImplementedException();
@@ -46,12 +59,22 @@ namespace Thesis.Relinq.PsqlQueryGeneration
 
         public override void VisitQueryModel(QueryModel queryModel)
         {
-            throw new NotImplementedException();
+            queryModel.SelectClause.Accept(this, queryModel);
+            queryModel.MainFromClause.Accept(this, queryModel);
+            this.VisitBodyClauses(queryModel.BodyClauses, queryModel);
+            this.VisitResultOperators(queryModel.ResultOperators, queryModel);
         }
 
         public override void VisitResultOperator(ResultOperatorBase resultOperator, QueryModel queryModel, int index)
         {
-            throw new NotImplementedException();
+            // https://www.tutorialspoint.com/linq/linq_query_operators.htm
+            
+            if (resultOperator is CountResultOperator)
+                _queryParts.SetSelectPart(string.Format("COUNT({0})", _queryParts.SelectPart));
+            else
+                throw new NotImplementedException();
+            
+            base.VisitResultOperator(resultOperator, queryModel, index);
         }
 
         public override void VisitSelectClause(SelectClause selectClause, QueryModel queryModel)
