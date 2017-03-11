@@ -9,11 +9,11 @@ namespace Thesis.Relinq
         {
             try
             {
-                PostgresConnectionAdapter adapter = new PostgresConnectionAdapter
+                PsqlConnectionAdapter adapter = new PsqlConnectionAdapter
                 {
                     Server = "localhost",
                     Port = 5432,
-                    UserName = "dmngrsk",
+                    Username = "dmngrsk",
                     Password = "qwerty",
                     Database = "northwind"
                 };
