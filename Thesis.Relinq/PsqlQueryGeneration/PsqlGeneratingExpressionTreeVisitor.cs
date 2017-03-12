@@ -9,10 +9,10 @@ namespace Thesis.Relinq.PsqlQueryGeneration
 {
     public class PsqlGeneratingExpressionTreeVisitor : RelinqExpressionVisitor
     {
-        StringBuilder _psqlExpression = new StringBuilder();
+        private readonly StringBuilder _psqlExpression = new StringBuilder();
         private readonly ParameterAggregator _parameterAggregator;
 
-        public static string GetPsqlExpression (Expression linqExpression, ParameterAggregator parameterAggregator)
+        public static string GetPsqlExpression(Expression linqExpression, ParameterAggregator parameterAggregator)
         {
             var visitor = new PsqlGeneratingExpressionTreeVisitor(parameterAggregator);
             visitor.Visit(linqExpression);
@@ -28,7 +28,7 @@ namespace Thesis.Relinq.PsqlQueryGeneration
 
         // FOR ALL METHODS:
         // Parameters:
-        //   node:
+        //   expression:
         //     The expression to visit.
         //
         // Returns:
@@ -36,104 +36,104 @@ namespace Thesis.Relinq.PsqlQueryGeneration
         //     returns the original expression.
 
         // Visits the children of the System.Linq.Expressions.BinaryExpression.
-        protected override Expression VisitBinary(BinaryExpression node)
+        protected override Expression VisitBinary(BinaryExpression expression)
         {
-            return node;
+            return expression;
         }
         // Visits the children of the System.Linq.Expressions.BlockExpression.
-        protected override Expression VisitBlock(BlockExpression node)
+        protected override Expression VisitBlock(BlockExpression expression)
         {
-            return node;
+            return expression;
         }
         // Visits the children of the System.Linq.Expressions.ConditionalExpression.
-        protected override Expression VisitConditional(ConditionalExpression node)
+        protected override Expression VisitConditional(ConditionalExpression expression)
         {
-            return node;
+            return expression;
         }
         // Visits the System.Linq.Expressions.ConstantExpression.
-        protected override Expression VisitConstant(ConstantExpression node)
+        protected override Expression VisitConstant(ConstantExpression expression)
         {
-            return node;
+            return expression;
         }
         // Visits the System.Linq.Expressions.DebugInfoExpression.
-        protected override Expression VisitDebugInfo(DebugInfoExpression node)
+        protected override Expression VisitDebugInfo(DebugInfoExpression expression)
         {
-            return node;
+            return expression;
         }
         // Visits the System.Linq.Expressions.DefaultExpression.
-        protected override Expression VisitDefault(DefaultExpression node)
+        protected override Expression VisitDefault(DefaultExpression expression)
         {
-            return node;
+            return expression;
         }
         // Visits the children of the extension expression.
-        protected override Expression VisitExtension(Expression node)
+        protected override Expression VisitExtension(Expression expression)
         {
-            return node;
+            return expression;
         }
         // Visits the children of the System.Linq.Expressions.GotoExpression.
-        protected override Expression VisitGoto(GotoExpression node)
+        protected override Expression VisitGoto(GotoExpression expression)
         {
-            return node;
+            return expression;
         }
         // Visits the children of the System.Linq.Expressions.IndexExpression.
-        protected override Expression VisitIndex(IndexExpression node)
+        protected override Expression VisitIndex(IndexExpression expression)
         {
-            return node;
+            return expression;
         }
         // Visits the children of the System.Linq.Expressions.InvocationExpression.
-        protected override Expression VisitInvocation(InvocationExpression node)
+        protected override Expression VisitInvocation(InvocationExpression expression)
         {
-            return node;
+            return expression;
         }
         // Visits the children of the System.Linq.Expressions.LabelExpression.
-        protected override Expression VisitLabel(LabelExpression node)
+        protected override Expression VisitLabel(LabelExpression expression)
         {
-            return node;
+            return expression;
         }
         // Visits the children of the System.Linq.Expressions.Expression`1.
-        protected override Expression VisitLambda<T>(Expression<T> node)
+        protected override Expression VisitLambda<T>(Expression<T> expression)
         {
-            return node;
+            return expression;
         }
         // Visits the children of the System.Linq.Expressions.ListInitExpression.
-        protected override Expression VisitListInit(ListInitExpression node)
+        protected override Expression VisitListInit(ListInitExpression expression)
         {
-            return node;
+            return expression;
         }
         // Visits the children of the System.Linq.Expressions.LoopExpression.
-        protected override Expression VisitLoop(LoopExpression node)
+        protected override Expression VisitLoop(LoopExpression expression)
         {
-            return node;
+            return expression;
         }
         // Visits the children of the System.Linq.Expressions.MemberExpression.
-        protected override Expression VisitMember(MemberExpression node)
+        protected override Expression VisitMember(MemberExpression expression)
         {
-            return node;
+            return expression;
         }
         // Visits the children of the System.Linq.Expressions.MemberInitExpression.
-        protected override Expression VisitMemberInit(MemberInitExpression node)
+        protected override Expression VisitMemberInit(MemberInitExpression expression)
         {
-            return node;
+            return expression;
         }
         // Visits the children of the System.Linq.Expressions.MethodCallExpression.
-        protected override Expression VisitMethodCall(MethodCallExpression node)
+        protected override Expression VisitMethodCall(MethodCallExpression expression)
         {
-            return node;
+            return expression;
         }
         // Visits the children of the System.Linq.Expressions.NewExpression.
-        protected override Expression VisitNew(NewExpression node)
+        protected override Expression VisitNew(NewExpression expression)
         {
-            return node;
+            return expression;
         }
         // Visits the children of the System.Linq.Expressions.NewArrayExpression.
-        protected override Expression VisitNewArray(NewArrayExpression node)
+        protected override Expression VisitNewArray(NewArrayExpression expression)
         {
-            return node;
+            return expression;
         }
         // Visits the System.Linq.Expressions.ParameterExpression.
-        protected override Expression VisitParameter(ParameterExpression node)
+        protected override Expression VisitParameter(ParameterExpression expression)
         {
-            return node;
+            return expression;
         }
 
         protected override Expression VisitQuerySourceReference(QuerySourceReferenceExpression expression)
@@ -142,29 +142,29 @@ namespace Thesis.Relinq.PsqlQueryGeneration
             return expression;
         }
         // Visits the children of the System.Linq.Expressions.RuntimeVariablesExpression.
-        protected override Expression VisitRuntimeVariables(RuntimeVariablesExpression node)
+        protected override Expression VisitRuntimeVariables(RuntimeVariablesExpression expression)
         {
-            return node;
+            return expression;
         }
         // Visits the children of the System.Linq.Expressions.SwitchExpression.
-        protected override Expression VisitSwitch(SwitchExpression node)
+        protected override Expression VisitSwitch(SwitchExpression expression)
         {
-            return node;
+            return expression;
         }
         // Visits the children of the System.Linq.Expressions.TryExpression.
-        protected override Expression VisitTry(TryExpression node)
+        protected override Expression VisitTry(TryExpression expression)
         {
-            return node;
+            return expression;
         }
         // Visits the children of the System.Linq.Expressions.TypeBinaryExpression.
-        protected override Expression VisitTypeBinary(TypeBinaryExpression node)
+        protected override Expression VisitTypeBinary(TypeBinaryExpression expression)
         {
-            return node;
+            return expression;
         }
         // Visits the children of the System.Linq.Expressions.UnaryExpression.
-        protected override Expression VisitUnary(UnaryExpression node)
+        protected override Expression VisitUnary(UnaryExpression expression)
         {
-            return node;
+            return expression;
         }
     }
 }

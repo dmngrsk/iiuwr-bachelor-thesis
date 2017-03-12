@@ -7,8 +7,8 @@
   },
 
   "dependencies": {
-    "Npgsql": "3.2.1",
-    "Remotion.Linq": "2.1.1"
+    "Remotion.Linq": "2.1.1",
+    "Npgsql": "3.2.1"
   },
 
   "frameworks": {

@@ -29,10 +29,7 @@ namespace Thesis.Relinq
                 {
                     var columnSchema = reader.GetColumnSchema();
 
-                    object[] row = new object[reader.FieldCount];
-                    reader.GetValues(row);
-
-                    // rows.Add(row);
+                    var row = new object[reader.FieldCount];
                 }
             }
 
