@@ -20,22 +20,23 @@ namespace Thesis.Relinq
             var commandData = PsqlQueryGenerator.GeneratePsqlQuery(queryModel);
             var query = commandData.CreateQuery(_connection);
             
+            query.Connection.Open();
             List<T> rows = new List<T>();
 
             using (var reader = query.ExecuteReader())
             {
-                var columnSchema = reader.GetColumnSchema();
-
                 while (reader.Read())
                 {
+                    var columnSchema = reader.GetColumnSchema();
+
                     object[] row = new object[reader.FieldCount];
                     reader.GetValues(row);
 
-                    // how do I transform object[] to T effectively?
-                    // rows.Add(model);
+                    // rows.Add(row);
                 }
             }
 
+            query.Connection.Close();
             query.Dispose();
             return rows;
         }

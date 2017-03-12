@@ -26,7 +26,9 @@ namespace Thesis.Relinq.PsqlQueryGeneration
 
         public void AddFromPart(IQuerySource querySource)
         {
-            FromParts.Add(querySource.ItemName);
+            int index = querySource.ItemType.ToString().LastIndexOf('.') + 1;
+            string fromPart = querySource.ItemType.ToString().Substring(index);
+            FromParts.Add(fromPart);
         }
 
         public void AddWherePart(string formatString, params object[] args)
@@ -54,6 +56,8 @@ namespace Thesis.Relinq.PsqlQueryGeneration
 
             if (OrderByParts.Count > 0)
                 stringBuilder.AppendFormat(" ORDER BY {0}", string.Join(", ", OrderByParts));
+
+            Console.WriteLine(stringBuilder.ToString() + ";");
 
             return stringBuilder.Append(";").ToString();
         }

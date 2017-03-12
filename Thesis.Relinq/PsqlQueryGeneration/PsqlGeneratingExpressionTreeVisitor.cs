@@ -7,10 +7,19 @@ using Remotion.Linq.Parsing;
 
 namespace Thesis.Relinq.PsqlQueryGeneration
 {
-    public class PsqlGeneratingExpressionTreeVisitor : ExpressionVisitor
+    public class PsqlGeneratingExpressionTreeVisitor : RelinqExpressionVisitor
     {
         StringBuilder _psqlExpression = new StringBuilder();
         private readonly ParameterAggregator _parameterAggregator;
+
+        public static string GetPsqlExpression (Expression linqExpression, ParameterAggregator parameterAggregator)
+        {
+            var visitor = new PsqlGeneratingExpressionTreeVisitor(parameterAggregator);
+            visitor.Visit(linqExpression);
+            return visitor.GetPsqlExpression();
+        }
+
+        private string GetPsqlExpression() => _psqlExpression.ToString();
 
         private PsqlGeneratingExpressionTreeVisitor(ParameterAggregator parameterAggregator)
         {
@@ -125,6 +134,12 @@ namespace Thesis.Relinq.PsqlQueryGeneration
         protected override Expression VisitParameter(ParameterExpression node)
         {
             return node;
+        }
+
+        protected override Expression VisitQuerySourceReference(QuerySourceReferenceExpression expression)
+        {
+            _psqlExpression.Append(expression.ReferencedQuerySource.ItemName);
+            return expression;
         }
         // Visits the children of the System.Linq.Expressions.RuntimeVariablesExpression.
         protected override Expression VisitRuntimeVariables(RuntimeVariablesExpression node)

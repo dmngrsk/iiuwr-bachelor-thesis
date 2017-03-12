@@ -44,7 +44,8 @@ namespace Thesis.Relinq.PsqlQueryGeneration
 
         public override void VisitMainFromClause(MainFromClause fromClause, QueryModel queryModel)
         {
-            throw new NotImplementedException();
+            _queryParts.AddFromPart(fromClause);
+            base.VisitMainFromClause(fromClause, queryModel);
         }
 
         public override void VisitOrderByClause(OrderByClause orderByClause, QueryModel queryModel, int index)
@@ -79,12 +80,17 @@ namespace Thesis.Relinq.PsqlQueryGeneration
 
         public override void VisitSelectClause(SelectClause selectClause, QueryModel queryModel)
         {
-            throw new NotImplementedException();
+            _queryParts.SetSelectPart(GetPsqlExpression(selectClause.Selector));
+            base.VisitSelectClause(selectClause, queryModel);
         }
-        
+
         public override void VisitWhereClause(WhereClause whereClause, QueryModel queryModel, int index)
         {
-            throw new NotImplementedException();
+            _queryParts.AddWherePart(GetPsqlExpression(whereClause.Predicate));
+            base.VisitWhereClause(whereClause, queryModel, index);
         }
+
+        private string GetPsqlExpression(Expression expression) =>
+            PsqlGeneratingExpressionTreeVisitor.GetPsqlExpression(expression, _parameterAggregator);
     }
 }
