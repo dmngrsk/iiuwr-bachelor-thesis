@@ -38,8 +38,9 @@ namespace Thesis.Relinq.UnitTests
                 from c in PsqlQueryFactory.Queryable<Customers>(connection)
                 select c;
             
-            var res = foo.ToList().Count();
-            Assert.That(res, Is.EqualTo(0));
+            var res = foo.ToList();
+            var count = res.Count();
+            Assert.AreEqual(count, 91);
         }
     }
 }

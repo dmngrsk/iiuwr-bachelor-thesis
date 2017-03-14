@@ -1,7 +1,6 @@
 namespace Thesis.Relinq.UnitTests.Models
 {
-    /*
-        CustomerID   | character
+    /*  CustomerID   | character
         CompanyName  | character varying
         ContactName  | character varying
         ContactTitle | character varying
@@ -11,9 +10,7 @@ namespace Thesis.Relinq.UnitTests.Models
         PostalCode   | character varying
         Country      | character varying
         Phone        | character varying
-        Fax          | character varying
-
-     */
+        Fax          | character varying  */
 
     public class Customers
     {
