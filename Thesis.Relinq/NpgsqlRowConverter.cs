@@ -51,6 +51,7 @@ namespace Thesis.Relinq
 
         private T ConvertArrayToObject(object[] row)
         {
+            // TODO: http://stackoverflow.com/questions/478013/how-do-i-create-and-access-a-new-instance-of-an-anonymous-class-passed-as-a-para/478030#478030
             T obj = (T)Activator.CreateInstance(typeof(T));
                     
             for (int i = 0; i < _columns.Count; i++)

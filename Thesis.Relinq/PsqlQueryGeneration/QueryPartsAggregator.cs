@@ -48,8 +48,8 @@ namespace Thesis.Relinq.PsqlQueryGeneration
             if (string.IsNullOrEmpty(SelectPart) || FromParts.Count == 0)
                 throw new InvalidOperationException("A query must have a SELECT part and at least one FROM part.");
 
-//            stringBuilder.AppendFormat("SELECT {0}", SelectPart);
-            stringBuilder.AppendFormat("SELECT *");
+            stringBuilder.AppendFormat("SELECT {0}", SelectPart);
+            
             stringBuilder.AppendFormat(" FROM {0}", string.Join(", ", FromParts));
 
             if (WhereParts.Count > 0)

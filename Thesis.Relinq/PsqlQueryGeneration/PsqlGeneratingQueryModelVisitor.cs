@@ -1,9 +1,9 @@
 using System;
+using System.Linq;
 using System.Linq.Expressions;
 using Remotion.Linq;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.ResultOperators;
-using System.Linq;
 
 namespace Thesis.Relinq.PsqlQueryGeneration
 {
@@ -21,6 +21,14 @@ namespace Thesis.Relinq.PsqlQueryGeneration
 
         public PsqlCommandData GetPsqlCommand() =>
             new PsqlCommandData(_queryParts.BuildPsqlString(), _parameterAggregator.GetParameters());
+
+        public override void VisitQueryModel(QueryModel queryModel)
+        {
+            queryModel.SelectClause.Accept(this, queryModel);
+            queryModel.MainFromClause.Accept(this, queryModel);
+            this.VisitBodyClauses(queryModel.BodyClauses, queryModel);
+            this.VisitResultOperators(queryModel.ResultOperators, queryModel);
+        }
 
         public override void VisitAdditionalFromClause(AdditionalFromClause fromClause, QueryModel queryModel, int index)
         {
@@ -56,14 +64,6 @@ namespace Thesis.Relinq.PsqlQueryGeneration
         public override void VisitOrdering(Ordering ordering, QueryModel queryModel, OrderByClause orderByClause, int index)
         {
             throw new NotImplementedException();
-        }
-
-        public override void VisitQueryModel(QueryModel queryModel)
-        {
-            queryModel.SelectClause.Accept(this, queryModel);
-            queryModel.MainFromClause.Accept(this, queryModel);
-            this.VisitBodyClauses(queryModel.BodyClauses, queryModel);
-            this.VisitResultOperators(queryModel.ResultOperators, queryModel);
         }
 
         public override void VisitResultOperator(ResultOperatorBase resultOperator, QueryModel queryModel, int index)

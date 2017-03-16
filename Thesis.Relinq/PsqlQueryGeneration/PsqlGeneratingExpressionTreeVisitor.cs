@@ -35,9 +35,36 @@ namespace Thesis.Relinq.PsqlQueryGeneration
         //     The modified expression, if it or any subexpression was modified; otherwise,
         //     returns the original expression.
 
-        // Visits the children of the System.Linq.Expressions.BinaryExpression.
         protected override Expression VisitBinary(BinaryExpression expression)
         {
+            this.Visit(expression.Left);
+
+            // TODO: filling the rest of this, moving to a dictionary
+            switch (expression.NodeType)
+            {
+                case ExpressionType.Add:
+                case ExpressionType.AddChecked:
+                    _psqlExpression.Append(" + ");
+                    break; 
+
+                case ExpressionType.And:
+                case ExpressionType.AndAlso:
+                    _psqlExpression.Append("  ");
+                    break;
+
+                case ExpressionType.Divide:
+                    _psqlExpression.Append("   ");
+                    break;
+
+                case ExpressionType.Equal:
+                    _psqlExpression.Append(" = ");
+                    break;
+
+                default:
+                    throw new ArgumentException("{0} is not supported.", expression.Type.ToString());
+            }
+
+            this.Visit(expression.Right);
             return expression;
         }
         // Visits the children of the System.Linq.Expressions.BlockExpression.
@@ -50,9 +77,20 @@ namespace Thesis.Relinq.PsqlQueryGeneration
         {
             return expression;
         }
-        // Visits the System.Linq.Expressions.ConstantExpression.
+        
         protected override Expression VisitConstant(ConstantExpression expression)
         {
+            // TODO: type check
+            if (expression.Type == typeof(string))
+            {
+                _psqlExpression.Append("'");
+                _psqlExpression.Append(expression.Value);
+                _psqlExpression.Append("'");
+            }
+
+            else
+                _psqlExpression.Append(expression.Value);
+
             return expression;
         }
         // Visits the System.Linq.Expressions.DebugInfoExpression.
@@ -105,9 +143,12 @@ namespace Thesis.Relinq.PsqlQueryGeneration
         {
             return expression;
         }
-        // Visits the children of the System.Linq.Expressions.MemberExpression.
+        
         protected override Expression VisitMember(MemberExpression expression)
         {
+            _psqlExpression.Append("\"");
+            _psqlExpression.Append(expression.Member.Name);
+            _psqlExpression.Append("\"");
             return expression;
         }
         // Visits the children of the System.Linq.Expressions.MemberInitExpression.
@@ -120,9 +161,17 @@ namespace Thesis.Relinq.PsqlQueryGeneration
         {
             return expression;
         }
-        // Visits the children of the System.Linq.Expressions.NewExpression.
+
         protected override Expression VisitNew(NewExpression expression)
         {
+            this.Visit(expression.Arguments[0]);
+            
+            for (int i = 1; i < expression.Arguments.Count; i++)
+            {
+                _psqlExpression.Append(", ");
+                this.Visit(expression.Arguments[i]);
+            }
+
             return expression;
         }
         // Visits the children of the System.Linq.Expressions.NewArrayExpression.
@@ -138,7 +187,7 @@ namespace Thesis.Relinq.PsqlQueryGeneration
 
         protected override Expression VisitQuerySourceReference(QuerySourceReferenceExpression expression)
         {
-            _psqlExpression.Append(expression.ReferencedQuerySource.ItemName);
+            _psqlExpression.Append("*");
             return expression;
         }
         // Visits the children of the System.Linq.Expressions.RuntimeVariablesExpression.
