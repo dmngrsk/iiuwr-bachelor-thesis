@@ -40,16 +40,21 @@ namespace Thesis.Relinq.UnitTests
             var myQuery = 
                 from c in PsqlQueryFactory.Queryable<Customers>(connection)
                 select c;
+
+            var myQuery2 = PsqlQueryFactory.Queryable<Customers>(connection).Select(c => c);
             
             string psqlCommand = "SELECT * FROM Customers;";
 
             // Act
             var expected = NpgsqlRowConverter<Customers>.ReadAllRows(connection, psqlCommand).ToArray();
             var actual = myQuery.ToArray();
+            var actual2 = myQuery2.ToArray();
 
             // Assert
             Assert.AreEqual(myQuery.ElementType, typeof(Customers));
+            Assert.AreEqual(myQuery2.ElementType, typeof(Customers));
             AssertExtension.AreEqualByJson(expected, actual);
+            AssertExtension.AreEqualByJson(expected, actual2);
         }
 
         [Test]
@@ -63,6 +68,9 @@ namespace Thesis.Relinq.UnitTests
                     Name = c.ContactName,
                     City = c.City
                 };
+
+            var myQuery2 = PsqlQueryFactory.Queryable<Customers>(connection).Select(
+                c => new { Name = c.ContactName, City = c.City });
             
             string psqlCommand = "SELECT \"ContactName\", \"City\" FROM Customers;";
             var rowConverterType = typeof(NpgsqlRowConverter<>).MakeGenericType(myQuery.ElementType);
@@ -71,10 +79,12 @@ namespace Thesis.Relinq.UnitTests
 
             // Act
             var actual = myQuery.ToArray();
+            var actual2 = myQuery2.ToArray();
             var expected = rowConverterMethod.Invoke(this, new object[] { connection, psqlCommand });
             
             // Assert
             AssertExtension.AreEqualByJson(expected, actual);
+            AssertExtension.AreEqualByJson(expected, actual2);
         }
 
         [Test]
@@ -85,16 +95,22 @@ namespace Thesis.Relinq.UnitTests
                 from c in PsqlQueryFactory.Queryable<Customers>(connection)
                 where c.CustomerID == "PARIS" 
                 select c;
+
+            var myQuery2 = PsqlQueryFactory.Queryable<Customers>(connection).Where(
+                c => c.CustomerID == "PARIS");
             
             string psqlCommand = "SELECT * FROM Customers WHERE \"CustomerID\" = 'PARIS';";
 
             // Act
             var expected = NpgsqlRowConverter<Customers>.ReadAllRows(connection, psqlCommand).ToArray();
             var actual = myQuery.ToArray();
+            var actual2 = myQuery.ToArray();
 
             // Assert
             Assert.AreEqual(myQuery.ElementType, typeof(Customers));
+            Assert.AreEqual(myQuery2.ElementType, typeof(Customers));
             AssertExtension.AreEqualByJson(expected, actual);
+            AssertExtension.AreEqualByJson(expected, actual2);
         }
     }
 }
