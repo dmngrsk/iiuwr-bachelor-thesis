@@ -12,6 +12,11 @@ namespace Thesis.Relinq.PsqlQueryGeneration
         private readonly StringBuilder _psqlExpression = new StringBuilder();
         private readonly ParameterAggregator _parameterAggregator;
 
+        private PsqlGeneratingExpressionTreeVisitor(ParameterAggregator parameterAggregator)
+        {
+            _parameterAggregator = parameterAggregator;
+        }
+
         public static string GetPsqlExpression(Expression linqExpression, ParameterAggregator parameterAggregator)
         {
             var visitor = new PsqlGeneratingExpressionTreeVisitor(parameterAggregator);
@@ -20,20 +25,6 @@ namespace Thesis.Relinq.PsqlQueryGeneration
         }
 
         private string GetPsqlExpression() => _psqlExpression.ToString();
-
-        private PsqlGeneratingExpressionTreeVisitor(ParameterAggregator parameterAggregator)
-        {
-            _parameterAggregator = parameterAggregator;
-        }
-
-        // FOR ALL METHODS:
-        // Parameters:
-        //   expression:
-        //     The expression to visit.
-        //
-        // Returns:
-        //     The modified expression, if it or any subexpression was modified; otherwise,
-        //     returns the original expression.
 
         protected override Expression VisitBinary(BinaryExpression expression)
         {

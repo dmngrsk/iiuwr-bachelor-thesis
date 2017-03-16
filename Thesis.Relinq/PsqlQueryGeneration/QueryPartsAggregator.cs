@@ -45,8 +45,11 @@ namespace Thesis.Relinq.PsqlQueryGeneration
         {
             var stringBuilder = new StringBuilder();
 
-            if (string.IsNullOrEmpty(SelectPart) || FromParts.Count == 0)
-                throw new InvalidOperationException("A query must have a SELECT part and at least one FROM part.");
+            if (string.IsNullOrEmpty(SelectPart))
+                throw new InvalidOperationException("A query must have a SELECT part.");
+
+            if (FromParts.Count == 0)
+                throw new InvalidOperationException("A query must have at least one FROM part.");
 
             stringBuilder.AppendFormat("SELECT {0}", SelectPart);
             
@@ -57,8 +60,6 @@ namespace Thesis.Relinq.PsqlQueryGeneration
 
             if (OrderByParts.Count > 0)
                 stringBuilder.AppendFormat(" ORDER BY {0}", string.Join(", ", OrderByParts));
-
-            Console.WriteLine(stringBuilder.ToString() + ";");
 
             return stringBuilder.Append(";").ToString();
         }

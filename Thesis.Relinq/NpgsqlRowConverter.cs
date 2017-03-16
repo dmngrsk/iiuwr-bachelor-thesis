@@ -29,6 +29,7 @@ namespace Thesis.Relinq
             connection.Open();
             List<T> rows = new List<T>();
 
+            // TODO: Optimisation, in near future...
             using (var reader = command.ExecuteReader())
             {
                 var columnSchema = reader.GetColumnSchema();
@@ -38,8 +39,12 @@ namespace Thesis.Relinq
                 {
                     var row = new object[reader.FieldCount];
                     reader.GetValues(row);
-                    
-                    var obj = rowConverter.ConvertArrayToObject(row);
+
+                    // Checking for type anonymity the absolutely disgusting way
+                    T obj = typeof(T).Name.Contains("AnonymousType") ?
+                        (T)Activator.CreateInstance(typeof(T), row) :
+                        rowConverter.ConvertArrayToObject(row);
+
                     rows.Add(obj);
                 }
             }
@@ -51,7 +56,7 @@ namespace Thesis.Relinq
 
         private T ConvertArrayToObject(object[] row)
         {
-            // TODO: http://stackoverflow.com/questions/478013/how-do-i-create-and-access-a-new-instance-of-an-anonymous-class-passed-as-a-para/478030#478030
+            // TODO: Optimisation, in near future...
             T obj = (T)Activator.CreateInstance(typeof(T));
                     
             for (int i = 0; i < _columns.Count; i++)

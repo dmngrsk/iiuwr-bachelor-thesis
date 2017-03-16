@@ -1,6 +1,7 @@
 using Npgsql;
 using NUnit.Framework;
 using System.Linq;
+using System.Reflection;
 using Thesis.Relinq.UnitTests.Models;
 
 namespace Thesis.Relinq.UnitTests
@@ -28,12 +29,12 @@ namespace Thesis.Relinq.UnitTests
         [TearDown]
         public void TearDown()
         {
-            if (connection != null)
+            if (connection != null) 
                 connection.Dispose();
         }
 
         [Test]
-        public void simple_select_all_test()
+        public void simple_select_all()
         {
             // Arrange
             var myQuery = 
@@ -52,7 +53,7 @@ namespace Thesis.Relinq.UnitTests
         }
 
         [Test]
-        public void select_columns_creating_an_anonymous_type_test()
+        public void select_columns_creating_an_anonymous_type()
         {
             // Arrange
             var myQuery = 
@@ -64,18 +65,20 @@ namespace Thesis.Relinq.UnitTests
                 };
             
             string psqlCommand = "SELECT \"ContactName\", \"City\" FROM Customers;";
+            var rowConverterType = typeof(NpgsqlRowConverter<>).MakeGenericType(myQuery.ElementType);
+            var rowConverterMethod = rowConverterType.GetMethod(
+                "ReadAllRows", new [] { typeof(NpgsqlConnection), typeof(string) });
 
             // Act
-            // var actual = myQuery.ToArray();
-            // var expected = NpgsqlRowConverter</* ANONYMOUS TYPE GOES HERE */>.ReadAllRows(connection, psqlCommand).ToArray();
-
+            var actual = myQuery.ToArray();
+            var expected = rowConverterMethod.Invoke(this, new object[] { connection, psqlCommand });
+            
             // Assert
-            // Assert.AreEqual(myQuery.ElementType, typeof(/* ANONYMOUS TYPE GOES HERE */));
-            // AssertExtension.AreEqualByJson(expected, actual);
+            AssertExtension.AreEqualByJson(expected, actual);
         }
 
         [Test]
-        public void simple_where_test()
+        public void select_with_where_comparing_string()
         {
             // Arrange
             var myQuery = 
