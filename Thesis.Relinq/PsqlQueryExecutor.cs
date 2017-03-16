@@ -20,31 +20,9 @@ namespace Thesis.Relinq
             List<T> rows = new List<T>();
             
             var commandData = PsqlQueryGenerator.GeneratePsqlQuery(queryModel);
-            
             var query = commandData.CreateQuery(_connection);
-            query.CommandText = (commandData.Statement);
 
-            query.Connection.Open();
-
-            using (var reader = query.ExecuteReader())
-            {
-                var columnSchema = reader.GetColumnSchema();
-                var objectConverter = new NpgsqlRowConverter<T>(columnSchema);
-
-                while (reader.Read())
-                {
-                    var row = new object[reader.FieldCount];
-                    reader.GetValues(row);
-                    
-                    var obj = objectConverter.ConvertArrayToObject(row);
-                    rows.Add(obj);
-                }
-            }
-
-            query.Connection.Close();
-            query.Dispose();
-
-            return rows;
+            return NpgsqlRowConverter<T>.ReadAllRows(_connection, query);
         }
 
         public T ExecuteScalar<T>(QueryModel queryModel)

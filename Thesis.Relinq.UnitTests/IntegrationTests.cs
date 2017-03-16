@@ -34,13 +34,20 @@ namespace Thesis.Relinq.UnitTests
         [Test]
         public void simple_select_test()
         {
-            var foo = 
+            // Arrange
+            var myQuery = 
                 from c in PsqlQueryFactory.Queryable<Customers>(connection)
                 select c;
             
-            var res = foo.ToList();
-            var count = res.Count();
-            Assert.AreEqual(count, 91);
+            string psqlCommand = "SELECT * FROM Customers;";
+
+            // Act
+            var expected = NpgsqlRowConverter<Customers>.ReadAllRows(connection, psqlCommand).ToArray();
+            var actual = myQuery.ToArray();
+
+            // Assert
+            Assert.AreEqual(myQuery.ElementType, typeof(Customers));
+            AssertExtension.AreEqualByJson(expected, actual);
         }
     }
 }

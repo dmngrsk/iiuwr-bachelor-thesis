@@ -17,6 +17,7 @@ namespace Thesis.Relinq.PsqlQueryGeneration
         {
             var query = new NpgsqlCommand();
             query.Connection = connection;
+            query.CommandText = Statement;
 
             foreach (var parameter in Parameters)
                 query.Parameters.Add(parameter);
