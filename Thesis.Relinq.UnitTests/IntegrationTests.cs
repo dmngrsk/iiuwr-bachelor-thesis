@@ -210,13 +210,12 @@ namespace Thesis.Relinq.UnitTests
 
             // Act
             var expected = rowConverterMethod.Invoke(this, new object[] { connection, psqlCommand });
-            // var actual = myQuery.ToArray();
-            // var actual2 = myQuery2.ToArray();
+            var actual = myQuery.ToArray();
+            var actual2 = myQuery2.ToArray();
 
             // Assert
-            AssertExtension.AreEqualByJson(expected, expected);
-            // AssertExtension.AreEqualByJson(expected, actual);
-            // AssertExtension.AreEqualByJson(expected, actual2);
+            AssertExtension.AreEqualByJson(expected, actual);
+            AssertExtension.AreEqualByJson(expected, actual2);
         }
     }
 }

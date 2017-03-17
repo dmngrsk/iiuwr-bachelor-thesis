@@ -42,7 +42,14 @@ namespace Thesis.Relinq.PsqlQueryGeneration
 
         public override void VisitJoinClause(JoinClause joinClause, QueryModel queryModel, int index)
         {
-            throw new NotImplementedException();
+            _queryParts.AddFromPart(joinClause);
+
+            _queryParts.AddWherePart(
+                "({0} = {1})",
+                GetPsqlExpression(joinClause.OuterKeySelector),
+                GetPsqlExpression(joinClause.InnerKeySelector));
+
+            base.VisitJoinClause(joinClause, queryModel, index);
         }
 
         public override void VisitJoinClause(JoinClause joinClause, QueryModel queryModel, GroupJoinClause groupJoinClause)

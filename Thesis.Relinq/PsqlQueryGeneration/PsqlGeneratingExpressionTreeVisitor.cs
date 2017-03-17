@@ -142,7 +142,9 @@ namespace Thesis.Relinq.PsqlQueryGeneration
         
         protected override Expression VisitMember(MemberExpression expression)
         {
-            _psqlExpression.Append("\"");
+            this.Visit(expression.Expression);
+
+            _psqlExpression.Append(".\"");
             _psqlExpression.Append(expression.Member.Name);
             _psqlExpression.Append("\"");
             return expression;
@@ -183,7 +185,11 @@ namespace Thesis.Relinq.PsqlQueryGeneration
 
         protected override Expression VisitQuerySourceReference(QuerySourceReferenceExpression expression)
         {
-            _psqlExpression.Append("*");
+            string fullType = expression.ReferencedQuerySource.ItemType.ToString();
+            int index = fullType.LastIndexOf('.') + 1;
+            string type = fullType.Substring(index);
+
+            _psqlExpression.Append(type);
             return expression;
         }
         // Visits the children of the System.Linq.Expressions.RuntimeVariablesExpression.

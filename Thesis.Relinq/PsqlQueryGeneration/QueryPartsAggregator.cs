@@ -64,7 +64,8 @@ namespace Thesis.Relinq.PsqlQueryGeneration
             if (FromParts.Count == 0)
                 throw new InvalidOperationException("A query must have at least one FROM part.");
 
-            stringBuilder.AppendFormat("SELECT {0}", SelectPart);
+            // TODO: Check if table's name can contains a dot
+            stringBuilder.AppendFormat("SELECT {0}", SelectPart.Contains(".") ? SelectPart : "*");
             
             stringBuilder.AppendFormat(" FROM {0}", string.Join(", ", FromParts));
 
