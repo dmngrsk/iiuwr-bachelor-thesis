@@ -38,6 +38,8 @@ namespace Thesis.Relinq.PsqlQueryGeneration
 
         public void AddOrderByPart(IEnumerable< Tuple<string, OrderingDirection> > orderings)
         {
+            List<string> localOrderByParts = new List<string>();
+
             foreach (var ordering in orderings)
             {
                 string orderByPart = 
@@ -45,8 +47,11 @@ namespace Thesis.Relinq.PsqlQueryGeneration
                     ordering.Item1 + " DESC" :
                     ordering.Item1;
 
-                OrderByParts.Add(orderByPart);
+                localOrderByParts.Add(orderByPart);
             }
+
+            localOrderByParts.AddRange(OrderByParts);
+            OrderByParts = localOrderByParts;
         }
 
         public string BuildPsqlString()

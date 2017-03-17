@@ -131,7 +131,8 @@ namespace Thesis.Relinq.UnitTests
                 .ThenBy(c => c.City)
                 .OrderBy(c => c.Country);
 
-            string psqlCommand = "SELECT * FROM Customers ORDER BY \"ContactName\" DESC, \"City\", \"Country\";";
+            string psqlCommand = "SELECT * FROM Customers " +
+                "ORDER BY \"Country\", \"ContactName\" DESC, \"City\";";
 
             // Act
             var expected = NpgsqlRowConverter<Customers>.ReadAllRows(connection, psqlCommand).ToArray();
