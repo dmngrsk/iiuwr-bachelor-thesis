@@ -7,40 +7,10 @@ using Thesis.Relinq.UnitTests.Models;
 namespace Thesis.Relinq.UnitTests
 {
     [TestFixture]
-    public class IntegrationTests
+    public class IntegrationTests : ThesisTestsBase
     {
-        private NpgsqlConnection connection;
-
-        [SetUp]
-        public void Setup()
-        {
-            PsqlConnectionAdapter adapter = new PsqlConnectionAdapter
-            {
-                Server = "localhost",
-                Port = 5432,
-                Username = "dmngrsk",
-                Password = "qwerty",
-                Database = "northwind"
-            };
-            
-            connection = new NpgsqlConnection(adapter.ConnectionString);
-        }
-
-        [TearDown]
-        public void TearDown()
-        {
-            if (connection != null) 
-                connection.Dispose();
-        }
-
         [Test]
-        public void nunit_working_test()
-        {
-            Assert.IsTrue(true);
-        }
-
-        [Test]
-        public void simple_select_all()
+        public void select_all()
         {
             // Arrange
             var myQuery = 
@@ -93,7 +63,7 @@ namespace Thesis.Relinq.UnitTests
         }
 
         [Test]
-        public void select_with_where_comparing_string()
+        public void select_with_where()
         {
             // Arrange
             var myQuery = 
@@ -105,10 +75,12 @@ namespace Thesis.Relinq.UnitTests
                 .Where(c => c.CustomerID == "PARIS");
             
             string psqlCommand = "SELECT * FROM Customers WHERE \"CustomerID\" = 'PARIS';";
+
             // Act
             var expected = NpgsqlRowConverter<Customers>.ReadAllRows(connection, psqlCommand).ToArray();
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
+            
             // Assert
             AssertExtension.AreEqualByJson(expected, actual);
             AssertExtension.AreEqualByJson(expected, actual2);
