@@ -34,7 +34,7 @@ namespace Thesis.Relinq.UnitTests
         }
 
         [Test]
-        public void test()
+        public void nunit_working_test()
         {
             Assert.IsTrue(true);
         }
@@ -100,14 +100,75 @@ namespace Thesis.Relinq.UnitTests
                 from c in PsqlQueryFactory.Queryable<Customers>(connection)
                 where c.CustomerID == "PARIS" 
                 select c;
-
+                
             var myQuery2 = PsqlQueryFactory.Queryable<Customers>(connection)
                 .Where(c => c.CustomerID == "PARIS");
             
             string psqlCommand = "SELECT * FROM Customers WHERE \"CustomerID\" = 'PARIS';";
-
             // Act
             var expected = NpgsqlRowConverter<Customers>.ReadAllRows(connection, psqlCommand).ToArray();
+            var actual = myQuery.ToArray();
+            var actual2 = myQuery2.ToArray();
+            // Assert
+            AssertExtension.AreEqualByJson(expected, actual);
+            AssertExtension.AreEqualByJson(expected, actual2);
+        }
+
+        [Test]
+        public void select_with_multiple_wheres()
+        {
+            // Arrange
+            var myQuery = 
+                from e in PsqlQueryFactory.Queryable<Employees>(connection)
+                where e.EmployeeID > 5 && e.City == "London" 
+                select e;
+
+            var myQuery2 = PsqlQueryFactory.Queryable<Employees>(connection)
+                .Where(e => e.EmployeeID > 5 && e.City == "London");
+
+            var myQuery3 = 
+                from e in PsqlQueryFactory.Queryable<Employees>(connection)
+                where e.EmployeeID > 5
+                where e.City == "London" 
+                select e;
+
+            var myQuery4 = PsqlQueryFactory.Queryable<Employees>(connection)
+                .Where(e => e.EmployeeID > 5).Where(e => e.City == "London");
+            
+            string psqlCommand = "SELECT * FROM Employees " +
+                "WHERE \"EmployeeID\" > 5 AND \"City\" = 'London';";
+
+            // Act
+            var expected = NpgsqlRowConverter<Employees>.ReadAllRows(connection, psqlCommand).ToArray();
+            var actual = myQuery.ToArray();
+            var actual2 = myQuery2.ToArray();
+            var actual3 = myQuery3.ToArray();
+            var actual4 = myQuery4.ToArray();
+
+            // Assert
+            AssertExtension.AreEqualByJson(expected, actual);
+            AssertExtension.AreEqualByJson(expected, actual2);
+            AssertExtension.AreEqualByJson(expected, actual3);
+            AssertExtension.AreEqualByJson(expected, actual4);
+        }
+
+        [Test]
+        public void select_empty_result_with_always_false_where()
+        {
+            // Arrange
+            var myQuery = 
+                from e in PsqlQueryFactory.Queryable<Employees>(connection)
+                where 3 > 5
+                select e;
+
+            var myQuery2 = PsqlQueryFactory.Queryable<Employees>(connection)
+                .Where(x => 3 > 5);
+
+            string psqlCommand = "SELECT * FROM Employees " +
+                "WHERE 3 > 5;";
+
+            // Act
+            var expected = NpgsqlRowConverter<Employees>.ReadAllRows(connection, psqlCommand).ToArray();
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 

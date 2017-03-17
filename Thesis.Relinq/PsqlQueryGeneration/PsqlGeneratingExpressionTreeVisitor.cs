@@ -33,6 +33,14 @@ namespace Thesis.Relinq.PsqlQueryGeneration
             // TODO: filling the rest of this, moving to a dictionary
             switch (expression.NodeType)
             {
+                case ExpressionType.Equal:
+                    _psqlExpression.Append(" = ");
+                    break;
+
+                case ExpressionType.GreaterThan:
+                    _psqlExpression.Append (" > ");
+                    break;
+
                 case ExpressionType.Add:
                 case ExpressionType.AddChecked:
                     _psqlExpression.Append(" + ");
@@ -40,16 +48,13 @@ namespace Thesis.Relinq.PsqlQueryGeneration
 
                 case ExpressionType.And:
                 case ExpressionType.AndAlso:
-                    _psqlExpression.Append("  ");
+                    _psqlExpression.Append(" AND ");
                     break;
 
                 case ExpressionType.Divide:
                     _psqlExpression.Append("   ");
                     break;
 
-                case ExpressionType.Equal:
-                    _psqlExpression.Append(" = ");
-                    break;
 
                 default:
                     throw new ArgumentException("{0} is not supported.", expression.Type.ToString());
@@ -201,9 +206,10 @@ namespace Thesis.Relinq.PsqlQueryGeneration
         {
             return expression;
         }
-        // Visits the children of the System.Linq.Expressions.UnaryExpression.
+        
         protected override Expression VisitUnary(UnaryExpression expression)
         {
+            this.Visit(expression.Operand as MemberExpression);
             return expression;
         }
     }
