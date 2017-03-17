@@ -32,7 +32,8 @@ namespace Thesis.Relinq.PsqlQueryGeneration
 
         public override void VisitAdditionalFromClause(AdditionalFromClause fromClause, QueryModel queryModel, int index)
         {
-            throw new NotImplementedException();
+            _queryParts.AddFromPart(fromClause);
+            base.VisitAdditionalFromClause(fromClause, queryModel, index);
         }
 
         public override void VisitGroupJoinClause(GroupJoinClause groupJoinClause, QueryModel queryModel, int index)

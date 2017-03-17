@@ -217,5 +217,44 @@ namespace Thesis.Relinq.UnitTests
             AssertExtension.AreEqualByJson(expected, actual);
             AssertExtension.AreEqualByJson(expected, actual2);
         }
+
+        [Test]
+        public void select_with_additional_from()
+        {
+            // Arrange
+            var myQuery =
+                from o in PsqlQueryFactory.Queryable<Orders>(connection)
+                from e in PsqlQueryFactory.Queryable<Employees>(connection)
+                where o.EmployeeID == e.EmployeeID
+                select new
+                {
+                    Employee = o.EmployeeID,
+                    Order = o.OrderID
+                };
+
+         /* var myQuery2 = PsqlQueryFactory.Queryable<Orders>(connection)
+                .SelectMany(o => PsqlQueryFactory.Queryable<Employees>(connection)
+                    .Where(e => o.EmployeeID == e.EmployeeID)
+                    .Select(e => new
+                                 {
+                                     Employee = o.EmployeeID,
+                                     Order = o.OrderID
+                                 })); */
+
+            string psqlCommand = "SELECT ORDERS.\"EmployeeID\", ORDERS.\"OrderID\" " + 
+                "FROM Orders, Employees WHERE Orders.\"EmployeeID\" = Employees.\"EmployeeID\";";
+            var rowConverterType = typeof(NpgsqlRowConverter<>).MakeGenericType(myQuery.ElementType);
+            var rowConverterMethod = rowConverterType.GetMethod(
+                "ReadAllRows", new [] { typeof(NpgsqlConnection), typeof(string) });
+
+            // Act
+            var expected = rowConverterMethod.Invoke(this, new object[] { connection, psqlCommand });
+            var actual = myQuery.ToArray();
+         // var actual2 = myQuery2.ToArray();
+
+            // Assert
+            AssertExtension.AreEqualByJson(expected, actual);
+         // AssertExtension.AreEqualByJson(expected, actual2);
+        }
     }
 }

@@ -143,10 +143,7 @@ namespace Thesis.Relinq.PsqlQueryGeneration
         protected override Expression VisitMember(MemberExpression expression)
         {
             this.Visit(expression.Expression);
-
-            _psqlExpression.Append(".\"");
-            _psqlExpression.Append(expression.Member.Name);
-            _psqlExpression.Append("\"");
+            _psqlExpression.Append(string.Format(".\"{0}\"", expression.Member.Name));
             return expression;
         }
         // Visits the children of the System.Linq.Expressions.MemberInitExpression.
