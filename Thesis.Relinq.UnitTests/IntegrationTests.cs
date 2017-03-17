@@ -34,6 +34,12 @@ namespace Thesis.Relinq.UnitTests
         }
 
         [Test]
+        public void test()
+        {
+            Assert.IsTrue(true);
+        }
+
+        [Test]
         public void simple_select_all()
         {
             // Arrange
@@ -41,7 +47,8 @@ namespace Thesis.Relinq.UnitTests
                 from c in PsqlQueryFactory.Queryable<Customers>(connection)
                 select c;
 
-            var myQuery2 = PsqlQueryFactory.Queryable<Customers>(connection).Select(c => c);
+            var myQuery2 = PsqlQueryFactory.Queryable<Customers>(connection)
+                .Select(c => c);
             
             string psqlCommand = "SELECT * FROM Customers;";
 
@@ -51,8 +58,6 @@ namespace Thesis.Relinq.UnitTests
             var actual2 = myQuery2.ToArray();
 
             // Assert
-            Assert.AreEqual(myQuery.ElementType, typeof(Customers));
-            Assert.AreEqual(myQuery2.ElementType, typeof(Customers));
             AssertExtension.AreEqualByJson(expected, actual);
             AssertExtension.AreEqualByJson(expected, actual2);
         }
@@ -69,8 +74,8 @@ namespace Thesis.Relinq.UnitTests
                     City = c.City
                 };
 
-            var myQuery2 = PsqlQueryFactory.Queryable<Customers>(connection).Select(
-                c => new { Name = c.ContactName, City = c.City });
+            var myQuery2 = PsqlQueryFactory.Queryable<Customers>(connection)
+                .Select(c => new { Name = c.ContactName, City = c.City });
             
             string psqlCommand = "SELECT \"ContactName\", \"City\" FROM Customers;";
             var rowConverterType = typeof(NpgsqlRowConverter<>).MakeGenericType(myQuery.ElementType);
@@ -96,19 +101,44 @@ namespace Thesis.Relinq.UnitTests
                 where c.CustomerID == "PARIS" 
                 select c;
 
-            var myQuery2 = PsqlQueryFactory.Queryable<Customers>(connection).Where(
-                c => c.CustomerID == "PARIS");
+            var myQuery2 = PsqlQueryFactory.Queryable<Customers>(connection)
+                .Where(c => c.CustomerID == "PARIS");
             
             string psqlCommand = "SELECT * FROM Customers WHERE \"CustomerID\" = 'PARIS';";
 
             // Act
             var expected = NpgsqlRowConverter<Customers>.ReadAllRows(connection, psqlCommand).ToArray();
             var actual = myQuery.ToArray();
-            var actual2 = myQuery.ToArray();
+            var actual2 = myQuery2.ToArray();
 
             // Assert
-            Assert.AreEqual(myQuery.ElementType, typeof(Customers));
-            Assert.AreEqual(myQuery2.ElementType, typeof(Customers));
+            AssertExtension.AreEqualByJson(expected, actual);
+            AssertExtension.AreEqualByJson(expected, actual2);
+        }
+
+        [Test]
+        public void select_with_multiple_orderings()
+        {
+            // Arrange
+            var myQuery = 
+                from c in PsqlQueryFactory.Queryable<Customers>(connection)
+                orderby c.ContactName descending, c.City
+                orderby c.Country ascending
+                select c;
+
+            var myQuery2 = PsqlQueryFactory.Queryable<Customers>(connection)
+                .OrderByDescending(c => c.ContactName)
+                .ThenBy(c => c.City)
+                .OrderBy(c => c.Country);
+
+            string psqlCommand = "SELECT * FROM Customers ORDER BY \"ContactName\" DESC, \"City\", \"Country\";";
+
+            // Act
+            var expected = NpgsqlRowConverter<Customers>.ReadAllRows(connection, psqlCommand).ToArray();
+            var actual = myQuery.ToArray();
+            var actual2 = myQuery2.ToArray();
+
+            // Assert
             AssertExtension.AreEqualByJson(expected, actual);
             AssertExtension.AreEqualByJson(expected, actual2);
         }

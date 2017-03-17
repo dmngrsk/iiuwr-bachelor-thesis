@@ -58,17 +58,15 @@ namespace Thesis.Relinq.PsqlQueryGeneration
 
         public override void VisitOrderByClause(OrderByClause orderByClause, QueryModel queryModel, int index)
         {
-            throw new NotImplementedException();
-        }
-
-        public override void VisitOrdering(Ordering ordering, QueryModel queryModel, OrderByClause orderByClause, int index)
-        {
-            throw new NotImplementedException();
+            _queryParts.AddOrderByPart(orderByClause.Orderings.Select(o => 
+                new Tuple<string, OrderingDirection>(GetPsqlExpression(o.Expression), o.OrderingDirection)));
+           
+            base.VisitOrderByClause(orderByClause, queryModel, index);
         }
 
         public override void VisitResultOperator(ResultOperatorBase resultOperator, QueryModel queryModel, int index)
         {
-            // https://www.tutorialspoint.com/linq/linq_query_operators.htm
+            // TODO: https://www.tutorialspoint.com/linq/linq_query_operators.htm
             
             if (resultOperator is CountResultOperator)
                 _queryParts.SetSelectPart(string.Format("COUNT({0})", _queryParts.SelectPart));

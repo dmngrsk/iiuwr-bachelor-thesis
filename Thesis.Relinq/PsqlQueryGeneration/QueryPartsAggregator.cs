@@ -36,9 +36,17 @@ namespace Thesis.Relinq.PsqlQueryGeneration
             WhereParts.Add(string.Format(formatString, args));
         }
 
-        public void AddOrderByPart(IEnumerable<string> orderings)
+        public void AddOrderByPart(IEnumerable< Tuple<string, OrderingDirection> > orderings)
         {
-            OrderByParts.Insert(0, string.Join(", ", orderings));
+            foreach (var ordering in orderings)
+            {
+                string orderByPart = 
+                    (ordering.Item2 == OrderingDirection.Desc) ?
+                    ordering.Item1 + " DESC" :
+                    ordering.Item1;
+
+                OrderByParts.Add(orderByPart);
+            }
         }
 
         public string BuildPsqlString()
