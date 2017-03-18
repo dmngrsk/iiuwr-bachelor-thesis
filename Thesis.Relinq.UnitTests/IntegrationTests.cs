@@ -87,7 +87,7 @@ namespace Thesis.Relinq.UnitTests
         }
 
         [Test]
-        public void select_with_multiple_wheres()
+        public void select_with_multiconditional_where()
         {
             // Arrange
             var myQuery = 
@@ -98,13 +98,30 @@ namespace Thesis.Relinq.UnitTests
             var myQuery2 = PsqlQueryFactory.Queryable<Employees>(connection)
                 .Where(e => e.EmployeeID > 5 && e.City == "London");
 
-            var myQuery3 = 
+            string psqlCommand = "SELECT * FROM Employees " +
+                "WHERE \"EmployeeID\" > 5 AND \"City\" = 'London';";
+
+            // Act
+            var expected = NpgsqlRowConverter<Employees>.ReadAllRows(connection, psqlCommand).ToArray();
+            var actual = myQuery.ToArray();
+            var actual2 = myQuery2.ToArray();
+            
+            // Assert
+            AssertExtension.AreEqualByJson(expected, actual);
+            AssertExtension.AreEqualByJson(expected, actual2);
+        }
+
+        [Test]
+        public void select_with_multiple_wheres()
+        {
+            // Arrange
+            var myQuery = 
                 from e in PsqlQueryFactory.Queryable<Employees>(connection)
                 where e.EmployeeID > 5
                 where e.City == "London" 
                 select e;
 
-            var myQuery4 = PsqlQueryFactory.Queryable<Employees>(connection)
+            var myQuery2 = PsqlQueryFactory.Queryable<Employees>(connection)
                 .Where(e => e.EmployeeID > 5).Where(e => e.City == "London");
             
             string psqlCommand = "SELECT * FROM Employees " +
@@ -114,14 +131,10 @@ namespace Thesis.Relinq.UnitTests
             var expected = NpgsqlRowConverter<Employees>.ReadAllRows(connection, psqlCommand).ToArray();
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
-            var actual3 = myQuery3.ToArray();
-            var actual4 = myQuery4.ToArray();
-
+            
             // Assert
             AssertExtension.AreEqualByJson(expected, actual);
             AssertExtension.AreEqualByJson(expected, actual2);
-            AssertExtension.AreEqualByJson(expected, actual3);
-            AssertExtension.AreEqualByJson(expected, actual4);
         }
 
         [Test]
@@ -136,8 +149,7 @@ namespace Thesis.Relinq.UnitTests
             var myQuery2 = PsqlQueryFactory.Queryable<Employees>(connection)
                 .Where(x => 3 > 5);
 
-            string psqlCommand = "SELECT * FROM Employees " +
-                "WHERE 3 > 5;";
+            string psqlCommand = "SELECT * FROM Employees WHERE 3 > 5;";
 
             // Act
             var expected = NpgsqlRowConverter<Employees>.ReadAllRows(connection, psqlCommand).ToArray();
@@ -150,25 +162,50 @@ namespace Thesis.Relinq.UnitTests
         }
 
         [Test]
-        public void select_with_multiple_orderings()
+        public void select_with_multiple_orderings_joined()
         {
             // Arrange
             var myQuery = 
-                from c in PsqlQueryFactory.Queryable<Customers>(connection)
-                orderby c.ContactName descending, c.City
-                orderby c.Country ascending
-                select c;
+                from e in PsqlQueryFactory.Queryable<Employees>(connection)
+                orderby e.City, e.EmployeeID descending
+                select e;
 
-            var myQuery2 = PsqlQueryFactory.Queryable<Customers>(connection)
-                .OrderByDescending(c => c.ContactName)
-                .ThenBy(c => c.City)
-                .OrderBy(c => c.Country);
+            var myQuery2 = PsqlQueryFactory.Queryable<Employees>(connection)
+                .OrderBy(e => e.City)
+                .ThenByDescending(e => e.EmployeeID);
 
-            string psqlCommand = "SELECT * FROM Customers " +
-                "ORDER BY \"Country\", \"ContactName\" DESC, \"City\";";
+            string psqlCommand = "SELECT * FROM Employees " +
+                "ORDER BY \"City\", \"EmployeeID\" DESC;";
 
             // Act
-            var expected = NpgsqlRowConverter<Customers>.ReadAllRows(connection, psqlCommand).ToArray();
+            var expected = NpgsqlRowConverter<Employees>.ReadAllRows(connection, psqlCommand).ToArray();
+            var actual = myQuery.ToArray();
+            var actual2 = myQuery2.ToArray();
+
+            // Assert
+            AssertExtension.AreEqualByJson(expected, actual);
+            AssertExtension.AreEqualByJson(expected, actual2);
+        }
+
+        [Test]
+        public void select_with_multiple_orderings_split()
+        {
+            // Arrange
+            var myQuery = 
+                from e in PsqlQueryFactory.Queryable<Employees>(connection)
+                orderby e.EmployeeID descending
+                orderby e.City
+                select e;
+
+            var myQuery2 = PsqlQueryFactory.Queryable<Employees>(connection)
+                .OrderByDescending(e => e.EmployeeID)
+                .OrderBy(e => e.City);
+
+            string psqlCommand = "SELECT * FROM Employees " +
+                "ORDER BY \"City\", \"EmployeeID\" DESC;";
+
+            // Act
+            var expected = NpgsqlRowConverter<Employees>.ReadAllRows(connection, psqlCommand).ToArray();
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 
@@ -255,6 +292,13 @@ namespace Thesis.Relinq.UnitTests
             // Assert
             AssertExtension.AreEqualByJson(expected, actual);
          // AssertExtension.AreEqualByJson(expected, actual2);
+        }
+
+        [Test]
+        public void select_with_group_join()
+        {
+            // Not implemented
+            Assert.IsTrue(false);
         }
     }
 }

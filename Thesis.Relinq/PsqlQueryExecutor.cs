@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Npgsql;
 using Remotion.Linq;
+using Thesis.Relinq.PsqlQueryGeneration;
 
 namespace Thesis.Relinq
 {
@@ -19,7 +20,7 @@ namespace Thesis.Relinq
         {
             List<T> rows = new List<T>();
             
-            var commandData = PsqlQueryGenerator.GeneratePsqlQuery(queryModel);
+            var commandData = PsqlGeneratingQueryModelVisitor.GeneratePsqlQuery(queryModel);
             var query = commandData.CreateQuery(_connection);
 
             return NpgsqlRowConverter<T>.ReadAllRows(_connection, query);
