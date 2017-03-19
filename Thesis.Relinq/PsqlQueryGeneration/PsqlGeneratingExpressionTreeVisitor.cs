@@ -1,4 +1,4 @@
-using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Text;
 using Remotion.Linq.Clauses.Expressions;
@@ -26,40 +26,35 @@ namespace Thesis.Relinq.PsqlQueryGeneration
 
         private string GetPsqlExpression() => _psqlExpression.ToString();
 
+        private static Dictionary<ExpressionType, string> _binaryExpressionOperatorsToString = 
+            new Dictionary<ExpressionType, string>()
+            {
+                { ExpressionType.Equal,                 " = " },
+                { ExpressionType.NotEqual,              " != "},
+                { ExpressionType.GreaterThan,           " > "},
+                { ExpressionType.GreaterThanOrEqual,    " >= " },
+                { ExpressionType.LessThan,              " < " },
+                { ExpressionType.LessThanOrEqual,       " <= "},
+
+                { ExpressionType.Add,                   " + " },
+                { ExpressionType.AddChecked,            " + " }, 
+                { ExpressionType.Subtract,              " - " }, 
+                { ExpressionType.SubtractChecked,       " - " },
+                { ExpressionType.Multiply,              " * " },
+                { ExpressionType.MultiplyChecked,       " * " },
+                { ExpressionType.Divide,                " / " },
+                { ExpressionType.Modulo,                " % "},
+
+                { ExpressionType.And,                   " AND "},
+                { ExpressionType.AndAlso,               " AND "},
+                { ExpressionType.Or,                    " OR "},
+                { ExpressionType.OrElse,                " OR "}
+            };
+
         protected override Expression VisitBinary(BinaryExpression expression)
         {
             this.Visit(expression.Left);
-
-            // TODO: filling the rest of this, moving to a dictionary
-            switch (expression.NodeType)
-            {
-                case ExpressionType.Equal:
-                    _psqlExpression.Append(" = ");
-                    break;
-
-                case ExpressionType.GreaterThan:
-                    _psqlExpression.Append (" > ");
-                    break;
-
-                case ExpressionType.Add:
-                case ExpressionType.AddChecked:
-                    _psqlExpression.Append(" + ");
-                    break; 
-
-                case ExpressionType.And:
-                case ExpressionType.AndAlso:
-                    _psqlExpression.Append(" AND ");
-                    break;
-
-                case ExpressionType.Divide:
-                    _psqlExpression.Append("   ");
-                    break;
-
-
-                default:
-                    throw new ArgumentException("{0} is not supported.", expression.Type.ToString());
-            }
-
+            _psqlExpression.Append(_binaryExpressionOperatorsToString[expression.NodeType]);
             this.Visit(expression.Right);
             return expression;
         }
@@ -76,17 +71,7 @@ namespace Thesis.Relinq.PsqlQueryGeneration
         
         protected override Expression VisitConstant(ConstantExpression expression)
         {
-            // TODO: type check
-            if (expression.Type == typeof(string))
-            {
-                _psqlExpression.Append("'");
-                _psqlExpression.Append(expression.Value);
-                _psqlExpression.Append("'");
-            }
-
-            else
-                _psqlExpression.Append(expression.Value);
-
+            _psqlExpression.Append($"'{expression.Value}'");
             return expression;
         }
         // Visits the System.Linq.Expressions.DebugInfoExpression.
@@ -143,7 +128,7 @@ namespace Thesis.Relinq.PsqlQueryGeneration
         protected override Expression VisitMember(MemberExpression expression)
         {
             this.Visit(expression.Expression);
-            _psqlExpression.Append(string.Format(".\"{0}\"", expression.Member.Name));
+            _psqlExpression.Append($".\"{expression.Member.Name}\"");
             return expression;
         }
         // Visits the children of the System.Linq.Expressions.MemberInitExpression.

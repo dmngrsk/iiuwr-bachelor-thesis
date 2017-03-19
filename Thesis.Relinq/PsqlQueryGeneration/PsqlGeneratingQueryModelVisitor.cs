@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using Remotion.Linq;
@@ -71,6 +72,13 @@ namespace Thesis.Relinq.PsqlQueryGeneration
            
             base.VisitOrderByClause(orderByClause, queryModel, index);
         }
+
+        private static Dictionary<Type, string> _resultOperatorsToString =
+            new Dictionary<Type, string>()
+            {
+                { typeof(CountResultOperator), "COUNT({0})" },
+                { typeof(AverageResultOperator), "..."}
+            };
 
         public override void VisitResultOperator(ResultOperatorBase resultOperator, QueryModel queryModel, int index)
         {
