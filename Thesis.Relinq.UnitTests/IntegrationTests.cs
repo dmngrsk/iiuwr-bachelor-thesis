@@ -159,6 +159,31 @@ namespace Thesis.Relinq.UnitTests
         }
 
         [Test]
+        public void logical_not_applied()
+        {
+            // Arrange
+            var myQuery = 
+                from c in PsqlQueryFactory.Queryable<Employees>(connection)
+                where !(c.EmployeeID < 7 && c.EmployeeID > 3)
+                select c;
+
+            var myQuery2 = PsqlQueryFactory.Queryable<Employees>(connection)
+                .Where(c => !(c.EmployeeID < 7 && c.EmployeeID > 3));
+            
+            string psqlCommand = "SELECT * FROM Employees " +
+                "WHERE NOT (\"EmployeeID\" < 7 AND \"EmployeeID\" > 3);";
+
+            // Act
+            var expected = NpgsqlRowConverter<Employees>.ReadAllRows(connection, psqlCommand).ToArray();
+            var actual = myQuery.ToArray();
+            var actual2 = myQuery2.ToArray();
+
+            // Assert
+            AssertExtension.AreEqualByJson(expected, actual);
+            AssertExtension.AreEqualByJson(expected, actual2);
+        }
+
+        [Test]
         public void select_empty_result_with_always_false_where()
         {
             // Arrange

@@ -1,5 +1,9 @@
 {
   "version": "1.0.0-*",
+  
+  "buildOptions": {
+    "platform": "anycpu"
+  },
 
   "dependencies": {
     "Thesis.Relinq": "1.0.0-*",

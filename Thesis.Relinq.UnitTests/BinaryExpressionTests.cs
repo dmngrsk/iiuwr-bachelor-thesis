@@ -151,6 +151,7 @@ namespace Thesis.Relinq.UnitTests
             AssertExtension.AreEqualByJson(expected, actual2);
         }
 
+        // TODO: fix tests in lines 155-393
         [Test]
         public void add()
         {
@@ -272,7 +273,127 @@ namespace Thesis.Relinq.UnitTests
         }
 
         [Test]
-        public void and()
+        public void bitwise_and()
+        {
+            // Arrange
+            var myQuery = 
+                from c in PsqlQueryFactory.Queryable<Employees>(connection)
+                where c.EmployeeID == (7 & 4)
+                select c;
+
+            var myQuery2 = PsqlQueryFactory.Queryable<Employees>(connection)
+                .Where(c => c.EmployeeID == (7 & 4));
+            
+            string psqlCommand = "SELECT * FROM Employees WHERE \"EmployeeID\" = 7 & 4;";
+
+            // Act
+            var expected = NpgsqlRowConverter<Employees>.ReadAllRows(connection, psqlCommand).ToArray();
+            var actual = myQuery.ToArray();
+            var actual2 = myQuery2.ToArray();
+
+            // Assert
+            AssertExtension.AreEqualByJson(expected, actual);
+            AssertExtension.AreEqualByJson(expected, actual2);
+        }
+
+        [Test]
+        public void bitwise_or()
+        {
+            // Arrange
+            var myQuery = 
+                from c in PsqlQueryFactory.Queryable<Employees>(connection)
+                where c.EmployeeID == (5 | 3)
+                select c;
+
+            var myQuery2 = PsqlQueryFactory.Queryable<Employees>(connection)
+                .Where(c => c.EmployeeID == (5 | 3));
+            
+            string psqlCommand = "SELECT * FROM Employees WHERE \"EmployeeID\" = 5 | 3;";
+
+            // Act
+            var expected = NpgsqlRowConverter<Employees>.ReadAllRows(connection, psqlCommand).ToArray();
+            var actual = myQuery.ToArray();
+            var actual2 = myQuery2.ToArray();
+
+            // Assert
+            AssertExtension.AreEqualByJson(expected, actual);
+            AssertExtension.AreEqualByJson(expected, actual2);
+        }
+
+        [Test]
+        public void bitwise_xor()
+        {
+            // Arrange
+            var myQuery = 
+                from c in PsqlQueryFactory.Queryable<Employees>(connection)
+                where c.EmployeeID == (7 ^ 5)
+                select c;
+
+            var myQuery2 = PsqlQueryFactory.Queryable<Employees>(connection)
+                .Where(c => c.EmployeeID == (7 ^ 5));
+            
+            string psqlCommand = "SELECT * FROM Employees WHERE \"EmployeeID\" = 7 # 5;";
+
+            // Act
+            var expected = NpgsqlRowConverter<Employees>.ReadAllRows(connection, psqlCommand).ToArray();
+            var actual = myQuery.ToArray();
+            var actual2 = myQuery2.ToArray();
+
+            // Assert
+            AssertExtension.AreEqualByJson(expected, actual);
+            AssertExtension.AreEqualByJson(expected, actual2);
+        }
+
+        [Test]
+        public void bitwise_shift_left()
+        {
+            // Arrange
+            var myQuery = 
+                from c in PsqlQueryFactory.Queryable<Employees>(connection)
+                where c.EmployeeID == (1 << 2)
+                select c;
+
+            var myQuery2 = PsqlQueryFactory.Queryable<Employees>(connection)
+                .Where(c => c.EmployeeID == (1 << 2));
+            
+            string psqlCommand = "SELECT * FROM Employees WHERE \"EmployeeID\" = 1 << 2;";
+
+            // Act
+            var expected = NpgsqlRowConverter<Employees>.ReadAllRows(connection, psqlCommand).ToArray();
+            var actual = myQuery.ToArray();
+            var actual2 = myQuery2.ToArray();
+
+            // Assert
+            AssertExtension.AreEqualByJson(expected, actual);
+            AssertExtension.AreEqualByJson(expected, actual2);
+        }
+
+        [Test]
+        public void bitwise_shift_right()
+        {
+            // Arrange
+            var myQuery = 
+                from c in PsqlQueryFactory.Queryable<Employees>(connection)
+                where c.EmployeeID == (16 >> 2)
+                select c;
+
+            var myQuery2 = PsqlQueryFactory.Queryable<Employees>(connection)
+                .Where(c => c.EmployeeID == (16 >> 2));
+            
+            string psqlCommand = "SELECT * FROM Employees WHERE \"EmployeeID\" = 16 >> 2;";
+
+            // Act
+            var expected = NpgsqlRowConverter<Employees>.ReadAllRows(connection, psqlCommand).ToArray();
+            var actual = myQuery.ToArray();
+            var actual2 = myQuery2.ToArray();
+
+            // Assert
+            AssertExtension.AreEqualByJson(expected, actual);
+            AssertExtension.AreEqualByJson(expected, actual2);
+        }
+
+        [Test]
+        public void logical_and()
         {
             // Arrange
             var myQuery = 
@@ -297,7 +418,7 @@ namespace Thesis.Relinq.UnitTests
         }
 
         [Test]
-        public void or()
+        public void logical_or()
         {
             // Arrange
             var myQuery = 

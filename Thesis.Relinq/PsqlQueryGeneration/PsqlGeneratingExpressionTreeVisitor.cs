@@ -45,9 +45,13 @@ namespace Thesis.Relinq.PsqlQueryGeneration
                 { ExpressionType.Divide,                " / " },
                 { ExpressionType.Modulo,                " % "},
 
-                { ExpressionType.And,                   " AND "},
+                { ExpressionType.And,                   " & "},
+                { ExpressionType.Or,                    " | "},
+                { ExpressionType.ExclusiveOr,           " # "},
+                { ExpressionType.LeftShift,             " << "},
+                { ExpressionType.RightShift,             " >> "},
+
                 { ExpressionType.AndAlso,               " AND "},
-                { ExpressionType.Or,                    " OR "},
                 { ExpressionType.OrElse,                " OR "}
             };
 
@@ -198,7 +202,17 @@ namespace Thesis.Relinq.PsqlQueryGeneration
         
         protected override Expression VisitUnary(UnaryExpression expression)
         {
-            this.Visit(expression.Operand as MemberExpression);
+            if (expression.NodeType == ExpressionType.Not)
+            {
+                _psqlExpression.Append("NOT (");
+                this.Visit(expression.Operand);
+                _psqlExpression.Append(")");
+            }
+            else
+            {
+                this.Visit(expression.Operand as MemberExpression);
+            }
+                
             return expression;
         }
     }
