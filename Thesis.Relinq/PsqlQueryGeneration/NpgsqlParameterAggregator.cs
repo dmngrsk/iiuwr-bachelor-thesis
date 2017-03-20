@@ -2,19 +2,20 @@ using System.Collections.Generic;
 
 namespace Thesis.Relinq.PsqlQueryGeneration
 {
-    public class ParameterAggregator
+    public class NpgsqlParameterAggregator
     {
-        private readonly List<NamedParameter> _parameters = new List<NamedParameter>();
+        private readonly List<NpgsqlParameter> _parameters = 
+            new List<NpgsqlParameter>();
 
         public string AddParameter(object parameterValue)
         {
-            var parameter = new NamedParameter($"p{_parameters.Count + 1}", parameterValue);
+            var parameter = new NpgsqlParameter($"p{_parameters.Count + 1}", parameterValue);
             _parameters.Add(parameter);
 
             return parameter.Name;
         }
 
-        public NamedParameter[] GetParameters()
+        public NpgsqlParameter[] GetParameters()
         {
             return _parameters.ToArray();
         }

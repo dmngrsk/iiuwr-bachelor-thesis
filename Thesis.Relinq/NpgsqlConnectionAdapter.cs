@@ -1,6 +1,6 @@
 namespace Thesis.Relinq
 {
-    public class PsqlConnectionAdapter 
+    public class NpgsqlConnectionAdapter 
     {
         public string Server { get; set; }
         public int Port { get; set; }

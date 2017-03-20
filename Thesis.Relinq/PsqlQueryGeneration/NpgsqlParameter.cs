@@ -1,8 +1,8 @@
 namespace Thesis.Relinq.PsqlQueryGeneration
 {
-    public class NamedParameter
+    public class NpgsqlParameter
     {
-        public NamedParameter(string name, object value)
+        public NpgsqlParameter(string name, object value)
         {
             this.Name = name;
             this.Value = value;

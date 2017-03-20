@@ -2,16 +2,16 @@ using Npgsql;
 
 namespace Thesis.Relinq.PsqlQueryGeneration
 {
-    public class PsqlCommandData
+    public class NpgsqlCommandData
     {
-        public PsqlCommandData(string statement, NamedParameter[] parameters)
+        public NpgsqlCommandData(string statement, NpgsqlParameter[] parameters)
         {
             Statement = statement;
             Parameters = parameters;
         }
 
         public string Statement { get; private set; }
-        public NamedParameter[] Parameters { get; private set; }
+        public NpgsqlParameter[] Parameters { get; private set; }
 
         public NpgsqlCommand CreateQuery(NpgsqlConnection connection)
         {

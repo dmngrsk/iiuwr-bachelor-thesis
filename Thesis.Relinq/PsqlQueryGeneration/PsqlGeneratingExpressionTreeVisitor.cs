@@ -10,14 +10,14 @@ namespace Thesis.Relinq.PsqlQueryGeneration
     public class PsqlGeneratingExpressionTreeVisitor : RelinqExpressionVisitor
     {
         private readonly StringBuilder _psqlExpression = new StringBuilder();
-        private readonly ParameterAggregator _parameterAggregator;
+        private readonly NpgsqlParameterAggregator _parameterAggregator;
 
-        private PsqlGeneratingExpressionTreeVisitor(ParameterAggregator parameterAggregator)
+        private PsqlGeneratingExpressionTreeVisitor(NpgsqlParameterAggregator parameterAggregator)
         {
             _parameterAggregator = parameterAggregator;
         }
 
-        public static string GetPsqlExpression(Expression linqExpression, ParameterAggregator parameterAggregator)
+        public static string GetPsqlExpression(Expression linqExpression, NpgsqlParameterAggregator parameterAggregator)
         {
             var visitor = new PsqlGeneratingExpressionTreeVisitor(parameterAggregator);
             visitor.Visit(linqExpression);

@@ -11,7 +11,7 @@ namespace Thesis.Relinq.UnitTests
         [SetUp]
         public void Setup()
         {
-            PsqlConnectionAdapter adapter = new PsqlConnectionAdapter
+            NpgsqlConnectionAdapter adapter = new NpgsqlConnectionAdapter
             {
                 Server = "localhost",
                 Port = 5432,

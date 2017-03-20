@@ -11,17 +11,17 @@ namespace Thesis.Relinq.PsqlQueryGeneration
     public class PsqlGeneratingQueryModelVisitor : QueryModelVisitorBase
     {
         private readonly QueryPartsAggregator _queryParts = new QueryPartsAggregator();
-        private readonly ParameterAggregator _parameterAggregator = new ParameterAggregator();
+        private readonly NpgsqlParameterAggregator _parameterAggregator = new NpgsqlParameterAggregator();
 
-        public static PsqlCommandData GeneratePsqlQuery(QueryModel queryModel)
+        public static NpgsqlCommandData GeneratePsqlQuery(QueryModel queryModel)
         {
             var visitor = new PsqlGeneratingQueryModelVisitor();
             visitor.VisitQueryModel(queryModel);
             return visitor.GetPsqlCommand();
         }
 
-        public PsqlCommandData GetPsqlCommand() =>
-            new PsqlCommandData(_queryParts.BuildPsqlString(), _parameterAggregator.GetParameters());
+        public NpgsqlCommandData GetPsqlCommand() =>
+            new NpgsqlCommandData(_queryParts.BuildPsqlString(), _parameterAggregator.GetParameters());
 
         public override void VisitQueryModel(QueryModel queryModel)
         {
