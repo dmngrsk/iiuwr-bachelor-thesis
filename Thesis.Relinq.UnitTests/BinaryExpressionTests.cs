@@ -151,20 +151,19 @@ namespace Thesis.Relinq.UnitTests
             AssertExtension.AreEqualByJson(expected, actual2);
         }
 
-        // TODO: fix tests in lines 155-393
         [Test]
         public void add()
         {
             // Arrange
             var myQuery = 
                 from c in PsqlQueryFactory.Queryable<Employees>(connection)
-                where c.EmployeeID == (-120 + 123)
+                where (c.EmployeeID + 5) < 10
                 select c;
 
             var myQuery2 = PsqlQueryFactory.Queryable<Employees>(connection)
-                .Where(c => c.EmployeeID == (-120 + 123));
+                .Where(c => (c.EmployeeID + 5) < 10);
             
-            string psqlCommand = "SELECT * FROM Employees WHERE \"EmployeeID\" = (-120 + 123);";
+            string psqlCommand = "SELECT * FROM Employees WHERE (\"EmployeeID\" + 5) < 10;";
 
             // Act
             var expected = NpgsqlRowConverter<Employees>.ReadAllRows(connection, psqlCommand).ToArray();
@@ -182,13 +181,13 @@ namespace Thesis.Relinq.UnitTests
             // Arrange
             var myQuery = 
                 from c in PsqlQueryFactory.Queryable<Employees>(connection)
-                where c.EmployeeID == (123 - 120)
+                where (c.EmployeeID - 5) > 0
                 select c;
 
             var myQuery2 = PsqlQueryFactory.Queryable<Employees>(connection)
-                .Where(c => c.EmployeeID == (123 - 120));
+                .Where(c => (c.EmployeeID - 5) > 0);
             
-            string psqlCommand = "SELECT * FROM Employees WHERE \"EmployeeID\" = (123 - 120);";
+            string psqlCommand = "SELECT * FROM Employees WHERE (\"EmployeeID\" - 5) > 0;";
 
             // Act
             var expected = NpgsqlRowConverter<Employees>.ReadAllRows(connection, psqlCommand).ToArray();
@@ -206,13 +205,13 @@ namespace Thesis.Relinq.UnitTests
             // Arrange
             var myQuery = 
                 from c in PsqlQueryFactory.Queryable<Employees>(connection)
-                where c.EmployeeID == (2 * 3)
+                where (c.EmployeeID * 2) < 10
                 select c;
 
             var myQuery2 = PsqlQueryFactory.Queryable<Employees>(connection)
-                .Where(c => c.EmployeeID == (2 * 3));
+                .Where(c => (c.EmployeeID * 2) < 10);
             
-            string psqlCommand = "SELECT * FROM Employees WHERE \"EmployeeID\" = 2 * 3;";
+            string psqlCommand = "SELECT * FROM Employees WHERE (\"EmployeeID\" * 2) < 10;";
 
             // Act
             var expected = NpgsqlRowConverter<Employees>.ReadAllRows(connection, psqlCommand).ToArray();
@@ -230,13 +229,13 @@ namespace Thesis.Relinq.UnitTests
             // Arrange
             var myQuery = 
                 from c in PsqlQueryFactory.Queryable<Employees>(connection)
-                where c.EmployeeID == (7 / 2)
+                where (c.EmployeeID / 5) > 0
                 select c;
 
             var myQuery2 = PsqlQueryFactory.Queryable<Employees>(connection)
-                .Where(c => c.EmployeeID == (7 / 2));
+                .Where(c => (c.EmployeeID / 5) > 0);
             
-            string psqlCommand = "SELECT * FROM Employees WHERE \"EmployeeID\" = 7 / 2;";
+            string psqlCommand = "SELECT * FROM Employees WHERE (\"EmployeeID\" / 5) > 0;";
 
             // Act
             var expected = NpgsqlRowConverter<Employees>.ReadAllRows(connection, psqlCommand).ToArray();
@@ -254,13 +253,13 @@ namespace Thesis.Relinq.UnitTests
             // Arrange
             var myQuery = 
                 from c in PsqlQueryFactory.Queryable<Employees>(connection)
-                where c.EmployeeID == (7 % 4)
+                where (c.EmployeeID % 2) == 0
                 select c;
 
             var myQuery2 = PsqlQueryFactory.Queryable<Employees>(connection)
-                .Where(c => c.EmployeeID == (7 % 4));
+                .Where(c => (c.EmployeeID % 2) == 0);
             
-            string psqlCommand = "SELECT * FROM Employees WHERE \"EmployeeID\" = 7 % 4;";
+            string psqlCommand = "SELECT * FROM Employees WHERE (\"EmployeeID\" % 2) = 0;";
 
             // Act
             var expected = NpgsqlRowConverter<Employees>.ReadAllRows(connection, psqlCommand).ToArray();
@@ -278,13 +277,13 @@ namespace Thesis.Relinq.UnitTests
             // Arrange
             var myQuery = 
                 from c in PsqlQueryFactory.Queryable<Employees>(connection)
-                where c.EmployeeID == (7 & 4)
+                where (c.EmployeeID & 4) == 0
                 select c;
 
             var myQuery2 = PsqlQueryFactory.Queryable<Employees>(connection)
-                .Where(c => c.EmployeeID == (7 & 4));
+                .Where(c => (c.EmployeeID & 4) == 0);
             
-            string psqlCommand = "SELECT * FROM Employees WHERE \"EmployeeID\" = 7 & 4;";
+            string psqlCommand = "SELECT * FROM Employees WHERE (\"EmployeeID\" & 4) = 0;";
 
             // Act
             var expected = NpgsqlRowConverter<Employees>.ReadAllRows(connection, psqlCommand).ToArray();
@@ -302,13 +301,13 @@ namespace Thesis.Relinq.UnitTests
             // Arrange
             var myQuery = 
                 from c in PsqlQueryFactory.Queryable<Employees>(connection)
-                where c.EmployeeID == (5 | 3)
+                where (c.EmployeeID | 1) != c.EmployeeID
                 select c;
 
             var myQuery2 = PsqlQueryFactory.Queryable<Employees>(connection)
-                .Where(c => c.EmployeeID == (5 | 3));
+                .Where(c => (c.EmployeeID | 1) != c.EmployeeID);
             
-            string psqlCommand = "SELECT * FROM Employees WHERE \"EmployeeID\" = 5 | 3;";
+            string psqlCommand = "SELECT * FROM Employees WHERE (\"EmployeeID\" | 1) != \"EmployeeID\";";
 
             // Act
             var expected = NpgsqlRowConverter<Employees>.ReadAllRows(connection, psqlCommand).ToArray();
@@ -326,13 +325,13 @@ namespace Thesis.Relinq.UnitTests
             // Arrange
             var myQuery = 
                 from c in PsqlQueryFactory.Queryable<Employees>(connection)
-                where c.EmployeeID == (7 ^ 5)
+                where (c.EmployeeID ^ 2) == 0
                 select c;
 
             var myQuery2 = PsqlQueryFactory.Queryable<Employees>(connection)
-                .Where(c => c.EmployeeID == (7 ^ 5));
+                .Where(c => (c.EmployeeID ^ 2) == 0);
             
-            string psqlCommand = "SELECT * FROM Employees WHERE \"EmployeeID\" = 7 # 5;";
+            string psqlCommand = "SELECT * FROM Employees WHERE (\"EmployeeID\" # 2) = 0;";
 
             // Act
             var expected = NpgsqlRowConverter<Employees>.ReadAllRows(connection, psqlCommand).ToArray();
@@ -350,13 +349,13 @@ namespace Thesis.Relinq.UnitTests
             // Arrange
             var myQuery = 
                 from c in PsqlQueryFactory.Queryable<Employees>(connection)
-                where c.EmployeeID == (1 << 2)
+                where (c.EmployeeID << 2) < 16
                 select c;
 
             var myQuery2 = PsqlQueryFactory.Queryable<Employees>(connection)
-                .Where(c => c.EmployeeID == (1 << 2));
+                .Where(c => (c.EmployeeID << 2) < 16);
             
-            string psqlCommand = "SELECT * FROM Employees WHERE \"EmployeeID\" = 1 << 2;";
+            string psqlCommand = "SELECT * FROM Employees WHERE (\"EmployeeID\" << 2) < 16;";
 
             // Act
             var expected = NpgsqlRowConverter<Employees>.ReadAllRows(connection, psqlCommand).ToArray();
@@ -374,13 +373,13 @@ namespace Thesis.Relinq.UnitTests
             // Arrange
             var myQuery = 
                 from c in PsqlQueryFactory.Queryable<Employees>(connection)
-                where c.EmployeeID == (16 >> 2)
+                where (c.EmployeeID >> 3) > 0
                 select c;
 
             var myQuery2 = PsqlQueryFactory.Queryable<Employees>(connection)
-                .Where(c => c.EmployeeID == (16 >> 2));
+                .Where(c => (c.EmployeeID >> 3) > 0);
             
-            string psqlCommand = "SELECT * FROM Employees WHERE \"EmployeeID\" = 16 >> 2;";
+            string psqlCommand = "SELECT * FROM Employees WHERE (\"EmployeeID\" >> 3) > 0;";
 
             // Act
             var expected = NpgsqlRowConverter<Employees>.ReadAllRows(connection, psqlCommand).ToArray();
