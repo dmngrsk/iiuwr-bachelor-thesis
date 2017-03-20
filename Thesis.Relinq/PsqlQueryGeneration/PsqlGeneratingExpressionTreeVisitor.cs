@@ -71,7 +71,8 @@ namespace Thesis.Relinq.PsqlQueryGeneration
         
         protected override Expression VisitConstant(ConstantExpression expression)
         {
-            _psqlExpression.Append($"'{expression.Value}'");
+            var parameterName = _parameterAggregator.AddParameter(expression.Value);
+            _psqlExpression.Append($"@{parameterName}");
             return expression;
         }
         // Visits the System.Linq.Expressions.DebugInfoExpression.

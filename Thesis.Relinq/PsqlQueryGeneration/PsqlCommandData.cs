@@ -4,14 +4,14 @@ namespace Thesis.Relinq.PsqlQueryGeneration
 {
     public class PsqlCommandData
     {
-        public PsqlCommandData(string statement, object[] parameters)
+        public PsqlCommandData(string statement, NamedParameter[] parameters)
         {
             Statement = statement;
             Parameters = parameters;
         }
 
         public string Statement { get; private set; }
-        public object[] Parameters { get; private set; }
+        public NamedParameter[] Parameters { get; private set; }
 
         public NpgsqlCommand CreateQuery(NpgsqlConnection connection)
         {
@@ -21,7 +21,7 @@ namespace Thesis.Relinq.PsqlQueryGeneration
             query.CommandText = Statement;
 
             foreach (var parameter in Parameters)
-                query.Parameters.Add(parameter);
+                query.Parameters.AddWithValue(parameter.Name, parameter.Value);
 
             return query;
         }

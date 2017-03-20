@@ -63,7 +63,7 @@ namespace Thesis.Relinq.UnitTests
         }
 
         [Test]
-        public void select_with_where()
+        public void select_with_where_and_queries_are_parametrized()
         {
             // Arrange
             var myQuery = 
@@ -135,6 +135,27 @@ namespace Thesis.Relinq.UnitTests
             // Assert
             AssertExtension.AreEqualByJson(expected, actual);
             AssertExtension.AreEqualByJson(expected, actual2);
+        }
+
+        [Test]
+        public void queries_are_sanitized()
+        {
+            // Arrange
+            var rowCountBeforeQuery = connection.Database.Count();
+            var myQuery = 
+                from e in PsqlQueryFactory.Queryable<Employees>(connection)
+                where e.City == "London'; DROP TABLE Employees;" 
+                select e;
+
+            // Act
+            var expected = new Employees[0];
+            var actual = myQuery.ToArray();
+            var rowCountAfterQuery = connection.Database.Count();
+
+            // Arrange
+            Assert.Positive(rowCountBeforeQuery);
+            Assert.AreEqual(rowCountBeforeQuery, rowCountAfterQuery);
+            Assert.AreEqual(expected, actual);
         }
 
         [Test]
