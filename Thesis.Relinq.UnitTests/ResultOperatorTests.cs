@@ -9,9 +9,26 @@ namespace Thesis.Relinq.UnitTests
     public class ResultOperatorTests : ThesisTestsBase
     {
         [Test]
-        public void placeholder_test()
+        public void select_count()
         {
-            Assert.IsTrue(true);
+            // Arrange
+            var myQuery = 
+                from c in PsqlQueryFactory.Queryable<Customers>(connection)
+                select new { c.CustomerID };
+
+            var myQuery2 = PsqlQueryFactory.Queryable<Customers>(connection)
+                .Select(c => new { c.CustomerID });
+            
+            string psqlCommand = "SELECT COUNT(*) FROM Customers;";
+
+            // Act
+            var expected = NpgsqlRowConverter<int>.ReadScalar(connection, psqlCommand);
+            var actual = myQuery.Count();
+            var actual2 = myQuery2.Count();
+
+            // Assert
+            Assert.AreEqual(expected, actual);
+            Assert.AreEqual(expected, actual2);
         }
     }
 }

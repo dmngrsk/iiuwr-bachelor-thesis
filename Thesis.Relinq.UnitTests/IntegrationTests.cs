@@ -340,11 +340,40 @@ namespace Thesis.Relinq.UnitTests
          // AssertExtension.AreEqualByJson(expected, actual2);
         }
 
-        [Test]
+/*        [Test]
         public void select_with_group_join()
         {
-            // Not implemented
-            Assert.IsTrue(false);
-        }
+            // Arrange
+            var myQuery =
+                from c in PsqlQueryFactory.Queryable<Customers>(connection)
+                join o in PsqlQueryFactory.Queryable<Orders>(connection) 
+                on c.CustomerID equals o.CustomerID into orders
+                select new
+                {
+                    Customer = c.CustomerID,
+                    Orders = orders
+                };
+
+            var myQuery2 = PsqlQueryFactory.Queryable<Customers>(connection)
+                .GroupBy(PsqlQueryFactory.Queryable<Orders>(connection),
+                    c => c.CustomerID,
+                    o => o.CustomerID,
+                    (c, result) => new { Customer = c.CustomerID, Orders = result });
+
+            string psqlCommand = "SELECT ORDERS.\"EmployeeID\", ORDERS.\"OrderID\" " + 
+                "FROM Orders, Employees WHERE Orders.\"EmployeeID\" = Employees.\"EmployeeID\";";
+            var rowConverterType = typeof(NpgsqlRowConverter<>).MakeGenericType(myQuery.ElementType);
+            var rowConverterMethod = rowConverterType.GetMethod(
+                "ReadAllRows", new [] { typeof(NpgsqlConnection), typeof(string) });
+
+            // Act
+            // var expected = rowConverterMethod.Invoke(this, new object[] { connection, psqlCommand });
+            var actual = myQuery.ToArray();
+            var actual2 = myQuery2.ToArray();
+
+            // Assert
+            AssertExtension.AreEqualByJson(expected, actual);
+            AssertExtension.AreEqualByJson(expected, actual2);
+        }*/
     }
 }
