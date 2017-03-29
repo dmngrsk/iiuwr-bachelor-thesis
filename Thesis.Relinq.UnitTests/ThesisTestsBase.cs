@@ -26,8 +26,10 @@ namespace Thesis.Relinq.UnitTests
         [TearDown]
         public void TearDown()
         {
-            if (connection != null) 
+            if (connection != null)
+            {
                 connection.Dispose();
+            }
         }
     }
 }

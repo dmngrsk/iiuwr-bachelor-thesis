@@ -30,11 +30,11 @@ namespace Thesis.Relinq.PsqlQueryGeneration
             new Dictionary<ExpressionType, string>()
             {
                 { ExpressionType.Equal,                 " = " },
-                { ExpressionType.NotEqual,              " != "},
-                { ExpressionType.GreaterThan,           " > "},
+                { ExpressionType.NotEqual,              " != " },
+                { ExpressionType.GreaterThan,           " > " },
                 { ExpressionType.GreaterThanOrEqual,    " >= " },
                 { ExpressionType.LessThan,              " < " },
-                { ExpressionType.LessThanOrEqual,       " <= "},
+                { ExpressionType.LessThanOrEqual,       " <= " },
 
                 { ExpressionType.Add,                   " + " },
                 { ExpressionType.AddChecked,            " + " }, 
@@ -43,16 +43,16 @@ namespace Thesis.Relinq.PsqlQueryGeneration
                 { ExpressionType.Multiply,              " * " },
                 { ExpressionType.MultiplyChecked,       " * " },
                 { ExpressionType.Divide,                " / " },
-                { ExpressionType.Modulo,                " % "},
+                { ExpressionType.Modulo,                " % " },
 
-                { ExpressionType.And,                   " & "},
-                { ExpressionType.Or,                    " | "},
-                { ExpressionType.ExclusiveOr,           " # "},
-                { ExpressionType.LeftShift,             " << "},
-                { ExpressionType.RightShift,             " >> "},
+                { ExpressionType.And,                   " & " },
+                { ExpressionType.Or,                    " | " },
+                { ExpressionType.ExclusiveOr,           " # " },
+                { ExpressionType.LeftShift,             " << " },
+                { ExpressionType.RightShift,            " >> " },
 
-                { ExpressionType.AndAlso,               " AND "},
-                { ExpressionType.OrElse,                " OR "}
+                { ExpressionType.AndAlso,               " AND " },
+                { ExpressionType.OrElse,                " OR " }
             };
 
         protected override Expression VisitBinary(BinaryExpression expression)

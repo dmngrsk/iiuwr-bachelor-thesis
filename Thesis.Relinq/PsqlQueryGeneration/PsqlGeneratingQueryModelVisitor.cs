@@ -44,10 +44,7 @@ namespace Thesis.Relinq.PsqlQueryGeneration
 
         public override void VisitJoinClause(JoinClause joinClause, QueryModel queryModel, int index)
         {
-            _queryParts.AddFromPart(joinClause);
-
-            _queryParts.AddWherePart(
-                "({0} = {1})",
+            _queryParts.AddJoinPart(
                 GetPsqlExpression(joinClause.OuterKeySelector),
                 GetPsqlExpression(joinClause.InnerKeySelector));
 
@@ -85,8 +82,10 @@ namespace Thesis.Relinq.PsqlQueryGeneration
             // TODO: https://www.tutorialspoint.com/linq/linq_query_operators.htm
             
             if (resultOperator is CountResultOperator)
-                _queryParts.SetSelectPart(string.Format("COUNT({0})", _queryParts.SelectPart));
-            else
+                _queryParts.SetSelectPartAsScalar("COUNT({0})");
+            else if (resultOperator is AverageResultOperator)
+                _queryParts.SetSelectPartAsScalar("AVG({0})");
+            else    
                 throw new NotImplementedException();
             
             base.VisitResultOperator(resultOperator, queryModel, index);

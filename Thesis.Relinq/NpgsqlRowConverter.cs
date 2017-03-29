@@ -54,6 +54,25 @@ namespace Thesis.Relinq
             return rows;
         }
 
+        public static T ReadScalar(NpgsqlConnection connection, string query)
+        {
+            NpgsqlCommand command = new NpgsqlCommand();
+            command.Connection = connection;
+            command.CommandText = query;
+            return ReadScalar(connection, command);
+        }
+
+        public static T ReadScalar(NpgsqlConnection connection, NpgsqlCommand command)
+        {
+            connection.Open();
+
+            var value = command.ExecuteScalar();
+            T scalar = (T)Convert.ChangeType(value, typeof(T));
+            connection.Close();
+            command.Dispose();
+            return scalar;
+        }
+
         private T ConvertArrayToObject(object[] row)
         {
             // TODO: Optimisation, in near future...

@@ -28,7 +28,12 @@ namespace Thesis.Relinq
 
         public T ExecuteScalar<T>(QueryModel queryModel)
         {
-            return ExecuteCollection<T>(queryModel).Single();
+            List<T> rows = new List<T>();
+            
+            var commandData = PsqlGeneratingQueryModelVisitor.GeneratePsqlQuery(queryModel);
+            var query = commandData.CreateQuery(_connection);
+
+            return NpgsqlRowConverter<T>.ReadScalar(_connection, query);
         }
 
         public T ExecuteSingle<T>(QueryModel queryModel, bool returnDefaultWhenEmpty)

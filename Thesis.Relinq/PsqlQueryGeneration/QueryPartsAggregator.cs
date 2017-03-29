@@ -21,7 +21,12 @@ namespace Thesis.Relinq.PsqlQueryGeneration
 
         public void SetSelectPart(string selectPart)
         {
-            SelectPart = selectPart;
+            SelectPart = selectPart.Contains(".") ? selectPart : "*";
+        }
+
+        public void SetSelectPartAsScalar(string scalarPartFormat)
+        {
+            SelectPart = string.Format(scalarPartFormat, SelectPart);
         }
 
         public void AddFromPart(IQuerySource querySource)
@@ -29,6 +34,18 @@ namespace Thesis.Relinq.PsqlQueryGeneration
             int index = querySource.ItemType.ToString().LastIndexOf('.') + 1;
             string fromPart = querySource.ItemType.ToString().Substring(index);
             FromParts.Add(fromPart);
+        }
+
+        public void AddJoinPart(string leftMember, string rightMember)
+        {
+            var leftSource = leftMember.Split('.')[0];
+            var rightSource = rightMember.Split('.')[0];
+            var joinPart = 
+                $"{leftSource} INNER JOIN {rightSource} ON ({leftMember} = {rightMember})";
+
+            // We're using the fact that the left source table was already added in AddFromPart
+            var index = FromParts.IndexOf(leftSource);
+            FromParts[index] = joinPart;
         }
 
         public void AddWherePart(string formatString, params object[] args)
@@ -65,7 +82,7 @@ namespace Thesis.Relinq.PsqlQueryGeneration
                 throw new InvalidOperationException("A query must have at least one FROM part.");
 
             // TODO: Check if table's name can contains a dot
-            stringBuilder.AppendFormat("SELECT {0}", SelectPart.Contains(".") ? SelectPart : "*");
+            stringBuilder.AppendFormat("SELECT {0}", SelectPart);
             
             stringBuilder.AppendFormat(" FROM {0}", string.Join(", ", FromParts));
 
