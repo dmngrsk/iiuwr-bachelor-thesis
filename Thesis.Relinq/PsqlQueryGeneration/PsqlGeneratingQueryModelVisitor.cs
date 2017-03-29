@@ -74,20 +74,16 @@ namespace Thesis.Relinq.PsqlQueryGeneration
             new Dictionary<Type, string>()
             {
                 { typeof(CountResultOperator), "COUNT({0})" },
-                { typeof(AverageResultOperator), "..."}
+                { typeof(AverageResultOperator), "AVG({0})"},
+                { typeof(SumResultOperator), "SUM({0})"},
+                { typeof(MinResultOperator), "MIN({0})"},
+                { typeof(MaxResultOperator), "MAX({0})"}
             };
 
         public override void VisitResultOperator(ResultOperatorBase resultOperator, QueryModel queryModel, int index)
         {
             // TODO: https://www.tutorialspoint.com/linq/linq_query_operators.htm
-            
-            if (resultOperator is CountResultOperator)
-                _queryParts.SetSelectPartAsScalar("COUNT({0})");
-            else if (resultOperator is AverageResultOperator)
-                _queryParts.SetSelectPartAsScalar("AVG({0})");
-            else    
-                throw new NotImplementedException();
-            
+            _queryParts.SetSelectPartAsScalar(_resultOperatorsToString[resultOperator.GetType()]);
             base.VisitResultOperator(resultOperator, queryModel, index);
         }
 

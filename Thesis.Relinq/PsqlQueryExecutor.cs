@@ -1,8 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Npgsql;
 using Remotion.Linq;
+using Remotion.Linq.Clauses.ResultOperators;
+using System.Collections.Generic;
+using System.Linq;
 using Thesis.Relinq.PsqlQueryGeneration;
 
 namespace Thesis.Relinq
@@ -38,7 +38,12 @@ namespace Thesis.Relinq
 
         public T ExecuteSingle<T>(QueryModel queryModel, bool returnDefaultWhenEmpty)
         {
-            return returnDefaultWhenEmpty ?
+            var isMinOrMax = queryModel.ResultOperators
+                .All(x => x is MinResultOperator || x is MaxResultOperator);
+
+            return isMinOrMax ?
+                ExecuteScalar<T>(queryModel) :
+            returnDefaultWhenEmpty ?
                 ExecuteCollection<T>(queryModel).SingleOrDefault() : 
                 ExecuteCollection<T>(queryModel).Single();
         }
