@@ -1,5 +1,5 @@
-make: Makefile iithesis.cls iithesis.tex iithesis.pdf
+make: Makefile iithesis.cls iithesis.tex Chapters/*.tex iithesis.pdf 
 	pdflatex iithesis.tex
 
 clean: Makefile
-	rm -rf *.aux *.log *.out *.toc
+	rm -rf *.aux Chapters/*.aux *.log *.out *.toc
