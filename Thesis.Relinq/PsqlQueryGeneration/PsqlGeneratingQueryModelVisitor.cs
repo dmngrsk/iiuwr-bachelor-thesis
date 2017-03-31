@@ -77,7 +77,8 @@ namespace Thesis.Relinq.PsqlQueryGeneration
                 { typeof(AverageResultOperator), "AVG({0})"},
                 { typeof(SumResultOperator), "SUM({0})"},
                 { typeof(MinResultOperator), "MIN({0})"},
-                { typeof(MaxResultOperator), "MAX({0})"}
+                { typeof(MaxResultOperator), "MAX({0})"},
+                { typeof(DistinctResultOperator), "DISTINCT({0})"},
             };
 
         public override void VisitResultOperator(ResultOperatorBase resultOperator, QueryModel queryModel, int index)
@@ -100,6 +101,6 @@ namespace Thesis.Relinq.PsqlQueryGeneration
         }
 
         private string GetPsqlExpression(Expression expression) =>
-            PsqlGeneratingExpressionTreeVisitor.GetPsqlExpression(expression, _parameterAggregator);
+            PsqlGeneratingExpressionVisitor.GetPsqlExpression(expression, _parameterAggregator);
     }
 }

@@ -2,24 +2,23 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Text;
 using Remotion.Linq.Clauses.Expressions;
-using Remotion.Linq.Clauses.ExpressionVisitors;
 using Remotion.Linq.Parsing;
 
 namespace Thesis.Relinq.PsqlQueryGeneration
 {
-    public class PsqlGeneratingExpressionTreeVisitor : RelinqExpressionVisitor
+    public class PsqlGeneratingExpressionVisitor : RelinqExpressionVisitor
     {
         private readonly StringBuilder _psqlExpression = new StringBuilder();
         private readonly NpgsqlParameterAggregator _parameterAggregator;
 
-        private PsqlGeneratingExpressionTreeVisitor(NpgsqlParameterAggregator parameterAggregator)
+        private PsqlGeneratingExpressionVisitor(NpgsqlParameterAggregator parameterAggregator)
         {
             _parameterAggregator = parameterAggregator;
         }
 
         public static string GetPsqlExpression(Expression linqExpression, NpgsqlParameterAggregator parameterAggregator)
         {
-            var visitor = new PsqlGeneratingExpressionTreeVisitor(parameterAggregator);
+            var visitor = new PsqlGeneratingExpressionVisitor(parameterAggregator);
             visitor.Visit(linqExpression);
             return visitor.GetPsqlExpression();
         }
@@ -141,9 +140,34 @@ namespace Thesis.Relinq.PsqlQueryGeneration
         {
             return expression;
         }
-        // Visits the children of the System.Linq.Expressions.MethodCallExpression.
+
+        private static Dictionary<string, string> _methodCallNamesToString = 
+            new Dictionary<string, string>()
+            {
+                { "Equals",         "{0} = {1}" },
+
+                { "ToLower",        "lower({0})" },
+                { "ToUpper",        "upper({0})" }
+                // https://www.postgresql.org/docs/9.1/static/functions-string.html
+            };
+
         protected override Expression VisitMethodCall(MethodCallExpression expression)
         {
+            this.Visit(expression.Object);
+            var arguments = new List<object>(new object[] { _psqlExpression.ToString() });
+            _psqlExpression.Clear();
+
+            foreach (var argument in expression.Arguments)
+            {
+                this.Visit(argument);
+                arguments.Add(_psqlExpression.ToString());
+                _psqlExpression.Clear();
+            }
+
+            _psqlExpression.AppendFormat(
+                _methodCallNamesToString[expression.Method.Name], arguments.ToArray()
+            );
+
             return expression;
         }
 

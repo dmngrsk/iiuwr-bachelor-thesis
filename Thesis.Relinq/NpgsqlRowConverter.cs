@@ -75,20 +75,30 @@ namespace Thesis.Relinq
 
         private T ConvertArrayToObject(object[] row)
         {
-            // TODO: Optimisation, in near future...
-            T obj = (T)Activator.CreateInstance(typeof(T));
-                    
-            for (int i = 0; i < _columns.Count; i++)
+            var typeInfo = typeof(T).GetTypeInfo();
+            
+            if (typeInfo.IsPrimitive || typeInfo.Equals(typeof(string)))
             {
-                var prop = typeof(T).GetProperty(_columns[i].ColumnName);
-                var propType = prop.PropertyType;
-                
-                try {
-                    prop.SetValue(obj, Convert.ChangeType(row[i], propType));
-                } catch (InvalidCastException) { /* Value is null */ }
+                return (T)row[0];
             }
 
-            return obj;
+            else
+            {
+                // TODO: Optimisation, in near future...
+                T obj = (T)Activator.CreateInstance(typeof(T));
+                        
+                for (int i = 0; i < _columns.Count; i++)
+                {
+                    var prop = typeof(T).GetProperty(_columns[i].ColumnName);
+                    var propType = prop.PropertyType;
+                    
+                    try {
+                        prop.SetValue(obj, Convert.ChangeType(row[i], propType));
+                    } catch (InvalidCastException) { /* Value is null */ }
+                }
+
+                return obj;
+            }
         }
     }
 }
