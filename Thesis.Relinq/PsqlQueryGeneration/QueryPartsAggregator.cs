@@ -29,10 +29,8 @@ namespace Thesis.Relinq.PsqlQueryGeneration
             SelectPart = string.Format(scalarPartFormat, SelectPart);
         }
 
-        public void AddFromPart(IQuerySource querySource)
+        public void AddFromPart(string fromPart)
         {
-            int index = querySource.ItemType.ToString().LastIndexOf('.') + 1;
-            string fromPart = querySource.ItemType.ToString().Substring(index);
             FromParts.Add(fromPart);
         }
 

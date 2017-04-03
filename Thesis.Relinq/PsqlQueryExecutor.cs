@@ -20,7 +20,8 @@ namespace Thesis.Relinq
         {
             List<T> rows = new List<T>();
             
-            var commandData = PsqlGeneratingQueryModelVisitor.GeneratePsqlQuery(queryModel);
+            var dbSchema = new NpgsqlDatabaseSchema(_connection);
+            var commandData = PsqlGeneratingQueryModelVisitor.GeneratePsqlQuery(queryModel, dbSchema);
             var query = commandData.CreateQuery(_connection);
 
             return NpgsqlRowConverter<T>.ReadAllRows(_connection, query);

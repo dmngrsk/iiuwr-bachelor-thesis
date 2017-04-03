@@ -12,10 +12,16 @@ namespace Thesis.Relinq.PsqlQueryGeneration
     {
         private readonly QueryPartsAggregator _queryParts = new QueryPartsAggregator();
         private readonly NpgsqlParameterAggregator _parameterAggregator = new NpgsqlParameterAggregator();
+        private readonly NpgsqlDatabaseSchema _dbSchema;
 
-        public static NpgsqlCommandData GeneratePsqlQuery(QueryModel queryModel)
+        public PsqlGeneratingQueryModelVisitor(NpgsqlDatabaseSchema dbSchema) : base()
         {
-            var visitor = new PsqlGeneratingQueryModelVisitor();
+            _dbSchema = dbSchema;
+        }
+
+        public static NpgsqlCommandData GeneratePsqlQuery(QueryModel queryModel, NpgsqlDatabaseSchema dbSchema)
+        {
+            var visitor = new PsqlGeneratingQueryModelVisitor(dbSchema);
             visitor.VisitQueryModel(queryModel);
             return visitor.GetPsqlCommand();
         }
@@ -33,7 +39,10 @@ namespace Thesis.Relinq.PsqlQueryGeneration
 
         public override void VisitAdditionalFromClause(AdditionalFromClause fromClause, QueryModel queryModel, int index)
         {
-            _queryParts.AddFromPart(fromClause);
+            var fromPart = fromClause.ItemType.ToString();
+            fromPart = fromPart.Substring(fromPart.LastIndexOf('.') + 1);
+            _queryParts.AddFromPart($"\"{_dbSchema.GetTableName(fromPart)}\"");
+
             base.VisitAdditionalFromClause(fromClause, queryModel, index);
         }
 
@@ -58,7 +67,10 @@ namespace Thesis.Relinq.PsqlQueryGeneration
 
         public override void VisitMainFromClause(MainFromClause fromClause, QueryModel queryModel)
         {
-            _queryParts.AddFromPart(fromClause);
+            var fromPart = fromClause.ItemType.ToString();
+            fromPart = fromPart.Substring(fromPart.LastIndexOf('.') + 1);
+            _queryParts.AddFromPart($"\"{_dbSchema.GetTableName(fromPart)}\"");
+
             base.VisitMainFromClause(fromClause, queryModel);
         }
 
@@ -101,6 +113,6 @@ namespace Thesis.Relinq.PsqlQueryGeneration
         }
 
         private string GetPsqlExpression(Expression expression) =>
-            PsqlGeneratingExpressionVisitor.GetPsqlExpression(expression, _parameterAggregator);
+            PsqlGeneratingExpressionVisitor.GetPsqlExpression(expression, _parameterAggregator, _dbSchema);
     }
 }

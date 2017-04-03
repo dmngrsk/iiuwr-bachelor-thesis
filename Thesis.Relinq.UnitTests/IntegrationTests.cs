@@ -378,7 +378,7 @@ namespace Thesis.Relinq.UnitTests
         }*/
 
         [Test]
-        public void connects_to_other_database()
+        public void fetches_data_from_tables_with_different_name_casing()
         {
             // Arrange
             var newConnection = new NpgsqlConnectionAdapter()
@@ -392,17 +392,17 @@ namespace Thesis.Relinq.UnitTests
             .GetConnection();
 
             var myQuery = 
-                from g in PsqlQueryFactory.Queryable<grupa>(newConnection)
-                where g.sala == "25"
+                from g in PsqlQueryFactory.Queryable<Grupa>(newConnection)
+                where g.RodzajZajec.Equals('w')
                 select g;
 
-            var myQuery2 = PsqlQueryFactory.Queryable<grupa>(newConnection)
-                .Where(g => g.sala == "25");
+            var myQuery2 = PsqlQueryFactory.Queryable<Grupa>(newConnection)
+                .Where(g => g.RodzajZajec.Equals('w'));
 
-            var psqlCommand = "SELECT * FROM grupa WHERE grupa.sala = '25';";
+            var psqlCommand = "SELECT * FROM grupa WHERE grupa.rodzaj_zajec = 'w';";
 
             // Act
-            var expected = NpgsqlRowConverter<grupa>.ReadAllRows(newConnection, psqlCommand).ToArray();
+            var expected = NpgsqlRowConverter<Grupa>.ReadAllRows(newConnection, psqlCommand).ToArray();
             var actual = myQuery.ToList();
             var actual2 = myQuery2.ToList();
 

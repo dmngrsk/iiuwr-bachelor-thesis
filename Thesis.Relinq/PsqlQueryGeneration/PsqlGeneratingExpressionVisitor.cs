@@ -10,15 +10,19 @@ namespace Thesis.Relinq.PsqlQueryGeneration
     {
         private readonly StringBuilder _psqlExpression = new StringBuilder();
         private readonly NpgsqlParameterAggregator _parameterAggregator;
+        private readonly NpgsqlDatabaseSchema _dbSchema;
 
-        private PsqlGeneratingExpressionVisitor(NpgsqlParameterAggregator parameterAggregator)
+        private PsqlGeneratingExpressionVisitor(NpgsqlParameterAggregator parameterAggregator, 
+            NpgsqlDatabaseSchema dbSchema)
         {
             _parameterAggregator = parameterAggregator;
+            _dbSchema = dbSchema;
         }
 
-        public static string GetPsqlExpression(Expression linqExpression, NpgsqlParameterAggregator parameterAggregator)
+        public static string GetPsqlExpression(Expression linqExpression, 
+            NpgsqlParameterAggregator parameterAggregator, NpgsqlDatabaseSchema dbSchema)
         {
-            var visitor = new PsqlGeneratingExpressionVisitor(parameterAggregator);
+            var visitor = new PsqlGeneratingExpressionVisitor(parameterAggregator, dbSchema);
             visitor.Visit(linqExpression);
             return visitor.GetPsqlExpression();
         }
@@ -132,7 +136,7 @@ namespace Thesis.Relinq.PsqlQueryGeneration
         protected override Expression VisitMember(MemberExpression expression)
         {
             this.Visit(expression.Expression);
-            _psqlExpression.Append($".\"{expression.Member.Name}\"");
+            _psqlExpression.Append($".\"{_dbSchema.GetColumnName(expression.Member.Name)}\"");
             return expression;
         }
         // Visits the children of the System.Linq.Expressions.MemberInitExpression.
@@ -200,7 +204,7 @@ namespace Thesis.Relinq.PsqlQueryGeneration
             int index = fullType.LastIndexOf('.') + 1;
             string type = fullType.Substring(index);
 
-            _psqlExpression.Append(type);
+            _psqlExpression.Append($"\"{_dbSchema.GetTableName(type)}\"");
             return expression;
         }
         // Visits the children of the System.Linq.Expressions.RuntimeVariablesExpression.
