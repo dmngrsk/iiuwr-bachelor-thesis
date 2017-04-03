@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using Npgsql;
 
 namespace Thesis.Relinq.NpgsqlWrapper
@@ -34,8 +35,12 @@ namespace Thesis.Relinq.NpgsqlWrapper
                 var columnSchema = reader.GetColumnSchema();
                 var rowConverter = new NpgsqlRowConverter<T>(columnSchema);
 
-                // TODO: Make this work properly!
-                var typeIsAnonymous = typeof(T).Name.Contains("AnonymousType");
+                var type = typeof(T).GetTypeInfo();
+                var typeIsAnonymous = type.GetCustomAttribute<CompilerGeneratedAttribute>() != null
+                    && type.IsGenericType
+                    && type.Name.Contains("AnonymousType")
+                    && (type.Name.StartsWith("<>") || type.Name.StartsWith("VB$"))
+                    && type.Attributes.HasFlag(TypeAttributes.NotPublic);
 
                 while (reader.Read())
                 {

@@ -325,7 +325,7 @@ namespace Thesis.Relinq.UnitTests
                                      Order = o.OrderID
                                  })); */
 
-            string psqlCommand = "SELECT ORDERS.\"EmployeeID\", ORDERS.\"OrderID\" " + 
+            string psqlCommand = "SELECT Orders.\"EmployeeID\", Orders.\"OrderID\" " + 
                 "FROM Orders, Employees WHERE Orders.\"EmployeeID\" = Employees.\"EmployeeID\";";
             var rowConverterType = typeof(NpgsqlRowConverter<>).MakeGenericType(myQuery.ElementType);
             var rowConverterMethod = rowConverterType.GetMethod(
@@ -376,5 +376,39 @@ namespace Thesis.Relinq.UnitTests
             AssertExtension.AreEqualByJson(expected, actual);
             AssertExtension.AreEqualByJson(expected, actual2);
         }*/
+
+        [Test]
+        public void connects_to_other_database()
+        {
+            // Arrange
+            var newConnection = new NpgsqlConnectionAdapter()
+            {
+                Server = "localhost",
+                Port = 5432,
+                Username = "dmngrsk",
+                Password = "qwerty",
+                Database = "ii"
+            }
+            .GetConnection();
+
+            var myQuery = 
+                from g in PsqlQueryFactory.Queryable<grupa>(newConnection)
+                where g.sala == "25"
+                select g;
+
+            var myQuery2 = PsqlQueryFactory.Queryable<grupa>(newConnection)
+                .Where(g => g.sala == "25");
+
+            var psqlCommand = "SELECT * FROM grupa WHERE grupa.sala = '25';";
+
+            // Act
+            var expected = NpgsqlRowConverter<grupa>.ReadAllRows(newConnection, psqlCommand).ToArray();
+            var actual = myQuery.ToList();
+            var actual2 = myQuery2.ToList();
+
+            // Assert
+            AssertExtension.AreEqualByJson(expected, actual);
+            AssertExtension.AreEqualByJson(expected, actual2);
+        }
     }
 }
