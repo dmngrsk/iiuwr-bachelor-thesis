@@ -2,6 +2,7 @@ using Npgsql;
 using NUnit.Framework;
 using System.Linq;
 using System.Reflection;
+using Thesis.Relinq.NpgsqlWrapper;
 using Thesis.Relinq.UnitTests.Models;
 
 namespace Thesis.Relinq.UnitTests
@@ -63,7 +64,7 @@ namespace Thesis.Relinq.UnitTests
         }
 
         [Test]
-        public void select_with_where_and_queries_are_parametrized()
+        public void select_with_where()
         {
             // Arrange
             var myQuery = 

@@ -1,5 +1,6 @@
 using Npgsql;
 using NUnit.Framework;
+using Thesis.Relinq.NpgsqlWrapper;
 
 namespace Thesis.Relinq.UnitTests
 {
@@ -20,7 +21,7 @@ namespace Thesis.Relinq.UnitTests
                 Database = "northwind"
             };
             
-            connection = new NpgsqlConnection(adapter.ConnectionString);
+            connection = adapter.GetConnection();
         }
 
         [TearDown]

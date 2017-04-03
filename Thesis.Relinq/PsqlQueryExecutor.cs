@@ -1,9 +1,9 @@
 using Npgsql;
 using Remotion.Linq;
-using Remotion.Linq.Clauses.ResultOperators;
 using System.Collections.Generic;
 using System.Linq;
 using Thesis.Relinq.PsqlQueryGeneration;
+using Thesis.Relinq.NpgsqlWrapper;
 
 namespace Thesis.Relinq
 {
@@ -28,22 +28,12 @@ namespace Thesis.Relinq
 
         public T ExecuteScalar<T>(QueryModel queryModel)
         {
-            List<T> rows = new List<T>();
-            
-            var commandData = PsqlGeneratingQueryModelVisitor.GeneratePsqlQuery(queryModel);
-            var query = commandData.CreateQuery(_connection);
-
-            return NpgsqlRowConverter<T>.ReadScalar(_connection, query);
+            return ExecuteCollection<T>(queryModel).Single();
         }
 
         public T ExecuteSingle<T>(QueryModel queryModel, bool returnDefaultWhenEmpty)
         {
-            var isMinOrMax = queryModel.ResultOperators
-                .All(x => x is MinResultOperator || x is MaxResultOperator);
-
-            return isMinOrMax ?
-                ExecuteScalar<T>(queryModel) :
-            returnDefaultWhenEmpty ?
+            return returnDefaultWhenEmpty ?
                 ExecuteCollection<T>(queryModel).SingleOrDefault() : 
                 ExecuteCollection<T>(queryModel).Single();
         }

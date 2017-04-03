@@ -1,5 +1,6 @@
 using NUnit.Framework;
 using System.Linq;
+using Thesis.Relinq.NpgsqlWrapper;
 using Thesis.Relinq.UnitTests.Models;
 
 namespace Thesis.Relinq.UnitTests

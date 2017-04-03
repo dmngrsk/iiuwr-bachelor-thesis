@@ -1,5 +1,6 @@
 using NUnit.Framework;
 using System.Linq;
+using Thesis.Relinq.NpgsqlWrapper;
 using Thesis.Relinq.UnitTests.Models;
 
 namespace Thesis.Relinq.UnitTests
@@ -21,7 +22,7 @@ namespace Thesis.Relinq.UnitTests
             string psqlCommand = "SELECT COUNT(*) FROM Customers;";
 
             // Act
-            var expected = NpgsqlRowConverter<int>.ReadScalar(connection, psqlCommand);
+            var expected = NpgsqlRowConverter<int>.ReadAllRows(connection, psqlCommand).Single();
             var actual = myQuery.Count();
             var actual2 = myQuery2.Count();
 
@@ -44,7 +45,7 @@ namespace Thesis.Relinq.UnitTests
             string psqlCommand = "SELECT AVG(\"EmployeeID\") FROM Employees;";
 
             // Act
-            var expected = NpgsqlRowConverter<decimal>.ReadScalar(connection, psqlCommand);
+            var expected = NpgsqlRowConverter<decimal>.ReadAllRows(connection, psqlCommand).Single();
             var actual = myQuery.Average();
             var actual2 = myQuery2.Average();
 
@@ -67,7 +68,7 @@ namespace Thesis.Relinq.UnitTests
             string psqlCommand = "SELECT SUM(\"EmployeeID\") FROM Employees;";
 
             // Act
-            var expected = NpgsqlRowConverter<int>.ReadScalar(connection, psqlCommand);
+            var expected = NpgsqlRowConverter<int>.ReadAllRows(connection, psqlCommand).Single();
             var actual = myQuery.Sum();
             var actual2 = myQuery2.Sum();
 
@@ -90,7 +91,7 @@ namespace Thesis.Relinq.UnitTests
             string psqlCommand = "SELECT MIN(\"EmployeeID\") FROM Employees;";
 
             // Act
-            var expected = NpgsqlRowConverter<int>.ReadScalar(connection, psqlCommand);
+            var expected = NpgsqlRowConverter<int>.ReadAllRows(connection, psqlCommand).Single();
             var actual = myQuery.Min();
             var actual2 = myQuery2.Min();
 
@@ -113,7 +114,7 @@ namespace Thesis.Relinq.UnitTests
             string psqlCommand = "SELECT MAX(\"EmployeeID\") FROM Employees;";
 
             // Act
-            var expected = NpgsqlRowConverter<int>.ReadScalar(connection, psqlCommand);
+            var expected = NpgsqlRowConverter<int>.ReadAllRows(connection, psqlCommand).Single();
             var actual = myQuery.Max();
             var actual2 = myQuery2.Max();
 
