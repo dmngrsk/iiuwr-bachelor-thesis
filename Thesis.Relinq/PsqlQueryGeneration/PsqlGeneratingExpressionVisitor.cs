@@ -14,24 +14,7 @@ namespace Thesis.Relinq.PsqlQueryGeneration
         private readonly NpgsqlParameterAggregator _parameterAggregator;
         private readonly NpgsqlDatabaseSchema _dbSchema;
 
-        private PsqlGeneratingExpressionVisitor(NpgsqlParameterAggregator parameterAggregator, 
-            NpgsqlDatabaseSchema dbSchema)
-        {
-            _parameterAggregator = parameterAggregator;
-            _dbSchema = dbSchema;
-        }
-
-        public static string GetPsqlExpression(Expression linqExpression, 
-            NpgsqlParameterAggregator parameterAggregator, NpgsqlDatabaseSchema dbSchema)
-        {
-            var visitor = new PsqlGeneratingExpressionVisitor(parameterAggregator, dbSchema);
-            visitor.Visit(linqExpression);
-            return visitor.GetPsqlExpression();
-        }
-
-        private string GetPsqlExpression() => _psqlExpression.ToString();
-
-        private static Dictionary<ExpressionType, string> _binaryExpressionOperatorsToString = 
+        private readonly static Dictionary<ExpressionType, string> _binaryExpressionOperatorsToString = 
             new Dictionary<ExpressionType, string>()
             {
                 { ExpressionType.Equal,                 " = " },
@@ -59,6 +42,37 @@ namespace Thesis.Relinq.PsqlQueryGeneration
                 { ExpressionType.AndAlso,               " AND " },
                 { ExpressionType.OrElse,                " OR " }
             };
+
+        private readonly static Dictionary<string, string> _methodCallNamesToString = 
+            new Dictionary<string, string>()
+            {
+                { "Equals",                             "{0} = {1}" },
+
+                { "ToLower",                            "LOWER({0})" },
+                { "ToUpper",                            "UPPER({0})" },
+                { "Trim",                               "TRIM(both {1} from {0})"},
+                { "TrimStart",                          "TRIM(leading {1} from {0})"},
+                { "TrimEnd",                            "TRIM(trailing {1} from {0})"},
+
+                // https://www.postgresql.org/docs/9.1/static/functions-string.html
+            };
+
+        private PsqlGeneratingExpressionVisitor(NpgsqlParameterAggregator parameterAggregator, 
+            NpgsqlDatabaseSchema dbSchema)
+        {
+            _parameterAggregator = parameterAggregator;
+            _dbSchema = dbSchema;
+        }
+
+        public static string GetPsqlExpression(Expression linqExpression, 
+            NpgsqlParameterAggregator parameterAggregator, NpgsqlDatabaseSchema dbSchema)
+        {
+            var visitor = new PsqlGeneratingExpressionVisitor(parameterAggregator, dbSchema);
+            visitor.Visit(linqExpression);
+            return visitor.GetPsqlExpression();
+        }
+
+        private string GetPsqlExpression() => _psqlExpression.ToString();
 
         protected override Expression VisitBinary(BinaryExpression expression)
         {
@@ -147,19 +161,6 @@ namespace Thesis.Relinq.PsqlQueryGeneration
             return expression;
         }
 
-        private static Dictionary<string, string> _methodCallNamesToString = 
-            new Dictionary<string, string>()
-            {
-                { "Equals",         "{0} = {1}" },
-
-                { "ToLower",        "lower({0})" },
-                { "ToUpper",        "upper({0})" },
-                { "Trim",           "trim(both {1} from {0})"},
-                { "TrimStart",      "trim(leading {1} from {0})"},
-                { "TrimEnd",        "trim(trailing {1} from {0})"},
-                // https://www.postgresql.org/docs/9.1/static/functions-string.html
-            };
-
         protected override Expression VisitMethodCall(MethodCallExpression expression)
         {
             var methodName = expression.Method.Name;
@@ -193,7 +194,8 @@ namespace Thesis.Relinq.PsqlQueryGeneration
                 return expression;
             }
 
-            throw new NotImplementedException($"This LINQ provider does not provide the {methodName} method.");
+            throw new NotImplementedException(
+                $"This LINQ provider does not provide the {methodName} method.");
         }
 
         protected override Expression VisitNew(NewExpression expression)
@@ -257,6 +259,7 @@ namespace Thesis.Relinq.PsqlQueryGeneration
                 this.Visit(expression.Operand);
                 _psqlExpression.Append(")");
             }
+
             else
             {
                 this.Visit(expression.Operand as MemberExpression);

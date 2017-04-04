@@ -102,6 +102,29 @@ namespace Thesis.Relinq.UnitTests
         }
 
         [Test]
+        public void to_lower()
+        {
+            // Arrange
+            var myQuery = 
+                from c in PsqlQueryFactory.Queryable<Customers>(connection)
+                select c.ContactName.ToLower();
+
+            var myQuery2 = PsqlQueryFactory.Queryable<Customers>(connection)
+                .Select(c => c.ContactName.ToLower());
+            
+            string psqlCommand = "SELECT LOWER(\"ContactName\") FROM Customers;";
+
+            // Act
+            var expected = NpgsqlRowConverter<string>.ReadAllRows(connection, psqlCommand).ToArray();
+            var actual = myQuery.ToArray();
+            var actual2 = myQuery2.ToArray();
+
+            // Assert
+            AssertExtension.AreEqualByJson(expected, actual);
+            AssertExtension.AreEqualByJson(expected, actual2);
+        }
+
+        [Test]
         public void to_upper()
         {
             // Arrange
@@ -112,7 +135,7 @@ namespace Thesis.Relinq.UnitTests
             var myQuery2 = PsqlQueryFactory.Queryable<Customers>(connection)
                 .Select(c => c.ContactName.ToUpper());
             
-            string psqlCommand = "SELECT upper(\"ContactName\") FROM Customers;";
+            string psqlCommand = "SELECT UPPER(\"ContactName\") FROM Customers;";
 
             // Act
             var expected = NpgsqlRowConverter<string>.ReadAllRows(connection, psqlCommand).ToArray();
@@ -160,12 +183,12 @@ namespace Thesis.Relinq.UnitTests
             // Arrange
             var myQuery = 
                 from c in PsqlQueryFactory.Queryable<Customers>(connection)
-                select c.CustomerID.Trim(new char[] { 'A' });
+                select c.CustomerID.Trim(new char[] { 'A', 'B' });
 
             var myQuery2 = PsqlQueryFactory.Queryable<Customers>(connection)
-                .Select(c => c.CustomerID.Trim(new char[] { 'A' }));
+                .Select(c => c.CustomerID.Trim(new char[] { 'A', 'B' }));
             
-            string psqlCommand = "SELECT trim(both 'A' from \"CustomerID\") FROM Customers;";
+            string psqlCommand = "SELECT TRIM(both 'AB' from \"CustomerID\") FROM Customers;";
 
             // Act
             var expected = NpgsqlRowConverter<string>.ReadAllRows(connection, psqlCommand).ToArray();
@@ -183,12 +206,12 @@ namespace Thesis.Relinq.UnitTests
             // Arrange
             var myQuery = 
                 from c in PsqlQueryFactory.Queryable<Customers>(connection)
-                select c.CustomerID.TrimStart(new char[] { 'A' });
+                select c.CustomerID.TrimStart(new char[] { 'A', 'B' });
 
             var myQuery2 = PsqlQueryFactory.Queryable<Customers>(connection)
-                .Select(c => c.CustomerID.TrimStart(new char[] { 'A' }));
+                .Select(c => c.CustomerID.TrimStart(new char[] { 'A', 'B' }));
             
-            string psqlCommand = "SELECT trim(leading 'A' from \"CustomerID\") FROM Customers;";
+            string psqlCommand = "SELECT TRIM(leading 'AB' from \"CustomerID\") FROM Customers;";
 
             // Act
             var expected = NpgsqlRowConverter<string>.ReadAllRows(connection, psqlCommand).ToArray();
@@ -206,12 +229,12 @@ namespace Thesis.Relinq.UnitTests
             // Arrange
             var myQuery = 
                 from c in PsqlQueryFactory.Queryable<Customers>(connection)
-                select c.CustomerID.TrimEnd(new char[] { 'A' });
+                select c.CustomerID.TrimEnd(new char[] { 'A', 'B' });
 
             var myQuery2 = PsqlQueryFactory.Queryable<Customers>(connection)
-                .Select(c => c.CustomerID.TrimEnd(new char[] { 'A' }));
+                .Select(c => c.CustomerID.TrimEnd(new char[] { 'A', 'B' }));
             
-            string psqlCommand = "SELECT trim(trailing 'A' from \"CustomerID\") FROM Customers;";
+            string psqlCommand = "SELECT TRIM(trailing 'AB' from \"CustomerID\") FROM Customers;";
 
             // Act
             var expected = NpgsqlRowConverter<string>.ReadAllRows(connection, psqlCommand).ToArray();
@@ -234,7 +257,7 @@ namespace Thesis.Relinq.UnitTests
             var myQuery2 = PsqlQueryFactory.Queryable<Customers>(connection)
                 .Select(c => c.CustomerID.Trim());
             
-            string psqlCommand = "SELECT trim(both from \"CustomerID\") FROM Customers;";
+            string psqlCommand = "SELECT TRIM(both from \"CustomerID\") FROM Customers;";
 
             // Act
             var expected = NpgsqlRowConverter<string>.ReadAllRows(connection, psqlCommand).ToArray();
@@ -257,7 +280,7 @@ namespace Thesis.Relinq.UnitTests
             var myQuery2 = PsqlQueryFactory.Queryable<Customers>(connection)
                 .Select(c => c.CustomerID.TrimStart());
             
-            string psqlCommand = "SELECT trim(leading from \"CustomerID\") FROM Customers;";
+            string psqlCommand = "SELECT TRIM(leading from \"CustomerID\") FROM Customers;";
 
             // Act
             var expected = NpgsqlRowConverter<string>.ReadAllRows(connection, psqlCommand).ToArray();
@@ -280,7 +303,7 @@ namespace Thesis.Relinq.UnitTests
             var myQuery2 = PsqlQueryFactory.Queryable<Customers>(connection)
                 .Select(c => c.CustomerID.TrimEnd());
             
-            string psqlCommand = "SELECT trim(trailing from \"CustomerID\") FROM Customers;";
+            string psqlCommand = "SELECT TRIM(trailing from \"CustomerID\") FROM Customers;";
 
             // Act
             var expected = NpgsqlRowConverter<string>.ReadAllRows(connection, psqlCommand).ToArray();
@@ -300,6 +323,12 @@ namespace Thesis.Relinq.UnitTests
 
         [Test, IgnoreAttribute("Feature not implemented yet")]
         public void reverse()
+        {
+            
+        }
+
+        [Test, IgnoreAttribute("Feature not implemented yet")]
+        public void replace()
         {
             
         }
