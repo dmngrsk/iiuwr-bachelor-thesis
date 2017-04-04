@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Text;
+using System.Text.RegularExpressions;
 using Remotion.Linq.Clauses.Expressions;
 using Remotion.Linq.Parsing;
 
@@ -151,7 +152,10 @@ namespace Thesis.Relinq.PsqlQueryGeneration
                 { "Equals",         "{0} = {1}" },
 
                 { "ToLower",        "lower({0})" },
-                { "ToUpper",        "upper({0})" }
+                { "ToUpper",        "upper({0})" },
+                { "Trim",           "trim(both {1} from {0})"},
+                { "TrimStart",      "trim(leading {1} from {0})"},
+                { "TrimEnd",        "trim(trailing {1} from {0})"},
                 // https://www.postgresql.org/docs/9.1/static/functions-string.html
             };
 
@@ -168,6 +172,15 @@ namespace Thesis.Relinq.PsqlQueryGeneration
                 _psqlExpression.Clear();
             }
 
+            var expectedArguments = Regex.Matches(
+                _methodCallNamesToString[expression.Method.Name], "\\{([^}]+)\\}"
+            );
+
+            while (arguments.Count < expectedArguments.Count) 
+            {
+                arguments.Add(string.Empty);
+            }
+                
             _psqlExpression.AppendFormat(
                 _methodCallNamesToString[expression.Method.Name], arguments.ToArray()
             );
