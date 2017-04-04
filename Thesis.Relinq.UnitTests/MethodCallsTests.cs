@@ -13,12 +13,12 @@ namespace Thesis.Relinq.UnitTests
         {
             // Arrange
             var myQuery = 
-                from c in PsqlQueryFactory.Queryable<Employees>(connection)
-                where c.EmployeeID.Equals(5)
-                select c;
+                from e in PsqlQueryFactory.Queryable<Employees>(connection)
+                where e.EmployeeID.Equals(5)
+                select e;
 
             var myQuery2 = PsqlQueryFactory.Queryable<Employees>(connection)
-                .Where(c => c.EmployeeID.Equals(5));
+                .Where(e => e.EmployeeID.Equals(5));
             
             string psqlCommand = "SELECT * FROM Employees WHERE (\"EmployeeID\" = 5);";
 
@@ -33,22 +33,68 @@ namespace Thesis.Relinq.UnitTests
         }
 
         [Test]
-        public void to_lower()
+        public void take()
         {
             // Arrange
             var myQuery = 
-                from c in PsqlQueryFactory.Queryable<Customers>(connection)
-                select c.CustomerID.ToLower();
+                from e in PsqlQueryFactory.Queryable<Employees>(connection)
+                select e;
 
-            var myQuery2 = PsqlQueryFactory.Queryable<Customers>(connection)
-                .Select(c => c.CustomerID.ToLower());
+            var myQuery2 = PsqlQueryFactory.Queryable<Employees>(connection)
+                .Select(x => x);
             
-            string psqlCommand = "SELECT lower(\"CustomerID\") FROM Customers;";
+            string psqlCommand = "SELECT * FROM Employees LIMIT 5;";
 
             // Act
-            var expected = NpgsqlRowConverter<string>.ReadAllRows(connection, psqlCommand).ToArray();
-            var actual = myQuery.ToArray();
-            var actual2 = myQuery2.ToArray();
+            var expected = NpgsqlRowConverter<Employees>.ReadAllRows(connection, psqlCommand).ToArray();
+            var actual = myQuery.Take(5).ToArray();
+            var actual2 = myQuery2.Take(5).ToArray();
+
+            // Assert
+            AssertExtension.AreEqualByJson(expected, actual);
+            AssertExtension.AreEqualByJson(expected, actual2);
+        }
+
+        [Test]
+        public void skip()
+        {
+            // Arrange
+            var myQuery = 
+                from e in PsqlQueryFactory.Queryable<Employees>(connection)
+                select e;
+
+            var myQuery2 = PsqlQueryFactory.Queryable<Employees>(connection)
+                .Select(x => x);
+            
+            string psqlCommand = "SELECT * FROM Employees OFFSET 5;";
+
+            // Act
+            var expected = NpgsqlRowConverter<Employees>.ReadAllRows(connection, psqlCommand).ToArray();
+            var actual = myQuery.Skip(5).ToArray();
+            var actual2 = myQuery2.Skip(5).ToArray();
+
+            // Assert
+            AssertExtension.AreEqualByJson(expected, actual);
+            AssertExtension.AreEqualByJson(expected, actual2);
+        }
+
+        [Test]
+        public void take_and_skip()
+        {
+            // Arrange
+            var myQuery = 
+                from e in PsqlQueryFactory.Queryable<Employees>(connection)
+                select e;
+
+            var myQuery2 = PsqlQueryFactory.Queryable<Employees>(connection)
+                .Select(x => x);
+            
+            string psqlCommand = "SELECT * FROM Employees OFFSET 5 LIMIT 3;";
+
+            // Act
+            var expected = NpgsqlRowConverter<Employees>.ReadAllRows(connection, psqlCommand).ToArray();
+            var actual = myQuery.Skip(5).Take(3).ToArray();
+            var actual2 = myQuery2.Take(3).Skip(5).ToArray();
 
             // Assert
             AssertExtension.AreEqualByJson(expected, actual);

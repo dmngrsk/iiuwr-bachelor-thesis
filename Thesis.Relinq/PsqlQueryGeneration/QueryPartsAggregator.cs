@@ -12,12 +12,14 @@ namespace Thesis.Relinq.PsqlQueryGeneration
             FromParts = new List<string>();
             WhereParts = new List<string>();
             OrderByParts = new List<string>();
+            PagingParts = new List<string>();
         }
 
         public string SelectPart { get; private set; }
         private List<string> FromParts { get; set; }
         private List<string> WhereParts { get; set; }
         private List<string> OrderByParts { get; set; }
+        private List<string> PagingParts { get; set; }
 
         public void SetSelectPart(string selectPart)
         {
@@ -69,6 +71,11 @@ namespace Thesis.Relinq.PsqlQueryGeneration
             OrderByParts = localOrderByParts;
         }
 
+        public void AddPagingPart(string limitter, string count)
+        {
+            PagingParts.Add($"{limitter} {count}");
+        }
+
         public string BuildPsqlString()
         {
             var stringBuilder = new StringBuilder();
@@ -89,6 +96,9 @@ namespace Thesis.Relinq.PsqlQueryGeneration
 
             if (OrderByParts.Count > 0)
                 stringBuilder.AppendFormat(" ORDER BY {0}", string.Join(", ", OrderByParts));
+
+            if (PagingParts.Count > 0)
+                stringBuilder.AppendFormat(" {0}", string.Join(" ", PagingParts));
 
             return stringBuilder.Append(";").ToString();
         }

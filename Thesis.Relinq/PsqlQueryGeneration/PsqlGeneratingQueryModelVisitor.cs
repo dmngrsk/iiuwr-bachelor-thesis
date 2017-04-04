@@ -96,8 +96,31 @@ namespace Thesis.Relinq.PsqlQueryGeneration
         public override void VisitResultOperator(ResultOperatorBase resultOperator, QueryModel queryModel, int index)
         {
             // TODO: https://www.tutorialspoint.com/linq/linq_query_operators.htm
-            _queryParts.SetSelectPartAsScalar(_resultOperatorsToString[resultOperator.GetType()]);
-            base.VisitResultOperator(resultOperator, queryModel, index);
+
+            var operatorType = resultOperator.GetType();
+
+            if (_resultOperatorsToString.ContainsKey(operatorType))
+            {
+                _queryParts.SetSelectPartAsScalar(_resultOperatorsToString[operatorType]);
+                base.VisitResultOperator(resultOperator, queryModel, index);
+            }
+
+            else if (operatorType == typeof(TakeResultOperator) || operatorType == typeof(SkipResultOperator))
+            {
+                var limitter = operatorType == typeof(TakeResultOperator) ? "LIMIT" : "OFFSET";
+                var constExpression = operatorType == typeof(TakeResultOperator) ?
+                    (resultOperator as TakeResultOperator).Count :
+                    (resultOperator as SkipResultOperator).Count;
+                
+                _queryParts.AddPagingPart(limitter, GetPsqlExpression(constExpression));
+                base.VisitResultOperator(resultOperator, queryModel, index);
+            }
+            
+            else 
+            {
+                throw new NotImplementedException(
+                    $"This LINQ provider does not provide the {resultOperator} result operator.");
+            }
         }
 
         public override void VisitSelectClause(SelectClause selectClause, QueryModel queryModel)

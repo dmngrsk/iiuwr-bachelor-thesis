@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Text;
@@ -161,31 +162,38 @@ namespace Thesis.Relinq.PsqlQueryGeneration
 
         protected override Expression VisitMethodCall(MethodCallExpression expression)
         {
-            this.Visit(expression.Object);
-            var arguments = new List<object>(new object[] { _psqlExpression.ToString() });
-            _psqlExpression.Clear();
+            var methodName = expression.Method.Name;
 
-            foreach (var argument in expression.Arguments)
+            if (_methodCallNamesToString.ContainsKey(methodName))
             {
-                this.Visit(argument);
-                arguments.Add(_psqlExpression.ToString());
+                this.Visit(expression.Object);
+                var arguments = new List<object>(new object[] { _psqlExpression.ToString() });
                 _psqlExpression.Clear();
+
+                foreach (var argument in expression.Arguments)
+                {
+                    this.Visit(argument);
+                    arguments.Add(_psqlExpression.ToString());
+                    _psqlExpression.Clear();
+                }
+
+                var expectedArguments = Regex.Matches(
+                    _methodCallNamesToString[methodName], "\\{([^}]+)\\}"
+                );
+
+                while (arguments.Count < expectedArguments.Count) 
+                {
+                    arguments.Add(string.Empty);
+                }
+                    
+                _psqlExpression.AppendFormat(
+                    _methodCallNamesToString[methodName], arguments.ToArray()
+                );
+
+                return expression;
             }
 
-            var expectedArguments = Regex.Matches(
-                _methodCallNamesToString[expression.Method.Name], "\\{([^}]+)\\}"
-            );
-
-            while (arguments.Count < expectedArguments.Count) 
-            {
-                arguments.Add(string.Empty);
-            }
-                
-            _psqlExpression.AppendFormat(
-                _methodCallNamesToString[expression.Method.Name], arguments.ToArray()
-            );
-
-            return expression;
+            throw new NotImplementedException($"This LINQ provider does not provide the {methodName} method.");
         }
 
         protected override Expression VisitNew(NewExpression expression)
