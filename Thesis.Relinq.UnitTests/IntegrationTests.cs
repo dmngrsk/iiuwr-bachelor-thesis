@@ -316,14 +316,16 @@ namespace Thesis.Relinq.UnitTests
                     Order = o.OrderID
                 };
 
-         /* var myQuery2 = PsqlQueryFactory.Queryable<Orders>(connection)
-                .SelectMany(o => PsqlQueryFactory.Queryable<Employees>(connection)
-                    .Where(e => o.EmployeeID == e.EmployeeID)
-                    .Select(e => new
-                                 {
-                                     Employee = o.EmployeeID,
-                                     Order = o.OrderID
-                                 })); */
+            var myQuery2 = PsqlQueryFactory.Queryable<Orders>(connection)
+                .SelectMany(o => 
+                    PsqlQueryFactory.Queryable<Employees>(connection),
+                    (o, e) => new { o, e })
+                .Where(x => x.o.EmployeeID == x.e.EmployeeID)
+                .Select(x => new
+                               {
+                                   Employee = x.o.EmployeeID,
+                                   Order = x.o.OrderID
+                               });
 
             string psqlCommand = "SELECT Orders.\"EmployeeID\", Orders.\"OrderID\" " + 
                 "FROM Orders, Employees WHERE Orders.\"EmployeeID\" = Employees.\"EmployeeID\";";
@@ -334,11 +336,11 @@ namespace Thesis.Relinq.UnitTests
             // Act
             var expected = rowConverterMethod.Invoke(this, new object[] { connection, psqlCommand });
             var actual = myQuery.ToArray();
-         // var actual2 = myQuery2.ToArray();
+            var actual2 = myQuery2.ToArray();
 
             // Assert
             AssertExtension.AreEqualByJson(expected, actual);
-         // AssertExtension.AreEqualByJson(expected, actual2);
+            AssertExtension.AreEqualByJson(expected, actual2);
         }
 
 /*        [Test]
