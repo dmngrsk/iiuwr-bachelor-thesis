@@ -1,7 +1,7 @@
 using Newtonsoft.Json;
 using NUnit.Framework;
 
-namespace Thesis.Relinq.UnitTests
+namespace Thesis.Relinq.Tests.Helpers
 {
     public static class AssertExtension
     {

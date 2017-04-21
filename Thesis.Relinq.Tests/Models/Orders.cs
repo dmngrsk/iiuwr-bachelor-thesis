@@ -1,6 +1,6 @@
 using System;
 
-namespace Thesis.Relinq.UnitTests.Models
+namespace Thesis.Relinq.Tests.Models
 {
     /*  OrderID        | smallint
         CustomerID     | character

@@ -1,4 +1,4 @@
-namespace Thesis.Relinq.UnitTests.Models
+namespace Thesis.Relinq.Tests.Models
 {
     /*  CustomerID   | character
         CompanyName  | character varying

@@ -1,4 +1,4 @@
-namespace Thesis.Relinq.UnitTests.Models
+namespace Thesis.Relinq.Tests.Models
 {
     /*  kod_grupy     | integer
         kod_przed_sem | integer

@@ -3,9 +3,10 @@ using NUnit.Framework;
 using System.Linq;
 using System.Reflection;
 using Thesis.Relinq.NpgsqlWrapper;
-using Thesis.Relinq.UnitTests.Models;
+using Thesis.Relinq.Tests.Helpers;
+using Thesis.Relinq.Tests.Models;
 
-namespace Thesis.Relinq.UnitTests
+namespace Thesis.Relinq.Tests
 {
     [TestFixture]
     public class IntegrationTests : ThesisTestsBase
@@ -123,7 +124,8 @@ namespace Thesis.Relinq.UnitTests
                 select e;
 
             var myQuery2 = PsqlQueryFactory.Queryable<Employees>(connection)
-                .Where(e => e.EmployeeID > 5).Where(e => e.City == "London");
+                .Where(e => e.EmployeeID > 5)
+                .Where(e => e.City == "London");
             
             string psqlCommand = "SELECT * FROM Employees " +
                 "WHERE \"EmployeeID\" > 5 AND \"City\" = 'London';";

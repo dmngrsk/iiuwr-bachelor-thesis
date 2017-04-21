@@ -2,7 +2,7 @@ using Npgsql;
 using NUnit.Framework;
 using Thesis.Relinq.NpgsqlWrapper;
 
-namespace Thesis.Relinq.UnitTests
+namespace Thesis.Relinq.Tests.Helpers
 {
     [TestFixture]
     public class ThesisTestsBase

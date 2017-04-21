@@ -1,9 +1,10 @@
 using NUnit.Framework;
 using System.Linq;
 using Thesis.Relinq.NpgsqlWrapper;
-using Thesis.Relinq.UnitTests.Models;
+using Thesis.Relinq.Tests.Helpers;
+using Thesis.Relinq.Tests.Models;
 
-namespace Thesis.Relinq.UnitTests
+namespace Thesis.Relinq.Tests
 {
     [TestFixture]
     public class BinaryExpressionTests : ThesisTestsBase
