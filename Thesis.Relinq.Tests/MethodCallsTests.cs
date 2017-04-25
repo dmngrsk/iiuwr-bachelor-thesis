@@ -148,10 +148,82 @@ namespace Thesis.Relinq.Tests
             AssertExtension.AreEqualByJson(expected, actual2);
         }
 
-        [Test, IgnoreAttribute("Feature not implemented yet")]
+        [Test]
         public void contains()
         {
+            // Arrange
+            var myQuery = 
+                from c in PsqlQueryFactory.Queryable<Customers>(connection)
+                where c.ContactName.Contains("A")
+                select c.ContactName;
+
+            var myQuery2 = PsqlQueryFactory.Queryable<Customers>(connection)
+                .Where(c => c.ContactName.Contains("A"))
+                .Select(c => c.ContactName);
             
+            string psqlCommand = "SELECT \"ContactName\" FROM Customers " +
+                "WHERE \"ContactName\" LIKE '%A%';";
+
+            // Act
+            var expected = NpgsqlRowConverter<string>.ReadAllRows(connection, psqlCommand).ToArray();
+            var actual = myQuery.ToArray();
+            var actual2 = myQuery2.ToArray();
+
+            // Assert
+            AssertExtension.AreEqualByJson(expected, actual);
+            AssertExtension.AreEqualByJson(expected, actual2);
+        }
+
+        [Test]
+        public void starts_with()
+        {
+            // Arrange
+            var myQuery = 
+                from c in PsqlQueryFactory.Queryable<Customers>(connection)
+                where c.ContactName.StartsWith("C")
+                select c.ContactName;
+
+            var myQuery2 = PsqlQueryFactory.Queryable<Customers>(connection)
+                .Where(c => c.ContactName.StartsWith("C"))
+                .Select(c => c.ContactName);
+            
+            string psqlCommand = "SELECT \"ContactName\" FROM Customers " +
+                "WHERE \"ContactName\" LIKE 'C%';";
+
+            // Act
+            var expected = NpgsqlRowConverter<string>.ReadAllRows(connection, psqlCommand).ToArray();
+            var actual = myQuery.ToArray();
+            var actual2 = myQuery2.ToArray();
+
+            // Assert
+            AssertExtension.AreEqualByJson(expected, actual);
+            AssertExtension.AreEqualByJson(expected, actual2);
+        }
+
+        [Test]
+        public void ends_with()
+        {
+            // Arrange
+            var myQuery = 
+                from c in PsqlQueryFactory.Queryable<Customers>(connection)
+                where c.ContactName.EndsWith("e")
+                select c.ContactName;
+
+            var myQuery2 = PsqlQueryFactory.Queryable<Customers>(connection)
+                .Where(c => c.ContactName.EndsWith("e"))
+                .Select(c => c.ContactName);
+            
+            string psqlCommand = "SELECT \"ContactName\" FROM Customers " +
+                "WHERE \"ContactName\" LIKE '%e';";
+
+            // Act
+            var expected = NpgsqlRowConverter<string>.ReadAllRows(connection, psqlCommand).ToArray();
+            var actual = myQuery.ToArray();
+            var actual2 = myQuery2.ToArray();
+
+            // Assert
+            AssertExtension.AreEqualByJson(expected, actual);
+            AssertExtension.AreEqualByJson(expected, actual2);
         }
 
         [Test, IgnoreAttribute("Feature not implemented yet")]
@@ -166,17 +238,6 @@ namespace Thesis.Relinq.Tests
             
         }
 
-        [Test, IgnoreAttribute("Feature not implemented yet")]
-        public void starts_with()
-        {
-            
-        }
-
-        [Test, IgnoreAttribute("Feature not implemented yet")]
-        public void ends_with()
-        {
-            
-        }
 
         [Test]
         public void trim()

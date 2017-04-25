@@ -17,12 +17,12 @@ namespace Thesis.Relinq.PsqlQueryGeneration
         private readonly static Dictionary<Type, string> _resultOperatorsToString =
             new Dictionary<Type, string>()
             {
-                { typeof(CountResultOperator), "COUNT({0})" },
-                { typeof(AverageResultOperator), "AVG({0})"},
-                { typeof(SumResultOperator), "SUM({0})"},
-                { typeof(MinResultOperator), "MIN({0})"},
-                { typeof(MaxResultOperator), "MAX({0})"},
-                { typeof(DistinctResultOperator), "DISTINCT({0})"},
+                { typeof(CountResultOperator),          "COUNT({0})" },
+                { typeof(AverageResultOperator),        "AVG({0})" },
+                { typeof(SumResultOperator),            "SUM({0})" },
+                { typeof(MinResultOperator),            "MIN({0})" },
+                { typeof(MaxResultOperator),            "MAX({0})" },
+                { typeof(DistinctResultOperator),       "DISTINCT({0})" },
             };
 
         public PsqlGeneratingQueryModelVisitor(NpgsqlDatabaseSchema dbSchema) : base()

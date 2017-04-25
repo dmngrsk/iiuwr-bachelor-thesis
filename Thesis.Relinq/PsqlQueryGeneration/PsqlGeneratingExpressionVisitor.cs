@@ -50,9 +50,13 @@ namespace Thesis.Relinq.PsqlQueryGeneration
 
                 { "ToLower",                            "LOWER({0})" },
                 { "ToUpper",                            "UPPER({0})" },
-                { "Trim",                               "TRIM(both {1} from {0})"},
-                { "TrimStart",                          "TRIM(leading {1} from {0})"},
-                { "TrimEnd",                            "TRIM(trailing {1} from {0})"},
+                { "Trim",                               "TRIM(both {1} from {0})" },
+                { "TrimStart",                          "TRIM(leading {1} from {0})" },
+                { "TrimEnd",                            "TRIM(trailing {1} from {0})" },
+
+                { "Contains",                           "{0} LIKE '%' || {1} || '%'" },
+                { "StartsWith",                         "{0} LIKE {1} || '%'" },
+                { "EndsWith",                           "{0} LIKE '%' || {1}" },
 
                 // https://www.postgresql.org/docs/9.1/static/functions-string.html
             };
