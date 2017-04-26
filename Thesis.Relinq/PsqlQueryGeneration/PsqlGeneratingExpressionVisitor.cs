@@ -59,6 +59,7 @@ namespace Thesis.Relinq.PsqlQueryGeneration
                 { "StartsWith",                         "{0} LIKE {1} || '%'" },
                 { "EndsWith",                           "{0} LIKE '%' || {1}" },
 
+                { "Length",                             "LENGTH({0})" },
                 { "Concat",                             "CONCAT({0})" }
 
                 // https://www.postgresql.org/docs/9.1/static/functions-string.html
@@ -167,8 +168,19 @@ namespace Thesis.Relinq.PsqlQueryGeneration
         
         protected override Expression VisitMember(MemberExpression expression)
         {
-            this.Visit(expression.Expression);
-            _psqlExpression.Append($".\"{_dbSchema.GetColumnName(expression.Member.Name)}\"");
+            if (expression.Expression.NodeType == ExpressionType.MemberAccess &&
+                expression.Member.Name == "Length")
+            {
+                _psqlExpression.Append("LENGTH(");
+                this.Visit(expression.Expression);
+                _psqlExpression.Append(")");
+            }
+            else
+            {
+                this.Visit(expression.Expression);
+                _psqlExpression.Append($".\"{_dbSchema.GetColumnName(expression.Member.Name)}\"");
+            }
+
             return expression;
         }
         // Visits the children of the System.Linq.Expressions.MemberInitExpression.

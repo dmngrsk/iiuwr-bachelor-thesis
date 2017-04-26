@@ -1,8 +1,10 @@
 using NUnit.Framework;
 using System.Linq;
+using System.Reflection;
 using Thesis.Relinq.NpgsqlWrapper;
 using Thesis.Relinq.Tests.Helpers;
 using Thesis.Relinq.Tests.Models;
+using Npgsql;
 
 namespace Thesis.Relinq.Tests
 {
@@ -96,6 +98,62 @@ namespace Thesis.Relinq.Tests
             var expected = NpgsqlRowConverter<Employees>.ReadAllRows(connection, psqlCommand).ToArray();
             var actual = myQuery.Skip(5).Take(3).ToArray();
             var actual2 = myQuery2.Take(3).Skip(5).ToArray();
+
+            // Assert
+            AssertExtension.AreEqualByJson(expected, actual);
+            AssertExtension.AreEqualByJson(expected, actual2);
+        }
+
+        [Test, IgnoreAttribute("Feature not implemented yet")]
+        public void any()
+        {
+            // Arrange
+            var myQuery = // TODO.
+                from c in PsqlQueryFactory.Queryable<Customers>(connection)
+                where PsqlQueryFactory.Queryable<Orders>(connection)
+                    .Any(o => c.CustomerID == o.CustomerID)
+                select c;
+
+            var myQuery2 = 
+                PsqlQueryFactory.Queryable<Customers>(connection)
+                    .Where(c => PsqlQueryFactory.Queryable<Orders>(connection)
+                        .Any(o => o.CustomerID == c.CustomerID));
+
+            var psqlCommand = "SELECT * FROM CUSTOMERS WHERE " + 
+                "EXISTS (SELECT * FROM ORDERS WHERE " +
+                "customers.\"CustomerID\" = orders.\"CustomerID\");";
+
+            // Act
+            var expected = NpgsqlRowConverter<Customers>.ReadAllRows(connection, psqlCommand).ToArray();
+            var actual = myQuery.ToArray();
+            var actual2 = myQuery2.ToArray();
+
+            // Assert
+            AssertExtension.AreEqualByJson(expected, actual);
+            AssertExtension.AreEqualByJson(expected, actual2);
+        }
+
+        [Test, IgnoreAttribute("Feature not implemented yet")]
+        public void all()
+        {
+            // Arrange
+            var myQuery = // TODO.
+                from c in PsqlQueryFactory.Queryable<Customers>(connection)
+                select c;
+
+            var myQuery2 = 
+                PsqlQueryFactory.Queryable<Customers>(connection)
+                    .Where(c => PsqlQueryFactory.Queryable<Orders>(connection)
+                        .All(o => o.CustomerID != c.CustomerID));
+
+            var psqlCommand = "SELECT * FROM Customers WHERE " +
+                "NOT EXISTS (SELECT * FROM Orders WHERE " +
+                "NOT (customers.\"CustomerID\" != orders.\"CustomerID\"))";
+
+            // Act
+            var expected = NpgsqlRowConverter<Customers>.ReadAllRows(connection, psqlCommand).ToArray();
+            var actual = myQuery.ToArray();
+            var actual2 = myQuery2.ToArray();
 
             // Assert
             AssertExtension.AreEqualByJson(expected, actual);
@@ -232,10 +290,38 @@ namespace Thesis.Relinq.Tests
             
         }
 
-        [Test, IgnoreAttribute("Feature not implemented yet")]
+        [Test]
         public void length()
         {
-            
+            // Arrange
+            var myQuery =
+                from c in PsqlQueryFactory.Queryable<Customers>(connection)
+                select new
+                {
+                    Name = c.ContactName,
+                    Length = c.ContactName.Length
+                };
+
+            var myQuery2 = PsqlQueryFactory.Queryable<Customers>(connection)
+                .Select(c => new 
+                               {
+                                   Name = c.ContactName,
+                                   Length = c.ContactName.Length
+                               });
+
+            var psqlCommand = "SELECT \"ContactName\", LENGTH(\"ContactName\") FROM Customers;";
+            var rowConverterType = typeof(NpgsqlRowConverter<>).MakeGenericType(myQuery.ElementType);
+            var rowConverterMethod = rowConverterType.GetMethod(
+                "ReadAllRows", new [] { typeof(NpgsqlConnection), typeof(string) });
+
+            // Act
+            var expected = rowConverterMethod.Invoke(this, new object[] { connection, psqlCommand });
+            var actual = myQuery.ToArray();
+            var actual2 = myQuery2.ToArray();
+
+            // Assert
+            AssertExtension.AreEqualByJson(expected, actual);
+            AssertExtension.AreEqualByJson(expected, actual2);
         }
 
 
@@ -380,6 +466,7 @@ namespace Thesis.Relinq.Tests
         [Test]
         public void concat()
         {
+            // Arrange
             var myQuery = 
                 from c in PsqlQueryFactory.Queryable<Customers>(connection)
                 select string.Concat(c.ContactName, " is from ", c.Country);
