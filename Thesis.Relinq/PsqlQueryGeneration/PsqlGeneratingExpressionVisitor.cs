@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -58,6 +59,8 @@ namespace Thesis.Relinq.PsqlQueryGeneration
                 { "StartsWith",                         "{0} LIKE {1} || '%'" },
                 { "EndsWith",                           "{0} LIKE '%' || {1}" },
 
+                { "Concat",                             "CONCAT({0})" }
+
                 // https://www.postgresql.org/docs/9.1/static/functions-string.html
             };
 
@@ -81,7 +84,16 @@ namespace Thesis.Relinq.PsqlQueryGeneration
         protected override Expression VisitBinary(BinaryExpression expression)
         {
             this.Visit(expression.Left);
-            _psqlExpression.Append(_binaryExpressionOperatorsToString[expression.NodeType]);
+    
+            var isAddingStrings = expression.NodeType == ExpressionType.Add && 
+                (expression.Left.Type == typeof(string)
+                || expression.Right.Type == typeof(string));
+
+            if (isAddingStrings)
+                _psqlExpression.Append(" || ");
+            else
+                _psqlExpression.Append(_binaryExpressionOperatorsToString[expression.NodeType]);
+    
             this.Visit(expression.Right);
             return expression;
         }
@@ -172,13 +184,13 @@ namespace Thesis.Relinq.PsqlQueryGeneration
             if (_methodCallNamesToString.ContainsKey(methodName))
             {
                 this.Visit(expression.Object);
-                var arguments = new List<object>(new object[] { _psqlExpression.ToString() });
+                var expressionAccumulator = new List<object>(new object[] { _psqlExpression.ToString() });
                 _psqlExpression.Clear();
 
                 foreach (var argument in expression.Arguments)
                 {
                     this.Visit(argument);
-                    arguments.Add(_psqlExpression.ToString());
+                    expressionAccumulator.Add(_psqlExpression.ToString());
                     _psqlExpression.Clear();
                 }
 
@@ -186,14 +198,28 @@ namespace Thesis.Relinq.PsqlQueryGeneration
                     _methodCallNamesToString[methodName], "\\{([^}]+)\\}"
                 );
 
-                while (arguments.Count < expectedArguments.Count) 
+                while (expressionAccumulator.Count < expectedArguments.Count) 
                 {
-                    arguments.Add(string.Empty);
+                    expressionAccumulator.Add(string.Empty);
                 }
-                    
-                _psqlExpression.AppendFormat(
-                    _methodCallNamesToString[methodName], arguments.ToArray()
-                );
+                
+                switch (methodName)
+                {
+                    case "Concat":
+                        expressionAccumulator.RemoveAt(0);
+                        _psqlExpression.AppendFormat(
+                            _methodCallNamesToString[methodName],
+                            string.Join(", ", expressionAccumulator.Select(x => x.ToString()))
+                        );
+                        break;
+
+                    default:
+                    _psqlExpression.AppendFormat(
+                        _methodCallNamesToString[methodName], 
+                        expressionAccumulator.ToArray()
+                    );
+                    break;
+                }
 
                 return expression;
             }

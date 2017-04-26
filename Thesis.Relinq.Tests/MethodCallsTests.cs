@@ -377,10 +377,27 @@ namespace Thesis.Relinq.Tests
             AssertExtension.AreEqualByJson(expected, actual2);
         }
 
-        [Test, IgnoreAttribute("Feature not implemented yet")]
+        [Test]
         public void concat()
         {
-            
+            var myQuery = 
+                from c in PsqlQueryFactory.Queryable<Customers>(connection)
+                select string.Concat(c.ContactName, " is from ", c.Country);
+
+            var myQuery2 = PsqlQueryFactory.Queryable<Customers>(connection)
+                .Select(c => string.Concat(c.ContactName, " is from ", c.Country));
+
+            var psqlCommand = "SELECT CONCAT(\"ContactName\", ' is from ', \"Country\") " +
+                "FROM Customers;";
+
+            // Act
+            var expected = NpgsqlRowConverter<string>.ReadAllRows(connection, psqlCommand).ToArray();
+            var actual = myQuery.ToArray();
+            var actual2 = myQuery2.ToArray();
+
+            // Assert
+            AssertExtension.AreEqualByJson(expected, actual);
+            AssertExtension.AreEqualByJson(expected, actual2);
         }
 
         [Test, IgnoreAttribute("Feature not implemented yet")]

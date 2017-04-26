@@ -162,6 +162,29 @@ namespace Thesis.Relinq.Tests
         }
 
         [Test]
+        public void handles_string_addition()
+        {
+            var myQuery = 
+                from e in PsqlQueryFactory.Queryable<Employees>(connection)
+                select e.FirstName + " " + e.LastName + " has ID: " + e.EmployeeID;
+
+            var myQuery2 = PsqlQueryFactory.Queryable<Employees>(connection)
+                .Select(e => e.FirstName + " " + e.LastName + " has ID: " + e.EmployeeID);
+
+            var psqlCommand = "SELECT \"FirstName\" || ' ' || \"LastName\" || " +
+                "' has ID: ' || \"EmployeeID\" FROM employees;";
+
+            // Act
+            var expected = NpgsqlRowConverter<string>.ReadAllRows(connection, psqlCommand).ToArray();
+            var actual = myQuery.ToArray();
+            var actual2 = myQuery2.ToArray();
+
+            // Assert
+            AssertExtension.AreEqualByJson(expected, actual);
+            AssertExtension.AreEqualByJson(expected, actual2);
+        }
+
+        [Test]
         public void logical_not_applied()
         {
             // Arrange
