@@ -51,6 +51,17 @@ namespace Thesis.Relinq.PsqlQueryGeneration
 
                 { "ToLower",                            "LOWER({0})" },
                 { "ToUpper",                            "UPPER({0})" },
+                { "Reverse",                            "REVERSE({0})" },
+                { "Length",                             "LENGTH({0})" },
+                
+                { "Concat",                             "CONCAT({0})" },
+
+                { "Substring",                           string.Empty },
+                { "Substring2",                         "SUBSTRING({0} FROM {1}+1)" },
+                { "Substring3",                         "SUBSTRING({0} FROM {1}+1 FOR {2})" },
+
+                { "Replace",                            "REPLACE({0}, {1}, {2})" },
+
                 { "Trim",                               "TRIM(both {1} from {0})" },
                 { "TrimStart",                          "TRIM(leading {1} from {0})" },
                 { "TrimEnd",                            "TRIM(trailing {1} from {0})" },
@@ -59,8 +70,6 @@ namespace Thesis.Relinq.PsqlQueryGeneration
                 { "StartsWith",                         "{0} LIKE {1} || '%'" },
                 { "EndsWith",                           "{0} LIKE '%' || {1}" },
 
-                { "Length",                             "LENGTH({0})" },
-                { "Concat",                             "CONCAT({0})" }
 
                 // https://www.postgresql.org/docs/9.1/static/functions-string.html
             };
@@ -225,12 +234,25 @@ namespace Thesis.Relinq.PsqlQueryGeneration
                         );
                         break;
 
+                    case "Substring":
+                        if (expressionAccumulator.Count == 2)
+                            _psqlExpression.AppendFormat(
+                                _methodCallNamesToString[methodName + "2"],
+                                expressionAccumulator.ToArray()
+                            );
+                        else // if (expressionAccumulator.Count == 3)
+                            _psqlExpression.AppendFormat(
+                                _methodCallNamesToString[methodName + "3"],
+                                expressionAccumulator.ToArray()
+                            );
+                        break;
+
                     default:
-                    _psqlExpression.AppendFormat(
-                        _methodCallNamesToString[methodName], 
-                        expressionAccumulator.ToArray()
-                    );
-                    break;
+                        _psqlExpression.AppendFormat(
+                            _methodCallNamesToString[methodName], 
+                            expressionAccumulator.ToArray()
+                        );
+                        break;
                 }
 
                 return expression;
@@ -301,7 +323,6 @@ namespace Thesis.Relinq.PsqlQueryGeneration
                 this.Visit(expression.Operand);
                 _psqlExpression.Append(")");
             }
-
             else
             {
                 this.Visit(expression.Operand as MemberExpression);

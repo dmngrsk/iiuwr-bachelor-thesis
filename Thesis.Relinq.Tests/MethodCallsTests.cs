@@ -284,10 +284,29 @@ namespace Thesis.Relinq.Tests
             AssertExtension.AreEqualByJson(expected, actual2);
         }
 
-        [Test, IgnoreAttribute("Feature not implemented yet")]
+        [Test]
         public void substring()
         {
-            
+            // Arrange
+            var myQuery = 
+                from c in PsqlQueryFactory.Queryable<Customers>(connection)
+                select c.ContactName.Substring(1);
+
+            var myQuery2 = PsqlQueryFactory.Queryable<Customers>(connection)
+                .Select(x => x.CustomerID.Substring(0, 2));
+
+            var psqlCommand = "SELECT SUBSTRING(\"ContactName\" FROM 2) FROM Customers;";
+            var psqlCommand2 = "SELECT SUBSTRING(\"CustomerID\" FROM 1 FOR 2) FROM Customers;";
+
+            // Act
+            var expected = NpgsqlRowConverter<string>.ReadAllRows(connection, psqlCommand).ToArray();
+            var expected2 = NpgsqlRowConverter<string>.ReadAllRows(connection, psqlCommand2).ToArray();
+            var actual = myQuery.ToArray();
+            var actual2 = myQuery2.ToArray();
+
+            // Assert
+            AssertExtension.AreEqualByJson(expected, actual);
+            AssertExtension.AreEqualByJson(expected2, actual2);
         }
 
         [Test]
@@ -487,16 +506,29 @@ namespace Thesis.Relinq.Tests
             AssertExtension.AreEqualByJson(expected, actual2);
         }
 
-        [Test, IgnoreAttribute("Feature not implemented yet")]
-        public void reverse()
-        {
-            
-        }
-
-        [Test, IgnoreAttribute("Feature not implemented yet")]
+        [Test]
         public void replace()
         {
-            
+            // Arrange
+            var myQuery = 
+                from c in PsqlQueryFactory.Queryable<Customers>(connection)
+                select c.CustomerID.Replace('A', '0');
+
+            var myQuery2 = PsqlQueryFactory.Queryable<Customers>(connection)
+                .Select(c => c.CustomerID.Replace("A", "Hello"));
+
+            var psqlCommand = "SELECT REPLACE(\"CustomerID\", 'A', '0') FROM Customers;";
+            var psqlCommand2 = "SELECT REPLACE(\"CustomerID\", 'A', 'Hello') FROM Customers;";
+
+            // Act
+            var expected = NpgsqlRowConverter<string>.ReadAllRows(connection, psqlCommand).ToArray();
+            var expected2 = NpgsqlRowConverter<string>.ReadAllRows(connection, psqlCommand2).ToArray();
+            var actual = myQuery.ToArray();
+            var actual2 = myQuery2.ToArray();
+
+            // Assert
+            AssertExtension.AreEqualByJson(expected, actual);
+            AssertExtension.AreEqualByJson(expected2, actual2);
         }
     }
 }

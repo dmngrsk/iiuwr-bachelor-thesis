@@ -10,7 +10,7 @@ namespace Thesis.Relinq.Tests
     public class ResultOperatorTests : ThesisTestsBase
     {
         [Test]
-        public void select_count()
+        public void count()
         {
             // Arrange
             var myQuery = 
@@ -33,7 +33,7 @@ namespace Thesis.Relinq.Tests
         }
 
         [Test]
-        public void select_average()
+        public void average()
         {
             // Arrange
             var myQuery = 
@@ -56,7 +56,7 @@ namespace Thesis.Relinq.Tests
         }
 
         [Test]
-        public void select_sum()
+        public void sum()
         {
             // Arrange
             var myQuery = 
@@ -79,7 +79,7 @@ namespace Thesis.Relinq.Tests
         }
         
         [Test]
-        public void select_min()
+        public void min()
         {
             // Arrange
             var myQuery = 
@@ -102,7 +102,7 @@ namespace Thesis.Relinq.Tests
         }
 
         [Test]
-        public void select_max()
+        public void max()
         {
             // Arrange
             var myQuery = 
