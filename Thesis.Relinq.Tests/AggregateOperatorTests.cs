@@ -7,7 +7,7 @@ using Thesis.Relinq.Tests.Models;
 namespace Thesis.Relinq.Tests
 {
     [TestFixture]
-    public class ResultOperatorTests : ThesisTestsBase
+    public class AggregateOperatorTests : ThesisTestsBase
     {
         [Test]
         public void count()

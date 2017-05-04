@@ -14,6 +14,7 @@ namespace Thesis.Relinq.PsqlQueryGeneration
         private readonly StringBuilder _psqlExpression = new StringBuilder();
         private readonly NpgsqlParameterAggregator _parameterAggregator;
         private readonly NpgsqlDatabaseSchema _dbSchema;
+        private bool _conditionalStart = true;
 
         private readonly static Dictionary<ExpressionType, string> _binaryExpressionOperatorsToString = 
             new Dictionary<ExpressionType, string>()
@@ -56,9 +57,8 @@ namespace Thesis.Relinq.PsqlQueryGeneration
                 
                 { "Concat",                             "CONCAT({0})" },
 
-                { "Substring",                           string.Empty },
-                { "Substring2",                         "SUBSTRING({0} FROM {1}+1)" },
-                { "Substring3",                         "SUBSTRING({0} FROM {1}+1 FOR {2})" },
+                { "Substring",                          "SUBSTRING({0} FROM {1}+1)" },
+                { "SubstringFor",                       "SUBSTRING({0} FROM {1}+1 FOR {2})" },
 
                 { "Replace",                            "REPLACE({0}, {1}, {2})" },
 
@@ -115,6 +115,29 @@ namespace Thesis.Relinq.PsqlQueryGeneration
         // Visits the children of the System.Linq.Expressions.ConditionalExpression.
         protected override Expression VisitConditional(ConditionalExpression expression)
         {
+            if (_conditionalStart)
+            {
+                _psqlExpression.Append("CASE");
+                _conditionalStart = false;
+            }
+
+            _psqlExpression.Append(" WHEN ");
+            this.Visit(expression.Test);
+            _psqlExpression.Append(" THEN ");
+            this.Visit(expression.IfTrue);
+
+            if (expression.IfFalse.NodeType == ExpressionType.Conditional)
+            {
+                this.Visit(expression.IfFalse);
+            }
+            else // If constant, then that means the switch block has ended.
+            {
+                _psqlExpression.Append(" ELSE ");
+                this.Visit(expression.IfFalse);
+                _psqlExpression.Append(" END");
+                _conditionalStart = true;
+            }
+
             return expression;
         }
         
@@ -137,6 +160,7 @@ namespace Thesis.Relinq.PsqlQueryGeneration
         // Visits the children of the extension expression.
         protected override Expression VisitExtension(Expression expression)
         {
+            Console.WriteLine("Hello, world!");
             return expression;
         }
         // Visits the children of the System.Linq.Expressions.GotoExpression.
@@ -235,14 +259,14 @@ namespace Thesis.Relinq.PsqlQueryGeneration
                         break;
 
                     case "Substring":
-                        if (expressionAccumulator.Count == 2)
+                        if (expressionAccumulator.Count == 3)
                             _psqlExpression.AppendFormat(
-                                _methodCallNamesToString[methodName + "2"],
+                                _methodCallNamesToString[methodName + "For"],
                                 expressionAccumulator.ToArray()
                             );
-                        else // if (expressionAccumulator.Count == 3)
+                        else // if (expressionAccumulator.Count == 2)
                             _psqlExpression.AppendFormat(
-                                _methodCallNamesToString[methodName + "3"],
+                                _methodCallNamesToString[methodName],
                                 expressionAccumulator.ToArray()
                             );
                         break;

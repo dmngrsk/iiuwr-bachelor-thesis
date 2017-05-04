@@ -97,6 +97,13 @@ namespace Thesis.Relinq.PsqlQueryGeneration
         public override void VisitResultOperator(ResultOperatorBase resultOperator, QueryModel queryModel, int index)
         {
             // TODO: https://www.tutorialspoint.com/linq/linq_query_operators.htm
+            var types = new List<Type>
+            {
+                typeof(UnionResultOperator),
+                typeof(IntersectResultOperator),
+                typeof(ConcatResultOperator),
+                typeof(ExceptResultOperator)
+            };
 
             var operatorType = resultOperator.GetType();
 
@@ -116,8 +123,15 @@ namespace Thesis.Relinq.PsqlQueryGeneration
                 _queryParts.AddPagingPart(limitter, GetPsqlExpression(constExpression));
                 base.VisitResultOperator(resultOperator, queryModel, index);
             }
+
+            else if (types.Contains(operatorType)) 
+            {
+                // TODO: podłubać jak dostać się do Source2.QueryModel...
+                var foo = resultOperator as UnionResultOperator;
+                base.VisitResultOperator(resultOperator, queryModel, index);
+            }
             
-            else 
+            else
             {
                 throw new NotImplementedException(
                     $"This LINQ provider does not provide the {resultOperator} result operator.");

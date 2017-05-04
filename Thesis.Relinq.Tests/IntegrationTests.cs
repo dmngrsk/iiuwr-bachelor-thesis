@@ -405,6 +405,50 @@ namespace Thesis.Relinq.Tests
         }*/
 
         [Test]
+        public void select_with_case()
+        {
+            // Arrange
+            var myQuery = 
+                from e in PsqlQueryFactory.Queryable<Employees>(connection)
+                where e.EmployeeID < 8
+                select new 
+                { 
+                    EmployeeID = e.EmployeeID, 
+                    CaseResult = (e.EmployeeID < 5 ? "smaller than five" :
+                                  e.EmployeeID == 5 ? "equal to five" :
+                                  "larger than five")
+                };
+
+            var myQuery2 = PsqlQueryFactory.Queryable<Employees>(connection)
+                .Where(e => e.EmployeeID < 8)
+                .Select(e => new
+                             {
+                                 EmployeeID = e.EmployeeID, 
+                                 CaseResult = (e.EmployeeID < 5 ? "smaller than five" :
+                                               e.EmployeeID == 5 ? "equal to five" :
+                                               "larger than five")
+                             });
+
+            var psqlCommand = "SELECT \"EmployeeID\", CASE " +
+                "WHEN \"EmployeeID\" < 5 THEN 'smaller than five' " +
+                "WHEN \"EmployeeID\" = 5 THEN 'equal to five' " + 
+                "ELSE 'larger than five' END " +
+                "FROM employees WHERE \"EmployeeID\" < 8;";
+            var rowConverterType = typeof(NpgsqlRowConverter<>).MakeGenericType(myQuery.ElementType);
+            var rowConverterMethod = rowConverterType.GetMethod(
+                "ReadAllRows", new [] { typeof(NpgsqlConnection), typeof(string) });
+
+            // Act
+            var expected = rowConverterMethod.Invoke(this, new object[] { connection, psqlCommand });
+            var actual = myQuery.ToArray();
+            var actual2 = myQuery2.ToArray();
+
+            // Assert
+            AssertExtension.AreEqualByJson(expected, actual);
+            AssertExtension.AreEqualByJson(expected, actual2);
+        }
+
+        [Test]
         public void fetches_data_from_tables_with_different_name_casing()
         {
             // Arrange

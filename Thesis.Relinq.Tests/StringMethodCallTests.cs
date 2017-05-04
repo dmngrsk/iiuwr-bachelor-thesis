@@ -9,157 +9,8 @@ using Npgsql;
 namespace Thesis.Relinq.Tests
 {
     [TestFixture]
-    public class MethodCallsTests : ThesisTestsBase
+    public class StringMethodCallTests : ThesisTestsBase
     {
-        [Test]
-        public void equals()
-        {
-            // Arrange
-            var myQuery = 
-                from e in PsqlQueryFactory.Queryable<Employees>(connection)
-                where e.EmployeeID.Equals(5)
-                select e;
-
-            var myQuery2 = PsqlQueryFactory.Queryable<Employees>(connection)
-                .Where(e => e.EmployeeID.Equals(5));
-            
-            string psqlCommand = "SELECT * FROM Employees WHERE (\"EmployeeID\" = 5);";
-
-            // Act
-            var expected = NpgsqlRowConverter<Employees>.ReadAllRows(connection, psqlCommand).ToArray();
-            var actual = myQuery.ToArray();
-            var actual2 = myQuery2.ToArray();
-
-            // Assert
-            AssertExtension.AreEqualByJson(expected, actual);
-            AssertExtension.AreEqualByJson(expected, actual2);
-        }
-
-        [Test]
-        public void take()
-        {
-            // Arrange
-            var myQuery = 
-                from e in PsqlQueryFactory.Queryable<Employees>(connection)
-                select e;
-
-            var myQuery2 = PsqlQueryFactory.Queryable<Employees>(connection)
-                .Select(x => x);
-            
-            string psqlCommand = "SELECT * FROM Employees LIMIT 5;";
-
-            // Act
-            var expected = NpgsqlRowConverter<Employees>.ReadAllRows(connection, psqlCommand).ToArray();
-            var actual = myQuery.Take(5).ToArray();
-            var actual2 = myQuery2.Take(5).ToArray();
-
-            // Assert
-            AssertExtension.AreEqualByJson(expected, actual);
-            AssertExtension.AreEqualByJson(expected, actual2);
-        }
-
-        [Test]
-        public void skip()
-        {
-            // Arrange
-            var myQuery = 
-                from e in PsqlQueryFactory.Queryable<Employees>(connection)
-                select e;
-
-            var myQuery2 = PsqlQueryFactory.Queryable<Employees>(connection)
-                .Select(x => x);
-            
-            string psqlCommand = "SELECT * FROM Employees OFFSET 5;";
-
-            // Act
-            var expected = NpgsqlRowConverter<Employees>.ReadAllRows(connection, psqlCommand).ToArray();
-            var actual = myQuery.Skip(5).ToArray();
-            var actual2 = myQuery2.Skip(5).ToArray();
-
-            // Assert
-            AssertExtension.AreEqualByJson(expected, actual);
-            AssertExtension.AreEqualByJson(expected, actual2);
-        }
-
-        [Test]
-        public void take_and_skip()
-        {
-            // Arrange
-            var myQuery = 
-                from e in PsqlQueryFactory.Queryable<Employees>(connection)
-                select e;
-
-            var myQuery2 = PsqlQueryFactory.Queryable<Employees>(connection)
-                .Select(x => x);
-            
-            string psqlCommand = "SELECT * FROM Employees OFFSET 5 LIMIT 3;";
-
-            // Act
-            var expected = NpgsqlRowConverter<Employees>.ReadAllRows(connection, psqlCommand).ToArray();
-            var actual = myQuery.Skip(5).Take(3).ToArray();
-            var actual2 = myQuery2.Take(3).Skip(5).ToArray();
-
-            // Assert
-            AssertExtension.AreEqualByJson(expected, actual);
-            AssertExtension.AreEqualByJson(expected, actual2);
-        }
-
-        [Test, IgnoreAttribute("Feature not implemented yet")]
-        public void any()
-        {
-            // Arrange
-            var myQuery = // TODO.
-                from c in PsqlQueryFactory.Queryable<Customers>(connection)
-                where PsqlQueryFactory.Queryable<Orders>(connection)
-                    .Any(o => c.CustomerID == o.CustomerID)
-                select c;
-
-            var myQuery2 = 
-                PsqlQueryFactory.Queryable<Customers>(connection)
-                    .Where(c => PsqlQueryFactory.Queryable<Orders>(connection)
-                        .Any(o => o.CustomerID == c.CustomerID));
-
-            var psqlCommand = "SELECT * FROM CUSTOMERS WHERE " + 
-                "EXISTS (SELECT * FROM ORDERS WHERE " +
-                "customers.\"CustomerID\" = orders.\"CustomerID\");";
-
-            // Act
-            var expected = NpgsqlRowConverter<Customers>.ReadAllRows(connection, psqlCommand).ToArray();
-            var actual = myQuery.ToArray();
-            var actual2 = myQuery2.ToArray();
-
-            // Assert
-            AssertExtension.AreEqualByJson(expected, actual);
-            AssertExtension.AreEqualByJson(expected, actual2);
-        }
-
-        [Test, IgnoreAttribute("Feature not implemented yet")]
-        public void all()
-        {
-            // Arrange
-            var myQuery = // TODO.
-                from c in PsqlQueryFactory.Queryable<Customers>(connection)
-                select c;
-
-            var myQuery2 = 
-                PsqlQueryFactory.Queryable<Customers>(connection)
-                    .Where(c => PsqlQueryFactory.Queryable<Orders>(connection)
-                        .All(o => o.CustomerID != c.CustomerID));
-
-            var psqlCommand = "SELECT * FROM Customers WHERE " +
-                "NOT EXISTS (SELECT * FROM Orders WHERE " +
-                "NOT (customers.\"CustomerID\" != orders.\"CustomerID\"))";
-
-            // Act
-            var expected = NpgsqlRowConverter<Customers>.ReadAllRows(connection, psqlCommand).ToArray();
-            var actual = myQuery.ToArray();
-            var actual2 = myQuery2.ToArray();
-
-            // Assert
-            AssertExtension.AreEqualByJson(expected, actual);
-            AssertExtension.AreEqualByJson(expected, actual2);
-        }
-
         [Test]
         public void to_lower()
         {
@@ -483,7 +334,7 @@ namespace Thesis.Relinq.Tests
         }
 
         [Test]
-        public void concat()
+        public void concat_on_strings()
         {
             // Arrange
             var myQuery = 
