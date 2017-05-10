@@ -197,14 +197,38 @@ namespace Thesis.Relinq.Tests
             AssertExtension.AreEqualByJson(expected, actual2);
         }
 
-        [Test, IgnoreAttribute("Feature not implemented yet")]
+        [Test]
         public void concat_as_union_all()
         {
-            // [TODO]
-            // http://stackoverflow.com/questions/10360518/how-to-use-union-all-in-linq
+            // Arrange
+            var myQuery = 
+                    (from c in PsqlQueryFactory.Queryable<Customers>(connection)
+                    select c.City)
+                .Concat(
+                    (from c in PsqlQueryFactory.Queryable<Customers>(connection)
+                    select c.City));
+
+            var myQuery2 = PsqlQueryFactory.Queryable<Customers>(connection)
+                .Select(c => c.City)
+            .Concat(PsqlQueryFactory.Queryable<Customers>(connection)
+                .Select(c => c.City));
+
+            var psqlCommand = 
+                "(SELECT \"City\" FROM Customers) " +
+                "UNION ALL " +
+                "(SELECT \"City\" FROM Customers);";
+
+            // Act
+            var expected = NpgsqlRowConverter<string>.ReadAllRows(connection, psqlCommand).ToArray();
+            var actual = myQuery.ToArray();
+            var actual2 = myQuery2.ToArray();
+
+            // Assert
+            AssertExtension.AreEqualByJson(expected, actual);
+            AssertExtension.AreEqualByJson(expected, actual2);
         }
 
-        [Test, IgnoreAttribute("Feature not implemented yet")]
+        [Test]
         public void intersect()
         {
             // Arrange
@@ -237,7 +261,7 @@ namespace Thesis.Relinq.Tests
             AssertExtension.AreEqualByJson(expected, actual2);
         }
 
-        [Test, IgnoreAttribute("Feature not implemented yet")]
+        [Test]
         public void except()
         {
             // Arrange

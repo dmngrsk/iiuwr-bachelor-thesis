@@ -31,9 +31,9 @@ namespace Thesis.Relinq.PsqlQueryGeneration
             new Dictionary<Type, string>
             {
                 { typeof(UnionResultOperator),          "({0}) UNION ({1})" },
-                { typeof(ConcatResultOperator),         "({0}} UNION ALL ({1})" },
-                { typeof(IntersectResultOperator),      "({0}} INTERSECT ({1})" },
-                { typeof(ExceptResultOperator),         "({0}} EXCEPT ({1})" }
+                { typeof(ConcatResultOperator),         "({0}) UNION ALL ({1})" },
+                { typeof(IntersectResultOperator),      "({0}) INTERSECT ({1})" },
+                { typeof(ExceptResultOperator),         "({0}) EXCEPT ({1})" }
             };
 
         public PsqlGeneratingQueryModelVisitor(NpgsqlDatabaseSchema dbSchema) : base()
@@ -118,8 +118,9 @@ namespace Thesis.Relinq.PsqlQueryGeneration
 
             else if (_setOperators.ContainsKey(operatorType))
             {
-                var foo = resultOperator as UnionResultOperator;
-                GetPsqlExpression(foo.Source2); // Source2 is a SubQueryExpression.
+                dynamic subQueryResultOperator = Convert.ChangeType(resultOperator, operatorType);
+                GetPsqlExpression(subQueryResultOperator.Source2); // Source2 is a SubQueryExpression.
+                _queryParts.AddSubQueryLinkAction(_setOperators[operatorType]);
                 base.VisitResultOperator(resultOperator, queryModel, index);
             }
 
