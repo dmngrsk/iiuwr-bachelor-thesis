@@ -70,7 +70,8 @@ namespace Thesis.Relinq.Tests
                 .Where(c => c.ContactName.Contains("A"))
                 .Select(c => c.ContactName);
             
-            string psqlCommand = "SELECT \"ContactName\" FROM Customers " +
+            string psqlCommand = 
+                "SELECT \"ContactName\" FROM Customers " +
                 "WHERE \"ContactName\" LIKE '%A%';";
 
             // Act
@@ -96,7 +97,8 @@ namespace Thesis.Relinq.Tests
                 .Where(c => c.ContactName.StartsWith("C"))
                 .Select(c => c.ContactName);
             
-            string psqlCommand = "SELECT \"ContactName\" FROM Customers " +
+            string psqlCommand = 
+                "SELECT \"ContactName\" FROM Customers " +
                 "WHERE \"ContactName\" LIKE 'C%';";
 
             // Act
@@ -122,7 +124,8 @@ namespace Thesis.Relinq.Tests
                 .Where(c => c.ContactName.EndsWith("e"))
                 .Select(c => c.ContactName);
             
-            string psqlCommand = "SELECT \"ContactName\" FROM Customers " +
+            string psqlCommand = 
+                "SELECT \"ContactName\" FROM Customers " +
                 "WHERE \"ContactName\" LIKE '%e';";
 
             // Act
@@ -344,7 +347,8 @@ namespace Thesis.Relinq.Tests
             var myQuery2 = PsqlQueryFactory.Queryable<Customers>(connection)
                 .Select(c => string.Concat(c.ContactName, " is from ", c.Country));
 
-            var psqlCommand = "SELECT CONCAT(\"ContactName\", ' is from ', \"Country\") " +
+            var psqlCommand = 
+                "SELECT CONCAT(\"ContactName\", ' is from ', \"Country\") " +
                 "FROM Customers;";
 
             // Act

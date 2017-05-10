@@ -100,7 +100,8 @@ namespace Thesis.Relinq.Tests
             var myQuery2 = PsqlQueryFactory.Queryable<Employees>(connection)
                 .Where(e => e.EmployeeID > 5 && e.City == "London");
 
-            string psqlCommand = "SELECT * FROM Employees " +
+            string psqlCommand = 
+                "SELECT * FROM Employees " +
                 "WHERE \"EmployeeID\" > 5 AND \"City\" = 'London';";
 
             // Act
@@ -127,7 +128,8 @@ namespace Thesis.Relinq.Tests
                 .Where(e => e.EmployeeID > 5)
                 .Where(e => e.City == "London");
             
-            string psqlCommand = "SELECT * FROM Employees " +
+            string psqlCommand = 
+                "SELECT * FROM Employees " +
                 "WHERE \"EmployeeID\" > 5 AND \"City\" = 'London';";
 
             // Act
@@ -171,7 +173,8 @@ namespace Thesis.Relinq.Tests
             var myQuery2 = PsqlQueryFactory.Queryable<Employees>(connection)
                 .Select(e => e.FirstName + " " + e.LastName + " has ID: " + e.EmployeeID);
 
-            var psqlCommand = "SELECT \"FirstName\" || ' ' || \"LastName\" || " +
+            var psqlCommand = 
+                "SELECT \"FirstName\" || ' ' || \"LastName\" || " +
                 "' has ID: ' || \"EmployeeID\" FROM employees;";
 
             // Act
@@ -196,7 +199,8 @@ namespace Thesis.Relinq.Tests
             var myQuery2 = PsqlQueryFactory.Queryable<Employees>(connection)
                 .Where(c => !(c.EmployeeID < 7 && c.EmployeeID > 3));
             
-            string psqlCommand = "SELECT * FROM Employees " +
+            string psqlCommand = 
+                "SELECT * FROM Employees " +
                 "WHERE NOT (\"EmployeeID\" < 7 AND \"EmployeeID\" > 3);";
 
             // Act
@@ -246,7 +250,8 @@ namespace Thesis.Relinq.Tests
                 .OrderBy(e => e.City)
                 .ThenByDescending(e => e.EmployeeID);
 
-            string psqlCommand = "SELECT * FROM Employees " +
+            string psqlCommand = 
+                "SELECT * FROM Employees " +
                 "ORDER BY \"City\", \"EmployeeID\" DESC;";
 
             // Act
@@ -273,7 +278,8 @@ namespace Thesis.Relinq.Tests
                 .OrderByDescending(e => e.EmployeeID)
                 .OrderBy(e => e.City);
 
-            string psqlCommand = "SELECT * FROM Employees " +
+            string psqlCommand = 
+                "SELECT * FROM Employees " +
                 "ORDER BY \"City\", \"EmployeeID\" DESC;";
 
             // Act
@@ -310,7 +316,8 @@ namespace Thesis.Relinq.Tests
                                     Order = o.OrderID
                                 });
 
-            string psqlCommand = "SELECT \"ContactName\", \"OrderID\" " + 
+            string psqlCommand = 
+                "SELECT \"ContactName\", \"OrderID\" " + 
                 "FROM Customers t1 INNER JOIN Orders t2 ON " +
                 "t1.\"CustomerID\" = t2.\"CustomerID\";";
             var rowConverterType = typeof(NpgsqlRowConverter<>).MakeGenericType(myQuery.ElementType);
@@ -352,7 +359,8 @@ namespace Thesis.Relinq.Tests
                                    Order = x.o.OrderID
                                });
 
-            string psqlCommand = "SELECT Orders.\"EmployeeID\", Orders.\"OrderID\" " + 
+            string psqlCommand = 
+                "SELECT Orders.\"EmployeeID\", Orders.\"OrderID\" " + 
                 "FROM Orders, Employees WHERE Orders.\"EmployeeID\" = Employees.\"EmployeeID\";";
             var rowConverterType = typeof(NpgsqlRowConverter<>).MakeGenericType(myQuery.ElementType);
             var rowConverterMethod = rowConverterType.GetMethod(
@@ -388,7 +396,8 @@ namespace Thesis.Relinq.Tests
                     o => o.CustomerID,
                     (c, result) => new { Customer = c.CustomerID, Orders = result });
 
-            string psqlCommand = "SELECT ORDERS.\"EmployeeID\", ORDERS.\"OrderID\" " + 
+            string psqlCommand = 
+                "SELECT ORDERS.\"EmployeeID\", ORDERS.\"OrderID\" " + 
                 "FROM Orders, Employees WHERE Orders.\"EmployeeID\" = Employees.\"EmployeeID\";";
             var rowConverterType = typeof(NpgsqlRowConverter<>).MakeGenericType(myQuery.ElementType);
             var rowConverterMethod = rowConverterType.GetMethod(
@@ -429,7 +438,8 @@ namespace Thesis.Relinq.Tests
                                                "larger than five")
                              });
 
-            var psqlCommand = "SELECT \"EmployeeID\", CASE " +
+            var psqlCommand = 
+                "SELECT \"EmployeeID\", CASE " +
                 "WHEN \"EmployeeID\" < 5 THEN 'smaller than five' " +
                 "WHEN \"EmployeeID\" = 5 THEN 'equal to five' " + 
                 "ELSE 'larger than five' END " +

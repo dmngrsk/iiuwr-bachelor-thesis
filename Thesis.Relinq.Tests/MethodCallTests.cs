@@ -104,7 +104,7 @@ namespace Thesis.Relinq.Tests
             AssertExtension.AreEqualByJson(expected, actual2);
         }
 
-        [Test, IgnoreAttribute("Feature not implemented yet")]
+        [Test]
         public void any()
         {
             // Arrange [TODO]
@@ -119,8 +119,9 @@ namespace Thesis.Relinq.Tests
                     .Where(c => PsqlQueryFactory.Queryable<Orders>(connection)
                         .Any(o => o.CustomerID == c.CustomerID));
 
-            var psqlCommand = "SELECT * FROM CUSTOMERS WHERE " + 
-                "EXISTS (SELECT * FROM ORDERS WHERE " +
+            var psqlCommand = 
+                "SELECT * FROM Customers WHERE " + 
+                "EXISTS (SELECT * FROM Orders WHERE " +
                 "customers.\"CustomerID\" = orders.\"CustomerID\");";
 
             // Act
@@ -133,7 +134,7 @@ namespace Thesis.Relinq.Tests
             AssertExtension.AreEqualByJson(expected, actual2);
         }
 
-        [Test, IgnoreAttribute("Feature not implemented yet")]
+        [Test]
         public void all()
         {
             // Arrange [TODO]
@@ -146,7 +147,8 @@ namespace Thesis.Relinq.Tests
                     .Where(c => PsqlQueryFactory.Queryable<Orders>(connection)
                         .All(o => o.CustomerID != c.CustomerID));
 
-            var psqlCommand = "SELECT * FROM Customers WHERE " +
+            var psqlCommand = 
+                "SELECT * FROM Customers WHERE " +
                 "NOT EXISTS (SELECT * FROM Orders WHERE " +
                 "NOT (customers.\"CustomerID\" != orders.\"CustomerID\"))";
 
@@ -160,7 +162,7 @@ namespace Thesis.Relinq.Tests
             AssertExtension.AreEqualByJson(expected, actual2);
         }
 
-        [Test, IgnoreAttribute("Feature not implemented yet")]
+        [Test]
         public void union()
         {
             // Arrange
@@ -178,9 +180,10 @@ namespace Thesis.Relinq.Tests
             .Union(PsqlQueryFactory.Queryable<Customers>(connection)
                 .Where(c => c.City == "Paris"));
 
-            var psqlCommand = "(SELECT * FROM Customers WHERE \"City\" = 'London') "
-                + "UNION "
-                + "(SELECT * FROM Customers WHERE \"City\" = 'Paris');";
+            var psqlCommand = 
+                "(SELECT * FROM Customers WHERE \"City\" = 'London') " +
+                "UNION " +
+                "(SELECT * FROM Customers WHERE \"City\" = 'Paris');";
 
             // Act
             var expected = NpgsqlRowConverter<Customers>.ReadAllRows(connection, psqlCommand).ToArray();
@@ -217,7 +220,8 @@ namespace Thesis.Relinq.Tests
             .Intersect(PsqlQueryFactory.Queryable<Employees>(connection)
                 .Where(e => e.EmployeeID > 3));
 
-            var psqlCommand = "(SELECT * FROM Employees WHERE \"EmployeeID\" < 7) " +
+            var psqlCommand = 
+                "(SELECT * FROM Employees WHERE \"EmployeeID\" < 7) " +
                 "INTERSECT " +
                 "(SELECT * FROM Employees WHERE \"EmployeeID\" > 3);";
 
@@ -248,7 +252,8 @@ namespace Thesis.Relinq.Tests
             .Except(PsqlQueryFactory.Queryable<Employees>(connection)
                 .Where(e => e.EmployeeID > 6));
 
-            var psqlCommand = "(SELECT * FROM Employees) EXCEPT " +
+            var psqlCommand = 
+                "(SELECT * FROM Employees) EXCEPT " +
                 "(SELECT * FROM Employees WHERE \"EmployeeID\" > 6);";
 
             // Act

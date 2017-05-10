@@ -405,7 +405,8 @@ namespace Thesis.Relinq.Tests
             var myQuery2 = PsqlQueryFactory.Queryable<Employees>(connection)
                 .Where(c => c.EmployeeID < 7 && c.EmployeeID > 3);
             
-            string psqlCommand = "SELECT * FROM Employees " +
+            string psqlCommand = 
+                "SELECT * FROM Employees " +
                 "WHERE \"EmployeeID\" < 7 AND \"EmployeeID\" > 3;";
 
             // Act
@@ -430,7 +431,8 @@ namespace Thesis.Relinq.Tests
             var myQuery2 = PsqlQueryFactory.Queryable<Employees>(connection)
                 .Where(c => c.EmployeeID > 7 || c.EmployeeID < 3);
             
-            string psqlCommand = "SELECT * FROM Employees " +
+            string psqlCommand = 
+                "SELECT * FROM Employees " +
                 "WHERE \"EmployeeID\" > 7 OR \"EmployeeID\" < 3;";
 
             // Act

@@ -123,5 +123,29 @@ namespace Thesis.Relinq.Tests
             Assert.AreEqual(expected, actual);
             Assert.AreEqual(expected, actual2);
         }
+
+        [Test]
+        public void distinct()
+        {
+            // Arrange
+            var myQuery =
+                (from c in PsqlQueryFactory.Queryable<Customers>(connection)
+                select c.City).Distinct();
+
+            var myQuery2 = PsqlQueryFactory.Queryable<Customers>(connection)
+                .Select(c => c.City)
+                .Distinct();
+
+            var psqlCommand = "SELECT DISTINCT(\"City\") FROM Customers;";
+
+            // Act
+            var expected = NpgsqlRowConverter<string>.ReadAllRows(connection, psqlCommand);
+            var actual = myQuery.ToArray();
+            var actual2 = myQuery2.ToArray();
+
+            // Assert
+            Assert.AreEqual(expected, actual);
+            Assert.AreEqual(expected, actual2);
+        }
     }
 }

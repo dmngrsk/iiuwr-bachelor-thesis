@@ -9,9 +9,9 @@ namespace Thesis.Relinq.NpgsqlWrapper
 {
     public class NpgsqlRowConverter<T>
     {
-        private static ReadOnlyCollection<Npgsql.Schema.NpgsqlDbColumn> _columns;
-        private static readonly PropertyContainer<T> _properties = new PropertyContainer<T>();
-
+        private ReadOnlyCollection<Npgsql.Schema.NpgsqlDbColumn> _columns;
+        private readonly PropertyContainer<T> _properties = new PropertyContainer<T>();
+        
         public NpgsqlRowConverter(ReadOnlyCollection<Npgsql.Schema.NpgsqlDbColumn> columns)
         {
             _columns = columns;

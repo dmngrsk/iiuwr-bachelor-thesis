@@ -13,7 +13,7 @@ namespace Thesis.Relinq.PsqlQueryGeneration
     {
         private readonly StringBuilder _psqlExpression = new StringBuilder();
         private readonly NpgsqlParameterAggregator _parameterAggregator;
-        private readonly NpgsqlDatabaseSchema _dbSchema;
+        private readonly PsqlGeneratingQueryModelVisitor _queryModelVisitor;
         private bool _conditionalStart = true;
 
         private readonly static Dictionary<ExpressionType, string> _binaryExpressionOperatorsToString = 
@@ -75,22 +75,45 @@ namespace Thesis.Relinq.PsqlQueryGeneration
             };
 
         private PsqlGeneratingExpressionVisitor(NpgsqlParameterAggregator parameterAggregator, 
-            NpgsqlDatabaseSchema dbSchema)
+            PsqlGeneratingQueryModelVisitor queryModelVisitor)
         {
             _parameterAggregator = parameterAggregator;
-            _dbSchema = dbSchema;
+            _queryModelVisitor = queryModelVisitor;
         }
 
         public static string GetPsqlExpression(Expression linqExpression, 
-            NpgsqlParameterAggregator parameterAggregator, NpgsqlDatabaseSchema dbSchema)
+            NpgsqlParameterAggregator parameterAggregator, 
+            PsqlGeneratingQueryModelVisitor queryModelVisitor)
         {
-            var visitor = new PsqlGeneratingExpressionVisitor(parameterAggregator, dbSchema);
+            var visitor = new PsqlGeneratingExpressionVisitor(
+                parameterAggregator, queryModelVisitor);
             visitor.Visit(linqExpression);
             return visitor.GetPsqlExpression();
         }
 
         private string GetPsqlExpression() => _psqlExpression.ToString();
 
+        // RelinqExpressionVisitor override methods.
+        protected override Expression VisitQuerySourceReference(
+            QuerySourceReferenceExpression expression)
+        {
+            string fullType = expression.ReferencedQuerySource.ItemType.ToString();
+            int index = fullType.LastIndexOf('.') + 1;
+            string type = fullType.Substring(index);
+
+            _psqlExpression.Append($"\"{_queryModelVisitor.DbSchema.GetTableName(type)}\"");
+            return expression;
+        }
+
+        protected override Expression VisitSubQuery(SubQueryExpression expression)
+        {
+            _queryModelVisitor.OpenSubQuery();
+            _queryModelVisitor.VisitQueryModel(expression.QueryModel);
+            _queryModelVisitor.CloseSubQuery();
+            return expression;
+        }
+
+        // ExpressionVisitor override methods.
         protected override Expression VisitBinary(BinaryExpression expression)
         {
             this.Visit(expression.Left);
@@ -211,7 +234,8 @@ namespace Thesis.Relinq.PsqlQueryGeneration
             else
             {
                 this.Visit(expression.Expression);
-                _psqlExpression.Append($".\"{_dbSchema.GetColumnName(expression.Member.Name)}\"");
+                _psqlExpression.Append(
+                    $".\"{_queryModelVisitor.DbSchema.GetColumnName(expression.Member.Name)}\"");
             }
 
             return expression;
@@ -309,15 +333,6 @@ namespace Thesis.Relinq.PsqlQueryGeneration
             return expression;
         }
 
-        protected override Expression VisitQuerySourceReference(QuerySourceReferenceExpression expression)
-        {
-            string fullType = expression.ReferencedQuerySource.ItemType.ToString();
-            int index = fullType.LastIndexOf('.') + 1;
-            string type = fullType.Substring(index);
-
-            _psqlExpression.Append($"\"{_dbSchema.GetTableName(type)}\"");
-            return expression;
-        }
         // Visits the children of the System.Linq.Expressions.RuntimeVariablesExpression.
         protected override Expression VisitRuntimeVariables(RuntimeVariablesExpression expression)
         {

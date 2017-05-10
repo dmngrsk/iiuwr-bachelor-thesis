@@ -13,71 +13,158 @@ namespace Thesis.Relinq.PsqlQueryGeneration
             WhereParts = new List<string>();
             OrderByParts = new List<string>();
             PagingParts = new List<string>();
+
+            SubQueries = new List<string>();
+            SubQueryLinkActions = new List<string>();
+            _subQueryOpen = false;
         }
 
-        public string SelectPart { get; private set; }
+        private string SelectPart { get; set; }
         private List<string> FromParts { get; set; }
         private List<string> WhereParts { get; set; }
         private List<string> OrderByParts { get; set; }
         private List<string> PagingParts { get; set; }
 
+        private List<string> SubQueries { get; set; }
+        private List<string> SubQueryLinkActions { get; set; }
+
+        private bool _subQueryOpen;
+        private QueryPartsAggregator _subQuery;
+
         public void SetSelectPart(string selectPart)
         {
-            SelectPart = selectPart.Contains(".") ? selectPart : "*";
+            if (_subQueryOpen)
+            {
+                _subQuery.SetSelectPart(selectPart);
+            }
+            else
+            {
+                SelectPart = selectPart.Contains(".") ? selectPart : "*";
+            }
         }
 
         public void SetSelectPartAsScalar(string scalarPartFormat)
         {
-            SelectPart = string.Format(scalarPartFormat, SelectPart);
+            if (_subQueryOpen)
+            {
+                _subQuery.SetSelectPartAsScalar(scalarPartFormat);
+            }
+            else
+            {
+                SelectPart = string.Format(scalarPartFormat, SelectPart);
+            }
         }
 
         public void AddFromPart(string fromPart)
         {
-            FromParts.Add(fromPart);
+            if (_subQueryOpen)
+            {
+                _subQuery.AddFromPart(fromPart);
+            }
+            else
+            {
+                FromParts.Add(fromPart);
+            }
         }
 
         public void AddJoinPart(string leftMember, string rightMember)
         {
-            var leftSource = leftMember.Split('.')[0];
-            var rightSource = rightMember.Split('.')[0];
-            var joinPart = 
-                $"{leftSource} INNER JOIN {rightSource} ON ({leftMember} = {rightMember})";
+            if (_subQueryOpen)
+            {
+                _subQuery.AddJoinPart(leftMember, rightMember);
+            }
+            else
+            {
+                var leftSource = leftMember.Split('.')[0];
+                var rightSource = rightMember.Split('.')[0];
+                var joinPart = 
+                    $"{leftSource} INNER JOIN {rightSource} ON ({leftMember} = {rightMember})";
 
-            // We're using the fact that the left source table was already added in AddFromPart
-            var index = FromParts.IndexOf(leftSource);
-            FromParts[index] = joinPart;
+                // We're using the fact that the left source table was already added in AddFromPart
+                var index = FromParts.IndexOf(leftSource);
+                FromParts[index] = joinPart;
+            }
         }
 
         public void AddWherePart(string formatString, params object[] args)
         {
-            WhereParts.Add(string.Format(formatString, args));
+            if (_subQueryOpen)
+            {
+                _subQuery.AddWherePart(formatString, args);
+            }
+            else
+            {
+                if (formatString != string.Empty)
+                {
+                    WhereParts.Add(string.Format(formatString, args));
+                }
+            }
         }
 
         public void AddOrderByPart(IEnumerable< Tuple<string, OrderingDirection> > orderings)
         {
-            List<string> localOrderByParts = new List<string>();
-
-            foreach (var ordering in orderings)
+            if (_subQueryOpen)
             {
-                string orderByPart = 
-                    (ordering.Item2 == OrderingDirection.Desc) ?
-                    ordering.Item1 + " DESC" :
-                    ordering.Item1;
-
-                localOrderByParts.Add(orderByPart);
+                _subQuery.AddOrderByPart(orderings);
             }
+            else
+            {
+                List<string> localOrderByParts = new List<string>();
 
-            localOrderByParts.AddRange(OrderByParts);
-            OrderByParts = localOrderByParts;
+                foreach (var ordering in orderings)
+                {
+                    string orderByPart = 
+                        (ordering.Item2 == OrderingDirection.Desc) ?
+                        ordering.Item1 + " DESC" :
+                        ordering.Item1;
+
+                    localOrderByParts.Add(orderByPart);
+                }
+
+                localOrderByParts.AddRange(OrderByParts);
+                OrderByParts = localOrderByParts;
+            }
         }
 
         public void AddPagingPart(string limitter, string count)
         {
-            PagingParts.Add($"{limitter} {count}");
+            if (_subQueryOpen)
+            {
+                _subQuery.AddPagingPart(limitter, count);
+            }
+            else
+            {
+                PagingParts.Add($"{limitter} {count}");
+            }
+        }
+
+        public void OpenSubQuery()
+        {
+            _subQueryOpen = true;
+            _subQuery = new QueryPartsAggregator();
+        }
+
+        public void CloseSubQuery()
+        {
+            SubQueries.Add(_subQuery.BuildPsqlString().Trim(';'));
+            _subQueryOpen = false;
+        }
+
+        public void AddSubQueryLinkAction(string queryLinkAction)
+        {
+            SubQueryLinkActions.Add(queryLinkAction);
+            _subQueryOpen = false;
+        }
+
+        public string GetSubQueryStatement()
+        {
+            return _subQuery.BuildPsqlString().Trim(';');
         }
 
         public string BuildPsqlString()
         {
+            WrapSubQueriesToQueryParts();
+
             var stringBuilder = new StringBuilder();
 
             if (string.IsNullOrEmpty(SelectPart))
@@ -100,7 +187,41 @@ namespace Thesis.Relinq.PsqlQueryGeneration
             if (PagingParts.Count > 0)
                 stringBuilder.AppendFormat(" {0}", string.Join(" ", PagingParts));
 
-            return stringBuilder.Append(";").ToString();
+            var psqlQuery = stringBuilder.ToString();
+
+/*            if (SubQueries.Count != SubQueryLinkFormatters.Count)
+            {
+                throw new ArgumentException("The count of subqueries was not equal to the count of linkers.");
+            }
+            else 
+            {
+                while (SubQueries.Count > 0)
+                {
+                    var subQuery = SubQueries[0].BuildPsqlString().TrimEnd(';');
+                    var subQueryLinkFormatter = SubQueryLinkFormatters[0];
+                    psqlQuery = string.Format(subQueryLinkFormatter, psqlQuery, subQuery);
+
+                    SubQueries.RemoveAt(0);
+                    SubQueryLinkFormatters.RemoveAt(0);
+                }
+            }*/
+
+            return $"{psqlQuery};";
+        }
+
+        private void WrapSubQueriesToQueryParts()
+        {
+            for (int i = SubQueries.Count - 1; i >= 0; i--)
+            {
+                var subQuery = SubQueries[i];
+                var subQueryAction = SubQueryLinkActions[i];
+                if (subQueryAction == "EXISTS ({0})")
+                {
+                    WhereParts.Add(string.Format(subQueryAction, subQuery));
+                    SubQueries.RemoveAt(i);
+                    SubQueryLinkActions.RemoveAt(i);
+                }
+            }
         }
     }
 }
