@@ -127,12 +127,18 @@ namespace Thesis.Relinq.PsqlQueryGeneration
                 base.VisitResultOperator(resultOperator, queryModel, index);
             }
 
-            else if (operatorType == typeof(AllResultOperator) || operatorType == typeof(AnyResultOperator))
+            else if (operatorType == typeof(AnyResultOperator) || operatorType == typeof(AllResultOperator))
             {
-                var subQueryAction = operatorType == typeof(AnyResultOperator) ?
-                    "EXISTS ({0})" : "foobar";
-
-                _queryParts.AddSubQueryLinkAction(subQueryAction);
+                if (operatorType == typeof(AnyResultOperator))
+                {
+                    _queryParts.AddSubQueryLinkAction("EXISTS ({0})");
+                }
+                else
+                {
+                    var subQuery = (resultOperator as AllResultOperator);
+                    _queryParts.AddWherePart($"NOT ({GetPsqlExpression(subQuery.Predicate)})");
+                    _queryParts.AddSubQueryLinkAction("NOT EXISTS ({0})");
+                }
             }
 
             else if (_setOperators.Contains(operatorType))
@@ -169,11 +175,6 @@ namespace Thesis.Relinq.PsqlQueryGeneration
         public void CloseSubQuery()
         {
             _queryParts.CloseSubQuery();
-        }
-
-        public string GetSubQueryStatement()
-        {
-            return _queryParts.GetSubQueryStatement();
         }
 
         private string GetPsqlExpression(Expression expression) =>

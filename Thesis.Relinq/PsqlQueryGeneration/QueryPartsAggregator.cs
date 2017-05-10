@@ -156,11 +156,6 @@ namespace Thesis.Relinq.PsqlQueryGeneration
             _subQueryOpen = false;
         }
 
-        public string GetSubQueryStatement()
-        {
-            return _subQuery.BuildPsqlString().Trim(';');
-        }
-
         public string BuildPsqlString()
         {
             WrapSubQueriesToQueryParts();
@@ -189,33 +184,29 @@ namespace Thesis.Relinq.PsqlQueryGeneration
 
             var psqlQuery = stringBuilder.ToString();
 
-/*            if (SubQueries.Count != SubQueryLinkFormatters.Count)
+            for (int i = SubQueries.Count - 1; i >= 0; i--)
             {
-                throw new ArgumentException("The count of subqueries was not equal to the count of linkers.");
+                var subQuery = SubQueries[i];
+                var subQueryLinkFormatter = SubQueryLinkActions[i];
+                psqlQuery = string.Format(subQueryLinkFormatter, psqlQuery, subQuery);
             }
-            else 
-            {
-                while (SubQueries.Count > 0)
-                {
-                    var subQuery = SubQueries[0].BuildPsqlString().TrimEnd(';');
-                    var subQueryLinkFormatter = SubQueryLinkFormatters[0];
-                    psqlQuery = string.Format(subQueryLinkFormatter, psqlQuery, subQuery);
-
-                    SubQueries.RemoveAt(0);
-                    SubQueryLinkFormatters.RemoveAt(0);
-                }
-            }*/
 
             return $"{psqlQuery};";
         }
 
         private void WrapSubQueriesToQueryParts()
         {
+            if (SubQueries.Count != SubQueryLinkActions.Count)
+            {
+                throw new ArgumentException(
+                    "Amount of subqueries and the actions to take with them is not equal.");
+            }
+
             for (int i = SubQueries.Count - 1; i >= 0; i--)
             {
                 var subQuery = SubQueries[i];
                 var subQueryAction = SubQueryLinkActions[i];
-                if (subQueryAction == "EXISTS ({0})")
+                if (subQueryAction.Contains("EXISTS"))
                 {
                     WhereParts.Add(string.Format(subQueryAction, subQuery));
                     SubQueries.RemoveAt(i);

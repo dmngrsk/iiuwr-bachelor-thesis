@@ -107,11 +107,11 @@ namespace Thesis.Relinq.Tests
         [Test]
         public void any()
         {
-            // Arrange [TODO]
+            // Arrange
             var myQuery =
                 from c in PsqlQueryFactory.Queryable<Customers>(connection)
                 where PsqlQueryFactory.Queryable<Orders>(connection)
-                    .Any(o => c.CustomerID == o.CustomerID)
+                    .Any(o => o.CustomerID == c.CustomerID)
                 select c;
 
             var myQuery2 = 
@@ -137,9 +137,11 @@ namespace Thesis.Relinq.Tests
         [Test]
         public void all()
         {
-            // Arrange [TODO]
+            // Arrange
             var myQuery =
                 from c in PsqlQueryFactory.Queryable<Customers>(connection)
+                where PsqlQueryFactory.Queryable<Orders>(connection)
+                    .All(o => o.CustomerID != c.CustomerID)
                 select c;
 
             var myQuery2 = 
