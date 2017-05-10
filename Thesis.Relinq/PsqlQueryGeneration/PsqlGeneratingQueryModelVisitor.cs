@@ -27,13 +27,13 @@ namespace Thesis.Relinq.PsqlQueryGeneration
                 { typeof(DistinctResultOperator),       "DISTINCT({0})" },
             };
 
-        private readonly static List<Type> _setOperators = 
-            new List<Type>
+        private readonly static Dictionary<Type, string> _setOperators = 
+            new Dictionary<Type, string>
             {
-                typeof(UnionResultOperator),
-                typeof(IntersectResultOperator),
-                typeof(ConcatResultOperator),
-                typeof(ExceptResultOperator)
+                { typeof(UnionResultOperator),          "({0}) UNION ({1})" },
+                { typeof(ConcatResultOperator),         "({0}} UNION ALL ({1})" },
+                { typeof(IntersectResultOperator),      "({0}} INTERSECT ({1})" },
+                { typeof(ExceptResultOperator),         "({0}} EXCEPT ({1})" }
             };
 
         public PsqlGeneratingQueryModelVisitor(NpgsqlDatabaseSchema dbSchema) : base()
@@ -116,6 +116,13 @@ namespace Thesis.Relinq.PsqlQueryGeneration
                 base.VisitResultOperator(resultOperator, queryModel, index);
             }
 
+            else if (_setOperators.ContainsKey(operatorType))
+            {
+                var foo = resultOperator as UnionResultOperator;
+                GetPsqlExpression(foo.Source2); // Source2 is a SubQueryExpression.
+                base.VisitResultOperator(resultOperator, queryModel, index);
+            }
+
             else if (operatorType == typeof(TakeResultOperator) || operatorType == typeof(SkipResultOperator))
             {
                 var limitter = operatorType == typeof(TakeResultOperator) ? "LIMIT" : "OFFSET";
@@ -139,13 +146,6 @@ namespace Thesis.Relinq.PsqlQueryGeneration
                     _queryParts.AddWherePart($"NOT ({GetPsqlExpression(subQuery.Predicate)})");
                     _queryParts.AddSubQueryLinkAction("NOT EXISTS ({0})");
                 }
-            }
-
-            else if (_setOperators.Contains(operatorType))
-            {
-                var foo = resultOperator as UnionResultOperator;
-                GetPsqlExpression(foo.Source2); // Visits the subquery via VisitQueryModel.
-                base.VisitResultOperator(resultOperator, queryModel, index);
             }
 
             else
