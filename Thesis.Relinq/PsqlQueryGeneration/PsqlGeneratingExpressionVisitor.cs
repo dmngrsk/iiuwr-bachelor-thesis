@@ -68,10 +68,7 @@ namespace Thesis.Relinq.PsqlQueryGeneration
 
                 { "Contains",                           "{0} LIKE '%' || {1} || '%'" },
                 { "StartsWith",                         "{0} LIKE {1} || '%'" },
-                { "EndsWith",                           "{0} LIKE '%' || {1}" },
-
-
-                // https://www.postgresql.org/docs/9.1/static/functions-string.html
+                { "EndsWith",                           "{0} LIKE '%' || {1}" }
             };
 
         private PsqlGeneratingExpressionVisitor(NpgsqlParameterAggregator parameterAggregator, 

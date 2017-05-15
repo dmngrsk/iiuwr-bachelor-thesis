@@ -1,9 +1,44 @@
-\chapter{Miejscotrzymacz}
-To są informacje, które chcę zawrzeć w tym dokumencie (podzielę je na rozdziały mniej więcej tak, jak są wypisane w punktach):
-\begin{enumerate}
-\item coś o IQueryable i w ogóle LINQ (w tym Expressions)
-\item dlaczego oryginalne drzewa LINQ są trudne, słowo o re-linq (NHibernate używa re-linq!) i QueryModel
-\item opis struktury projektu, przegląd najważniejszych komponentów, parafka o testach jednostkowych
-\item instrukcja dodania projektu do projektu zewnętrznego (project.json)
-\item www.ii.uni.wroc.pl/dla-studenta/prace-dyplomowe
-\end{enumerate}
+\chapter{Preliminaria}
+Aby zrozumieć mechanizm budowy zapytania SQL-owego, trzeba zrozumieć, jakie struktury danych są przez niego wykorzystywane. Zakładam, że czytelnikowi znane są podstawowe pojęcia związane z programowaniem obiektowym, takie jak metoda, kolekcja, dziedziczenie, typ generyczny. W tym rozdziale poruszone zostaną następujące tematy:
+
+\begin{itemize}
+\item Sposób przetrzymywania wyliczalnych kolekcji w .NET-cie.
+\item Opis technologii LINQ, która jest punktem wejścia dla zapytania użytkownika. 
+\item Struktura drzewa wyrażeń \texttt{IQueryable}, i dlaczego takie drzewa są trudne.
+\item Biblioteka re-linq, obiekty \texttt{QueryModel}.
+\end{itemize}
+
+\section{Słowo o \texttt{IEnumerable<T>} i \texttt{IQueryable<T>}}
+We frameworku .NET wszystkie kolekcje, które możemy wyliczyć (a takie nas interesują, bo pracujemy z relacyjną bazą danych), implementują interfejs \linebreak \texttt{IEnumerable<T>}, gdzie \texttt{T} jest typem obiektu, który jest przetrzymywany w kolekcji. Ten interfejs definiuje metodę \texttt{GetEnumerator()}, który zwraca obiekt typu \texttt{IEnumerator<T>}, który ma właściwość \texttt{Current} oraz metodę \texttt{MoveNext()}, pozwalając na p`rzejście po uporządkowanym ciągu obiektów typu \texttt{T} oraz określenie obecnej pozycji. Korzystając z tych dwóch informacji, jesteśmy w stanie rozszerzyć \texttt{IEnumerable<T>} o metody takie jak wyznaczenie długości, filtrowanie kolekcji, łączenie dwóch kolekcji ze sobą, mapowanie funkcji na obiekty. Dokładna lista metod rozszerzających \texttt{IEnumerable<T>} jest dostępna \href{https://msdn.microsoft.com/pl-pl/library/9eekhta0(v=vs.110).aspx}{w oficjalnej dokumentacji MSDN}.
+
+Rozszerzeniem \texttt{IEnumerable<T>} jest interfejs \texttt{IQueryable<T>}, który de facto implementuje \texttt{IEnumerable<T>}. Zasadniczą różnicą między tymi dwoma interfejsami jest to, że w momencie wywołania ciągu metod rozszerzających \texttt{IEnumerable<T>}, każda z tych metod jest wywoływana jedna po drugiej, co może obciążyć moc obliczeniową procesora. Natomiast kolekcja \texttt{IQueryable<T>} jest świadoma, że nie musi wykonywać tych metod od razu, tylko przetrzymuje je w postaci drzewa wyrażeń (o wyrażeniach w następnej sekcji), które dopiero przy wywołaniu metody wyliczającej elementy z kolekcji zostaje wykonane w całości w efektywny sposób. Takie rozwiązanie jest idealne dla kolekcji, które łączą się z zewnętrzną bazą danych, aby istniała możliwość wybrania danych za pomocą jednego dużego zapytania SQL-owego.
+
+\section{Drzewa wyrażeń \texttt{IQueryable<T>}}
+todo.
+
+\section{Language INtegrated Query}
+todo.
+
+\section{re-linq i \texttt{QueryModel}}
+Aby można było odwołać się do bazy danych za pomocą LINQ, konieczne jest zaimplementowanie interfejsu \texttt{IQueryable} oraz \texttt{IQueryProvider}. W sekcji traktującej o drzewach wyrażeń \texttt{IQueryable<T>} można zobaczyć, że to może być trudne, ze względu na skomplikowaną strukturę tych drzew. W związku z tym alternatywnym rozwiązaniem jest biblioteka re-linq, która tłumaczy drzewa wyrażeń \texttt{IQueryable} na tytułowe abstrakcyjne drzewa składniowe, a dokładniej - na obiekty \texttt{QueryModel}, które o wiele bardziej przypominają oryginalne zapytanie LINQ. W \texttt{QueryModel} interesują nas cztery właściwości: 
+
+\begin{itemize}
+\item \texttt{SelectClause} - zawiera wyrażenie określające element, który jest wybierany w zapytaniu LINQ. 
+\item \texttt{MainFromClause} - określa główne źródło, z którego wybierane są informacje (w przypadku zapytań SQL - pierwsza tabela z części \texttt{FROM}).
+\item \texttt{BodyClauses} - zawiera kolekcję 
+\item \texttt{ResultOperators} - 
+\end{itemize}
+
+Następnie, takie drzewo jest przekazywane do jednej z metod implementacji \texttt{IQueryExecutor}. Ten interfejs ma trzy metody o sygnaturach:
+
+\begin{itemize}
+\item \texttt{IEnumerable<T> ExecuteCollection<T>(QueryModel queryModel)},
+\item \texttt{T ExecuteScalar<T>(QueryModel queryModel)},
+\item \texttt{T ExecuteSingle<T>(QueryModel queryModel, bool defaultWhenEmpty)}.
+\end{itemize}
+
+Te metody są punktami wejścia i wyjścia dla całego procesu budowy zapytania, jego wykonania oraz konwersji wyniku do oczekiwanego formatu i są wywoływane są w zależności tego, jaki format jest oczekiwany (cała kolekcja, skalar, pojedynczy element z kolekcji).
+
+re-linq implementuje wzorzec projektowy Odwiedzający (Visitor), który przechodzi przez zbudowany przez siebie \texttt{QueryModel} i pozwala programiście na przeciążenie metod, które przechodzą przez odpowiadające typy wyrażeń, w celu zbudowania zapytania do docelowej bazy danych. Przechodzenie przez zapytania w takiej postaci jest zdecydowanie bardziej przystępne dla programisty, który podejmuje się zadania LINQ-to-SQL, niż żmudne próby budowy zapytania SQL-owego na podstawie drzewa wyrażeń \texttt{IQueryable<T>}. W następnym rozdziale poruszona zostanie kwestia przechodzenia przez \texttt{QueryModel} w celu zbudowania zapytania SQL-owego.
+
+Warto jeszcze zaznaczyć, że biblioteka re-linq jest na tyle potężnym narzędziem, że na jej użycie zdecydowali się nawet autorzy \href{https://github.com/nhibernate/nhibernate-core/blob/d82d1381fb6b427da91d357398502a7f4b482ccc/src/NHibernate/Linq/NhRelinqQueryParser.cs}{NHibernate} oraz \linebreak \href{https://github.com/aspnet/EntityFramework/blob/f386095005e46ea3aa4d677e4439cdac113dbfb1/src/EFCore.Relational/Query/ExpressionVisitors/Internal/EqualityPredicateExpandingVisitor.cs}{Entity Framework 7}, które są najpopularniejszymi bibliotekami ORM w .NET.

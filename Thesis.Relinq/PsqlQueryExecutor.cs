@@ -18,8 +18,6 @@ namespace Thesis.Relinq
 
         public IEnumerable<T> ExecuteCollection<T>(QueryModel queryModel)
         {
-            List<T> rows = new List<T>();
-            
             var dbSchema = new NpgsqlDatabaseSchema(_connection);
             var commandData = PsqlGeneratingQueryModelVisitor.GeneratePsqlQuery(queryModel, dbSchema);
             var query = commandData.CreateQuery(_connection);
