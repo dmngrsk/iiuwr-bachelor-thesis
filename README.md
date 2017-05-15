@@ -10,6 +10,6 @@ If you are looking for a good LINQ provider for PostgreSQL, **you should definit
 
 Framework: [.NET Core](https://www.microsoft.com/net/core). Database: [PostgreSQL](https://www.postgresql.org/).
 
-Libraries: [re-linq](https://relinq.codeplex.com/), [Npgsql](http://www.npgsql.org/), [NUnit](https://www.nunit.org/). They all are licensed under their respective open licenses, which I'm too lazy to rewrite here.
+Libraries: [re-linq](https://relinq.codeplex.com/), [Npgsql](http://www.npgsql.org/), [NUnit](https://www.nunit.org/). They all are licensed under their respective open licenses.
 
 Sample databases used in tests: Northwind, II (also used at my university's database class). They are both included in ```Thesis.Samples``` folder.

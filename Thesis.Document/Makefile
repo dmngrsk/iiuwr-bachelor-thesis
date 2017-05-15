@@ -1,4 +1,4 @@
-make: Makefile iithesis.cls iithesis.tex Chapters/*.tex Appendices/*.tex iithesis.pdf 
+make: Makefile iithesis.cls iithesis.tex abstracts.tex bibitems.tex Chapters/*.tex Appendices/*.tex iithesis.pdf 
 	pdflatex iithesis.tex
 
 clean: Makefile

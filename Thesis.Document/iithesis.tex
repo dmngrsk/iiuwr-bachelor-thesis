@@ -24,9 +24,7 @@
 \transcriptnum{273212} % Numer indeksu
 \advisorgen{dr Wiktora Zychli} % Nazwisko promotora w dopelniaczu
 
-\polishabstract{Gdy projektujemy pewien system informatyczny, zazwyczaj musimy zmierzyć się z wyborem bazy danych, którą chcemy użyć w naszej aplikacji. Problem pojawia się w momencie, gdy pewna baza danych oferuje to, czego szukamy, ale potrzebujemy sposobu wybierania z niej informacji w wygodny dla nas sposób. W technologii .NET pozwala na to Language INtegrated Query (LINQ), który tłumaczy zapytanie w swoim języku na abstrakcyjne drzewo składniowe, po którym można przejść, implementując pewien zbiór obiektów odwiedzających (visitorów), w celu stworzenia zapytania w bazie danych naszego wyboru. Tematem tej pracy jest implementacja takich odwiedzających, którzy zbudują zapytanie do bazy PostgreSQL.}
-
-\englishabstract{While projecting a computer system, we frequently have to cope with the task of choosing the database we want to use in our application. The problem is, some databases offer what we need, but we also need a more comfortable way to obtain information from it. The .NET framework allows us to achieve that with Language INtegrated Query (LINQ), which translates a query in its language into an abstract syntax tree, that we can traverse by implementing a set of visitors in order to create a query in our target database. The topic of this thesis is implementing such visitors that build a query to the PostgreSQL database.}
+\input{abstracts}
 
 \begin{document}
 
@@ -35,15 +33,8 @@
 \input{Chapters/chapter3}
 \input{Chapters/chapter4}
 
-%\begin{appendices}
-%\include{Appendices/appendixA}
-%end{appendices}
-
-\bookmarksetupnext{level=part}
 \begin{thebibliography}{1}
-% http://www.codeproject.com/KB/linq/relinqish_the_pain.aspx
-% https://www.re-motion.org/blogs/mix/archive/2009/09/02/how-to-write-a-linq-provider-the-simple-way-again.aspx
-%\bibitem{example} \ldots
+\input{bibitems}
 \end{thebibliography}
 
 \renewcommand\appendixtocname{Dodatki}
