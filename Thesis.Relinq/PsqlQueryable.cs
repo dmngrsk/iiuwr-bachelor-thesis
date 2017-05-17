@@ -8,11 +8,13 @@ namespace Thesis.Relinq
 {
     public class PsqlQueryable<T> : QueryableBase<T>
     {
-        private static IQueryProvider CreateQueryProvider(NpgsqlConnection connection) =>
-            new DefaultQueryProvider(
+        private static IQueryProvider CreateQueryProvider(NpgsqlConnection connection)
+        {
+            return new DefaultQueryProvider(
                 typeof(PsqlQueryable<>), 
                 QueryParser.CreateDefault(), 
                 new PsqlQueryExecutor(connection));
+        }
 
         public PsqlQueryable(NpgsqlConnection connection)
             : base(CreateQueryProvider(connection)) { }

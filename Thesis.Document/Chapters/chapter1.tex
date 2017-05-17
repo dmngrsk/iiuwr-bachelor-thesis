@@ -1,35 +1,79 @@
 \chapter{Preliminaria}
-Aby zrozumieć mechanizm budowy zapytania SQL-owego, trzeba zrozumieć, jakie struktury danych są przez niego wykorzystywane. Zakładam, że czytelnikowi znane są podstawowe pojęcia związane z programowaniem obiektowym, takie jak metoda, kolekcja, dziedziczenie, typ generyczny. W tym rozdziale poruszone zostaną następujące tematy:
+W celu zrozumienia mechanizmu budowy zapytania SQL-owego, trzeba najpierw zrozumieć sposób działania języka LINQ, który jest punktem wejścia, oraz struktury drzewa rozbioru składniowiowego, będącym przedmiotem translacji \linebreak LINQ-to-SQL. Zakładam, że czytelnikowi znane są podstawowe pojęcia związane z programowaniem obiektowym, takie jak metoda, kolekcja, dziedziczenie, typ generyczny. W niniejszym rozdziale poruszone zostaną następujące tematy:
 
 \begin{itemize}
-\item Sposób przetrzymywania wyliczalnych kolekcji w .NET-cie.
-\item Opis technologii LINQ, która jest punktem wejścia dla zapytania użytkownika. 
-\item Struktura drzewa wyrażeń \texttt{IQueryable}, i dlaczego takie drzewa są trudne.
-\item Biblioteka re-linq, obiekty \texttt{QueryModel}.
+\item Sposób przetrzymywania kolekcji wyliczalnych w .NET-cie.
+\item Opis i motywacja powstania języka zapytań LINQ.
+\item Struktura drzewa wyrażeń \texttt{IQueryable}, i dlaczego takie drzewa są trudne do odwiedzania w celu zrealizowania zadania LINQ-to-SQL.
+\item Biblioteka re-linq uproszczająca powyższe drzewa, obiekty \texttt{QueryModel}.
 \end{itemize}
 
 \section{Słowo o \texttt{IEnumerable<T>} i \texttt{IQueryable<T>}}
-We frameworku .NET wszystkie kolekcje, które możemy wyliczyć (a takie nas interesują, bo pracujemy z relacyjną bazą danych), implementują interfejs \linebreak \texttt{IEnumerable<T>}, gdzie \texttt{T} jest typem obiektu, który jest przetrzymywany w kolekcji. Ten interfejs definiuje metodę \texttt{GetEnumerator()}, który zwraca obiekt typu \texttt{IEnumerator<T>}, który ma właściwość \texttt{Current} oraz metodę \texttt{MoveNext()}, pozwalając na p`rzejście po uporządkowanym ciągu obiektów typu \texttt{T} oraz określenie obecnej pozycji. Korzystając z tych dwóch informacji, jesteśmy w stanie rozszerzyć \texttt{IEnumerable<T>} o metody takie jak wyznaczenie długości, filtrowanie kolekcji, łączenie dwóch kolekcji ze sobą, mapowanie funkcji na obiekty. Dokładna lista metod rozszerzających \texttt{IEnumerable<T>} jest dostępna \href{https://msdn.microsoft.com/pl-pl/library/9eekhta0(v=vs.110).aspx}{w oficjalnej dokumentacji MSDN}.
+We frameworku .NET wszystkie kolekcje, które możemy wyliczyć (a takie nas interesują, bo pracujemy z relacyjną bazą danych), implementują interfejs \linebreak \texttt{IEnumerable<T>}, gdzie \texttt{T} jest typem obiektu, który jest przetrzymywany w kolekcji. Ten interfejs definiuje metodę \texttt{GetEnumerator()}, który zwraca obiekt typu \texttt{IEnumerator<T>}, który ma właściwość \texttt{Current} oraz metodę \texttt{MoveNext()}, pozwalając na przejście po uporządkowanym ciągu obiektów typu \texttt{T} oraz określenie obecnej pozycji. Korzystając z tych dwóch informacji, jesteśmy w stanie rozszerzyć \texttt{IEnumerable<T>} o metody takie jak wyznaczenie długości, filtrowanie kolekcji, łączenie dwóch kolekcji ze sobą, mapowanie funkcji na wszystkie obiekty znajdujące się w kolekcji. Dokładna lista metod rozszerzających \texttt{IEnumerable<T>} jest dostępna \href{https://msdn.microsoft.com/pl-pl/library/9eekhta0(v=vs.110).aspx}{w oficjalnej dokumentacji MSDN}. \pagebreak
 
 Rozszerzeniem \texttt{IEnumerable<T>} jest interfejs \texttt{IQueryable<T>}, który de facto implementuje \texttt{IEnumerable<T>}. Zasadniczą różnicą między tymi dwoma interfejsami jest to, że w momencie wywołania ciągu metod rozszerzających \texttt{IEnumerable<T>}, każda z tych metod jest wywoływana jedna po drugiej, co może obciążyć moc obliczeniową procesora. Natomiast kolekcja \texttt{IQueryable<T>} jest świadoma, że nie musi wykonywać tych metod od razu, tylko przetrzymuje je w postaci drzewa wyrażeń (o wyrażeniach w następnej sekcji), które dopiero przy wywołaniu metody wyliczającej elementy z kolekcji zostaje wykonane w całości w efektywny sposób. Takie rozwiązanie jest idealne dla kolekcji, które łączą się z zewnętrzną bazą danych, aby istniała możliwość wybrania danych za pomocą jednego dużego zapytania SQL-owego.
 
-\section{Drzewa wyrażeń \texttt{IQueryable<T>}}
-todo.
-
 \section{Language INtegrated Query}
-todo.
+Programiści na codzień pracują z danymi w różnych formach - zapisanych w plikach XML i JSON, przetrzymywanych w bazie danych, czy też po prostu z kolekcjami obiektów. Nie jest sztuką zauważyć, że trudnością dla programisty będzie odnalezienie się w projekcie, który korzysta z wielu źródeł danych, ponieważ wybranie danych z każdego z nich wymaga znajomości metod używania tych źródeł. To dało do myślenia architektom z Microsoftu, którzy ,,postanowili uogólnić problem [wyboru danych] i dodać możliwość wykonywania zapytań w sposób kompatybilny ze wszystkimi źródłami danych, nie tylko relacyjnymi i XML-owymi. Rozwiązanie to nazwali \textbf{L}anguage \textbf{IN}tegrated \textbf{Q}uery'' \cite{msdn_linq}, i zostało bardzo ciepło przyjęte przez programistów .NET. Zapytanie LINQ jest automatycznie tłumaczone do docelowego języka zapytań, którego programista C\# lub VB nie musi znać - a więc jest w stanie wybierać dane z niemal każdego źródła z użyciem tej samej składni.
+
+Poniżej zostało przedstawione przykładowe zapytanie LINQ, które wybiera imiona i nazwiska osób z kolekcji pracowników, którzy zarabiają więcej niż 3000 złotych, posortowane alfabetycznie po nazwiskach:
+
+\begin{lstlisting}
+var linqQuery = 
+    from e in db.Employees
+    where e.Salary > 3000.0
+    orderby e.LastName
+    select new
+    { 
+        FirstName = e.FirstName,
+        LastName = e.LastName
+    };
+\end{lstlisting}
+
+Takie zapytanie można również zapisać za pomocą metod z użyciem wyrażeń lambda (powyższe zapytanie jest tłumaczone przez kompilator do poniższego): \pagebreak
+
+\begin{lstlisting}
+var linqQuery2 = db.Employees
+    .Where(e => e.Salary > 3000.0)
+    .OrderBy(e => e.LastName)
+    .Select(e => new
+    { 
+        FirstName = e.FirstName,
+        LastName = e.LastName
+    });
+\end{lstlisting}
+
+Pisząc zapytanie LINQ, tak naprawdę wykonywane są metody na kolekcjach \texttt{IEnumerable<T>}, z którymi była okazja zapoznać się w trakcie czytania sekcji traktującej o kolekcjach, które implementują ten interfejs. Każde z tych zapytań zwraca kolekcję \texttt{IEnumerable<T>} (w przypadku danych wybieranych z zewnętrznego źródła - \texttt{IQueryable<T>}), gdzie \texttt{T} jest typem anonimowym zawierającym dwie właściwości \texttt{FirstName} i \texttt{LastName}. Tą kolekcję można w łatwy sposób przerzutować na dowolną kolekcję używając odpowiedniej metody (na przykład \texttt{.ToList()} albo \linebreak \texttt{.ToArray()}). Przykłady bardziej skomplikowanych zapytań można znaleźć w folderze \texttt{Thesis.Relinq.Tests} w plikach z rozszerzeniem \texttt{.cs} zawierających klasy testujące system, który stanowi załącznik do tej pracy.
+
+\section{Drzewa wyrażeń \texttt{IQueryable}}
+Wynikiem zapytania LINQ jest obiekt, który implementuje interfejs \texttt{IQueryable}. Poniższy fragment kodu pochodzi z biblioteki .NET i pokazuje sposób, w jaki \texttt{IQueryable} rozszerza \texttt{IEnumerable}:
+
+\begin{lstlisting}
+public interface IQueryable : IEnumerable
+{
+    Type ElementType { get; }
+    Expression Expression { get; }
+    IQueryProvider Provider { get; }
+}
+\end{lstlisting}
+
+Pierwsza właściwość zawiera oczywiście typ obiektów, których kolekcja jest wynikiem zapytania. Trzecia właściwość to instancja klasy, który implementuje interfejs \href{https://msdn.microsoft.com/pl-pl/library/system.linq.iqueryprovider(v=vs.110).aspx}{\texttt{IQueryProvider}}. Dostarczenie takiej implementacji jest zadaniem programisty, i o tym traktuje następna część rodziału. Natomiast przedmiotem tej sekcji jest właściwość druga, o tajemniczym typie \texttt{Expression}.
+
+Prawdziwym ,,zapytaniem'' ukrytym pod interfejsem \texttt{IQueryable} jest obiekt \texttt{Expression}, który reprezentuje wejściowe zapytanie LINQ jako drzewo operatorów i metod, które zostały w tym zapytaniu użyte \cite{linq_queryable}. Po głębszej analizie kodu źródłowego biblioteki .NET okazuje się, że \texttt{IQueryable} jest tak naprawdę mechanizmem wykorzystującym metody typowe dla kolekcji do budowania drzewa rozbioru składniowego w postaci obiektu \texttt{Expression}, który (wraz z \texttt{ElementType}) jest wykorzystywany przez \texttt{Provider} do wykonania zapytania.
+
+W tym momencie może się wydawać, że mamy wszystko - wystarczy zaimplementować \texttt{IQueryProvider} w taki sposób, by tłumaczył drzewa \texttt{Expression} na zapytanie do języka, który nas interesuje. Po dłuższej analizie tych drzew okazuje się, że są one bardzo niewygodnym modelem do odwiedzania. TODO.
 
 \section{re-linq i \texttt{QueryModel}}
-Aby można było odwołać się do bazy danych za pomocą LINQ, konieczne jest zaimplementowanie interfejsu \texttt{IQueryable} oraz \texttt{IQueryProvider}. W sekcji traktującej o drzewach wyrażeń \texttt{IQueryable<T>} można zobaczyć, że to może być trudne, ze względu na skomplikowaną strukturę tych drzew. W związku z tym alternatywnym rozwiązaniem jest biblioteka re-linq, która tłumaczy drzewa wyrażeń \texttt{IQueryable} na tytułowe abstrakcyjne drzewa składniowe, a dokładniej - na obiekty \texttt{QueryModel}, które o wiele bardziej przypominają oryginalne zapytanie LINQ. W \texttt{QueryModel} interesują nas cztery właściwości: 
+W sekcji traktującej o drzewach wyrażeń \texttt{Expression} można zobaczyć, że ze względu na skomplikowaną strukturę tych drzew, budowa docelowego zapytania może być (i jest) trudna. W związku z tym, alternatywnym rozwiązaniem jest biblioteka re-linq, która tłumaczy drzewa wyrażeń \texttt{IQueryable} na tytułowe abstrakcyjne drzewa składniowe, a dokładniej - na obiekty \texttt{QueryModel}, które o wiele bardziej przypominają oryginalne zapytanie LINQ. Jest ono rozbite na cztery właściwości:
 
 \begin{itemize}
 \item \texttt{SelectClause} - zawiera wyrażenie określające element, który jest wybierany w zapytaniu LINQ. 
 \item \texttt{MainFromClause} - określa główne źródło, z którego wybierane są informacje (w przypadku zapytań SQL - pierwsza tabela z części \texttt{FROM}).
-\item \texttt{BodyClauses} - zawiera kolekcję 
-\item \texttt{ResultOperators} - 
+\item \texttt{BodyClauses} - TODO.
+\item \texttt{ResultOperators} - TODO.
 \end{itemize}
 
-Następnie, takie drzewo jest przekazywane do jednej z metod implementacji \texttt{IQueryExecutor}. Ten interfejs ma trzy metody o sygnaturach:
+Biblioteka re-linq, poza przekształceniem obiektów \texttt{Expression} na \texttt{QueryModel}, pozwala również na znaczne uproszczenie implementacji \texttt{IQueryProvider}, udostępniając interfejs \texttt{QueryableBase}, po którym dziedziczy klasa budująca zapytanie docelowe. Klasa ta musi posiadać metodę \texttt{CreateQueryProvider}, która zwraca obiekt typu \texttt{IQueryProvider} wykorzystywany przez \texttt{IQueryable}. Takim obiektem jest oferany przez re-linq \texttt{DefaultQueryProvider}, który jest budowany z trzech argumentów: typu docelowego implementującego \texttt{IQueryable}, obiektu \texttt{QueryParser} dokonującego translacji drzewa \texttt{Expression} do obiektu \texttt{QueryModel} (istnieje możliwość napisania własnego tłumacza, ale autor pracy korzysta z domyślnego, który został dostarczony razem z biblioteką), oraz własnej implementacji interfejsu \texttt{IQueryExecutor} (patrz: \texttt{Thesis.Relinq/PsqlQueryable.cs}). Taka implementacja powinna posiadać trzy metody:
 
 \begin{itemize}
 \item \texttt{IEnumerable<T> ExecuteCollection<T>(QueryModel queryModel)},
@@ -37,8 +81,6 @@ Następnie, takie drzewo jest przekazywane do jednej z metod implementacji \text
 \item \texttt{T ExecuteSingle<T>(QueryModel queryModel, bool defaultWhenEmpty)}.
 \end{itemize}
 
-Te metody są punktami wejścia i wyjścia dla całego procesu budowy zapytania, jego wykonania oraz konwersji wyniku do oczekiwanego formatu i są wywoływane są w zależności tego, jaki format jest oczekiwany (cała kolekcja, skalar, pojedynczy element z kolekcji).
+Wybór wywoływanej przez \texttt{IQueryExecutor} metody zależy od oczekiwanego wyniku zapytania (cała kolekcja, skalar, pojedynczy element z kolekcji). W rezultacie, pisząc zapytanie LINQ, dostajemy obiekt w pełni implementujący \texttt{IQueryable}, na którym wywołanie metody wyciągającej wynik z bazy danych zwróci wynik jednej z powyższych trzech metod. Teraz jedyne, co nas dzieli od oczekiwanego rezultatu, jest ich implementacja, która przechodząc przez drzewo \texttt{QueryModel} buduje zapytanie, wykonuje je korzystając z zewnętrznej biblioteki łączącą się z bazą danych PostgreSQL, konwertuje wynik zapytania do oczekiwanego typu i go zwraca.
 
-re-linq implementuje wzorzec projektowy Odwiedzający (Visitor), który przechodzi przez zbudowany przez siebie \texttt{QueryModel} i pozwala programiście na przeciążenie metod, które przechodzą przez odpowiadające typy wyrażeń, w celu zbudowania zapytania do docelowej bazy danych. Przechodzenie przez zapytania w takiej postaci jest zdecydowanie bardziej przystępne dla programisty, który podejmuje się zadania LINQ-to-SQL, niż żmudne próby budowy zapytania SQL-owego na podstawie drzewa wyrażeń \texttt{IQueryable<T>}. W następnym rozdziale poruszona zostanie kwestia przechodzenia przez \texttt{QueryModel} w celu zbudowania zapytania SQL-owego.
-
-Warto jeszcze zaznaczyć, że biblioteka re-linq jest na tyle potężnym narzędziem, że na jej użycie zdecydowali się nawet autorzy \href{https://github.com/nhibernate/nhibernate-core/blob/d82d1381fb6b427da91d357398502a7f4b482ccc/src/NHibernate/Linq/NhRelinqQueryParser.cs}{NHibernate} oraz \linebreak \href{https://github.com/aspnet/EntityFramework/blob/f386095005e46ea3aa4d677e4439cdac113dbfb1/src/EFCore.Relational/Query/ExpressionVisitors/Internal/EqualityPredicateExpandingVisitor.cs}{Entity Framework 7}, które są najpopularniejszymi bibliotekami ORM w .NET.
+Sposobem budowy zapytania na podstawie obiektu \texttt{QueryModel} jest implementacja wzorca projektowego Odwiedzający (Visitor), którego zadaniem jest przejście przez wnętrze tego obiektu. Biblioteka re-linq oczywiście udostępnia bazowe klasy abstrakcyjne, które wystarczy przeciążyć w celu wykonania tego zadania, i o tym poświęcony został następny rozdział niniejszej pracy. Przy okazji warto jeszcze wspomnieć, że biblioteka re-linq jest na tyle potężnym narzędziem, że na jej użycie zdecydowali się nawet autorzy \href{https://github.com/nhibernate/nhibernate-core/blob/d82d1381fb6b427da91d357398502a7f4b482ccc/src/NHibernate/Linq/NhRelinqQueryParser.cs}{NHibernate} oraz \href{https://github.com/aspnet/EntityFramework/blob/f386095005e46ea3aa4d677e4439cdac113dbfb1/src/EFCore.Relational/Query/ExpressionVisitors/Internal/EqualityPredicateExpandingVisitor.cs}{Entity Framework 7}, które są najpopularniejszymi bibliotekami ORM w .NET.

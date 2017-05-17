@@ -7,16 +7,36 @@
 \usepackage[toc]{appendix}
 \usepackage{bookmark}
 
+\usepackage{color}
+\definecolor{bluekeywords}{rgb}{0.13,0.13,1}
+\definecolor{greencomments}{rgb}{0,0.5,0}
+\definecolor{redstrings}{rgb}{0.9,0,0}
+
+\usepackage{listings}
+\lstset{language=[Sharp]C,
+  showspaces=false,
+  showtabs=false,
+  breaklines=true,
+  showstringspaces=false,
+  breakatwhitespace=true,
+  escapeinside={(*@}{@*)},
+  morekeywords={var, from, in, where, select, join, orderby, descending, get, set},
+  commentstyle=\color{greencomments},
+  keywordstyle=\color{bluekeywords},
+  stringstyle=\color{redstrings},
+  basicstyle=\ttfamily
+}
+
 \pagestyle{fancy}
 \fancyhf{}
 \fancyfoot[CO,CE]{\thepage}
 \fancyhead[RE]{\leftmark}
 \fancyhead[LO]{\rightmark}
-\renewcommand{\chaptermark}[1]{\markboth{\thechapter\ #1}{}}
-\renewcommand{\sectionmark}[1]{\markright{\thesection\ #1}}
+\renewcommand{\chaptermark}[1]{\markboth{Damian Górski, Instytut Informatyki UWr}{}}
+\renewcommand{\sectionmark}[1]{\markright{Implementacja języka zapytań oparta na drzewach rozbioru}}
 
-\polishtitle{Implementacja języka zapytań oparta na\fmlinebreak abstrakcyjnych drzewach składniowych}
-\englishtitle{Implementation of a query language\fmlinebreak based on abstract syntax trees}
+\polishtitle{Implementacja języka zapytań\fmlinebreak oparta na drzewach rozbioru}
+\englishtitle{Implementation of a query language\fmlinebreak based on partition trees}
 
 \author{Damian Górski}
 \advisor{dr Wiktor Zychla}
