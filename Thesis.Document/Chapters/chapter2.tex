@@ -1,5 +1,43 @@
 \chapter{Proces budowy zapytania}
 Znając sposób działania dostawców LINQ oraz budowę drzewa \texttt{QueryModel}, wystarczy opracować metodę przechodzenia przez te drzewa w celu budowy zapytania do bazy PostgreSQL. Punktem wejściowym dla projektu, który jest załącznikiem do niniejszej pracy, jest artykuł \cite{codeproject_nhibernate}, opisujący przykładową implementację dostawcy LINQ dla NHibernate.
 
-\section{Sekcja}
-Tutaj też.
+\section{Implementacja \texttt{QueryModelVisitorBase}}
+Korzystając z dotychczasowej wiedzy, następnym krokiem do wykonania jest implementacja metod odwiedzających nowe drzewo rozbioru składniowego. Również w tym przypadku biblioteka re-linq asystuje programistę w tym zadaniu, udostępniając klasę \href{https://github.com/re-motion/Relinq/blob/ab11f0997998a90e17e90dc58b215c3997d47311/Core/QueryModelVisitorBase.cs}{\texttt{QueryModelVisitorBase}}, która implementuje zbiór metod odwiedzających obiekt \texttt{QueryModel}. Klasa ta nie robi nic szczególnego, poza sprawdzeniem poprawności typu elementów przekazywanych w argumentach oraz ich zaakceptowaniu - typowa implementacja wzorca Odwiedzający (Visitor). Trzeba oczywiście napisać rozszerzenie tej klasy, która wykona dodatkową logikę na argumentach implementowanych metod, oraz wywoła bazową logikę z użyciem słowa kluczowego \texttt{base}.
+
+Argumentami każdej z metod, które będą nadpisywane, są różne klauzule - skondensowane do postaci wygodnych obiektów - które występują w zapytaniu LINQ. Ich właściwościami są znane już obiekty \texttt{Expression}, jednak są one na tyle proste, że można łatwo się zająć ich odwiedzeniem, i o tym będzie traktować następna sekcja tego rozdziału. Na chwilę obecną załóżmy, że posiadamy generyczną metodę, która odwiedza każdy możliwy podtyp \texttt{Expression}, i na jego podstawie buduje fragment zapytania SQL-owego, który jest przekazywany do instancji klasy \texttt{QueryPartsAggregator}, służącej do łączenia takich fragmentów w pełne zapytanie SQL. Dokładna implementacja klasy, która jest tematem niniejszego podrozdziału, znajduje się w pliku \texttt{PsqlGeneratingQueryModelVisitor.cs}. Autor pracy zachęca czytelnika do zapoznawania się z nim w trakcie czytania następnych podsekcji.
+
+\subsection{Metoda \texttt{VisitQueryModel}}
+TODO.
+
+\subsection{Metoda \texttt{VisitSelectClause}}
+TODO.
+
+\subsection{Metoda \texttt{VisitMainFromClause}}
+TODO.
+
+\subsection{Metoda \texttt{VisitWhereClause}}
+TODO.
+
+\subsection{Metoda \texttt{VisitOrderByClause}}
+TODO.
+
+\subsection{Metoda \texttt{VisitJoinClause}}
+TODO.
+
+\subsection{Metoda \texttt{VisitAdditionalFromClause}}
+TODO.
+
+\subsection{Metoda \texttt{VisitGroupJoinClause}}
+TODO.
+
+\subsection{Metoda \texttt{VisitResultOperator}}
+TODO.
+
+\section{Implementacja \texttt{RelinqExpressionVisitor}}
+TODO.
+
+\subsection{Metoda \texttt{VisitBinary}}
+TODO.
+
+\section{Czynności następujące budowę zapytania}
+TODO.
