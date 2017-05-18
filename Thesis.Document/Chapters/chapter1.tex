@@ -46,7 +46,7 @@ var linqQuery2 = db.Employees
 Pisząc zapytanie LINQ, tak naprawdę wykonywane są metody na kolekcjach \texttt{IEnumerable<T>}, z którymi była okazja zapoznać się w trakcie czytania sekcji traktującej o kolekcjach, które implementują ten interfejs. Każde z tych zapytań zwraca kolekcję \texttt{IEnumerable<T>} (w przypadku danych wybieranych z zewnętrznego źródła - \texttt{IQueryable<T>}), gdzie \texttt{T} jest typem anonimowym zawierającym dwie właściwości \texttt{FirstName} i \texttt{LastName}. Tą kolekcję można w łatwy sposób przerzutować na dowolną kolekcję używając odpowiedniej metody (na przykład \texttt{.ToList()} albo \linebreak \texttt{.ToArray()}). Przykłady bardziej skomplikowanych zapytań można znaleźć w folderze \texttt{Thesis.Relinq.Tests} w plikach z rozszerzeniem \texttt{.cs} zawierających klasy testujące system, który stanowi załącznik do tej pracy.
 
 \section{Drzewa wyrażeń \texttt{IQueryable}}
-Wynikiem zapytania LINQ jest obiekt, który implementuje interfejs \texttt{IQueryable}. Poniższy fragment kodu pochodzi z biblioteki .NET i pokazuje sposób, w jaki \texttt{IQueryable} rozszerza \texttt{IEnumerable}:
+Wynikiem zapytania LINQ jest obiekt, który implementuje interfejs \texttt{IQueryable}. Poniższy fragment kodu pochodzi z biblioteki .NET i pokazuje sposób, w jaki \linebreak \texttt{IQueryable} rozszerza \texttt{IEnumerable}:
 
 \begin{lstlisting}
 public interface IQueryable : IEnumerable
@@ -61,19 +61,67 @@ Pierwsza właściwość zawiera oczywiście typ obiektów, których kolekcja jes
 
 Prawdziwym ,,zapytaniem'' ukrytym pod interfejsem \texttt{IQueryable} jest obiekt \texttt{Expression}, który reprezentuje wejściowe zapytanie LINQ jako drzewo operatorów i metod, które zostały w tym zapytaniu użyte \cite{linq_queryable}. Po głębszej analizie kodu źródłowego biblioteki .NET okazuje się, że \texttt{IQueryable} jest tak naprawdę mechanizmem wykorzystującym metody typowe dla kolekcji do budowania drzewa rozbioru składniowego w postaci obiektu \texttt{Expression}, który (wraz z \texttt{ElementType}) jest wykorzystywany przez \texttt{Provider} do wykonania zapytania.
 
-W tym momencie może się wydawać, że mamy wszystko - wystarczy zaimplementować \texttt{IQueryProvider} w taki sposób, by tłumaczył drzewa \texttt{Expression} na zapytanie do języka, który nas interesuje. Po dłuższej analizie tych drzew okazuje się, że są one bardzo niewygodnym modelem do odwiedzania. TODO.
+Może się wydawać, że mamy wszystko - przecież wystarczy zaimplementować \linebreak \texttt{IQueryProvider} w taki sposób, by tłumaczył drzewa \texttt{Expression} na zapytanie do języka, który nas interesuje. Okazuje się, że te drzewa mogą być problematycznym modelem do odwiedzania. Idąc śladem Fabiana Schmieda \cite{re-linq}, weźmy na warsztat pewne zapytanie i zobaczmy, w jaki sposób obiekt \texttt{Expression} jest budowany:
 
-\section{re-linq i \texttt{QueryModel}}
-W sekcji traktującej o drzewach wyrażeń \texttt{Expression} można zobaczyć, że ze względu na skomplikowaną strukturę tych drzew, budowa docelowego zapytania może być (i jest) trudna. W związku z tym, alternatywnym rozwiązaniem jest biblioteka re-linq, która tłumaczy drzewa wyrażeń \texttt{IQueryable} na tytułowe abstrakcyjne drzewa składniowe, a dokładniej - na obiekty \texttt{QueryModel}, które o wiele bardziej przypominają oryginalne zapytanie LINQ. Jest ono rozbite na cztery właściwości:
+\begin{lstlisting}
+var linqQuery3 = 
+    from c in QueryFactory.CreateLinqQuery<Customer>()
+    from o in c.Orders
+    where o.OrderNumber == 1
+    select new { c, o };
+\end{lstlisting}
+
+Na początku, takie zapytanie jest tłumaczone na równoważny ciąg wywołań metod (równie dobrze programista mógł napisać w kodzie to, co jest poniżej):
+
+\begin{lstlisting}
+QueryFactory.CreateLinqQuery<Customer>()
+    .SelectMany(c => c.Orders, (c, o) => new {c, o})
+    .Where(trans => trans.o.OrderNumber == 1)
+    .Select(trans => new {trans.c, trans.o})
+\end{lstlisting}
+
+Kompilator tłumaczy powyższe wywołania metod na wywołania statycznych metod \texttt{IQueryable}, oraz opakowuje wyrażenia lambda w obiekty \linebreak \texttt{Expression.Lambda}, które są ich abstrakcyjną reprezentacją:
+
+\begin{lstlisting}
+Queryable.Select(
+  Queryable.Where(
+    Queryable.SelectMany(
+      QueryFactory.CreateLinqQuery<Customer>(),
+      Expression.Lambda(Expression.MakeMemberAccess(...)),
+      Expression.Lambda(Expression.New(...))),
+    Expression.Lambda(Expression.MakeBinary(...))),
+  Expression.Lambda(Expression.New (...)))
+\end{lstlisting}
+
+Z tej reprezentacji korzystają obiekty \texttt{IQueryable}, które budują poszukiwany obiekt \texttt{Expression}, który wreszcie jest abstrakcyjną reprezentacją zapytania, które jest przekazywane do dostawcy LINQ w celu budowy zapytania:
+
+\begin{lstlisting}
+MethodCallExpression("Select",
+  MethodCallExpression("Where",
+    MethodCallExpression("SelectMany",
+      CostantExpression(IQueryable<Customer>),
+      UnaryExpression(...), UnaryExpression(...)),
+    UnaryExpression(...)),
+  UnaryExpression(...))
+\end{lstlisting}
+
+W tym miejscu warto zauważyć, że \texttt{Expression} jest oczywiście tylko klasą abstrakcyjną dla \href{https://msdn.microsoft.com/en-us/library/system.linq.expressions.expression(v=vs.110).aspx}{klas określających konkretne wyrażenia, które po niej dziedziczą}, takie jak \texttt{MethodCallExpression}, \texttt{UnaryExpression}, czy \texttt{BinaryExpression}.
+
+Problemem z drzewami \texttt{Expression} jest fakt, że kolejność wykonywanych metod nie jest z góry określona - \textbf{jakakolwiek} metoda może nastąpić po \textbf{jakiejkolwiek} metodzie, przez co drzewa bardzo szybko stają się skomplikowane. Ponadto, jedna metoda może służyć w kilku kontekstach, np. \texttt{SelectMany} może służyć zarówno za część odpowiadającą za budowę podzapytania, jak również wybór dodatkowego źródła danych (następna tabela dla części \texttt{FROM} zapytania SQL-owego). Ponadto, dostawca LINQ musi przejść po wszystkich wyrażeniach lambda nawet na samą górę drzewa, aby znaleźć odpowiedni kontekst, o który chodziło użytkownikowi w zapytaniu. Stąd wniosek nasuwa się jeden - budowa dostawcy LINQ, który ma większe możliwości niż podstawowe operacje na pojedynczej tabeli, jest trudnym zadaniem, jeśli chciałoby się to zrobić na drzewach \texttt{Expression}.
+
+Kończąć powyższe rozważania, Schmied zauważył że logika przetwarzania drzew \texttt{Expression} jest w każdym dostawcy LINQ niepotrzebnie duplikowana. W tym miejscu zadał pytanie: ,,\textit{Czy inteligentniejszym rozwiązaniem nie byłaby \textbf{jednokrotna} implementacja logiki przetwarzania drzew w sposób generyczny, z której mogą korzystać wszyscy dostawcy LINQ}''? To pytanie było motywacją do powstania biblioteki \href{https://github.com/re-motion/Relinq}{re-linq}. Autor pracy dyplomowej skorzystał z tej biblioteki, i o sposobie jej działania oraz użycia poświęcona została cała następna sekcja. 
+
+\section{re-linq i obiekty \texttt{QueryModel}}
+W sekcji traktującej o drzewach wyrażeń \texttt{IQueryable} dowiedziono, że ze względu na skomplikowaną strukturę tych drzew, budowa zapytania docelowego na podstawie tych drzew jest trudna. W związku z tym, alternatywnym rozwiązaniem jest wspomniana już biblioteka \href{https://github.com/re-motion/Relinq}{re-linq}, która tłumaczy drzewa wyrażeń \texttt{IQueryable} na drzewa rozbioru składniowego o wiele przystępniejsze do przeglądania, a dokładniej na obiekty \href{https://github.com/re-motion/Relinq/blob/82fdca6a4bfd942bb4a71dd20ab9c5af0aea0541/Core/QueryModel.cs}{\texttt{QueryModel}}, które o wiele bardziej przypominają oryginalne zapytanie LINQ. Te obiekty mają cztery właściwości:
 
 \begin{itemize}
-\item \texttt{SelectClause} - zawiera wyrażenie określające element, który jest wybierany w zapytaniu LINQ. 
-\item \texttt{MainFromClause} - określa główne źródło, z którego wybierane są informacje (w przypadku zapytań SQL - pierwsza tabela z części \texttt{FROM}).
-\item \texttt{BodyClauses} - TODO.
-\item \texttt{ResultOperators} - TODO.
-\end{itemize}
+\item \texttt{SelectClause} - klauzula \href{https://github.com/re-motion/Relinq/blob/82fdca6a4bfd942bb4a71dd20ab9c5af0aea0541/Core/Clauses/SelectClause.cs}{\texttt{SelectClause}} określająca element, który jest wybierany w zapytaniu \texttt{select} z końca zapytania).
+\item \texttt{MainFromClause} - klauzula \href{https://github.com/re-motion/Relinq/blob/82fdca6a4bfd942bb4a71dd20ab9c5af0aea0541/Core/Clauses/MainFromClause.cs}{\texttt{MainFromClause}} określająca główne źródło, z którego wybierane są informacje w zapytaniu (najbardziej zewnętrzny \texttt{from}).
+\item \texttt{BodyClauses} - zbiór wyrażeń implementujących \href{https://github.com/re-motion/Relinq/blob/82fdca6a4bfd942bb4a71dd20ab9c5af0aea0541/Core/Clauses/IBodyClause.cs}{\texttt{IBodyClause}}, które definiują jakie dane są wybierane w zapytaniu i w jakiej kolejności (słowa kluczowe \texttt{where}, \texttt{orderby}, \texttt{join}, wewnętrzne \texttt{from}-y, które są przetrzymywane w klauzulach \texttt{AdditionalFrom}).
+\item \texttt{ResultOperators} - zbiór wyrażeń dziedziczących po \href{https://github.com/re-motion/Relinq/blob/82fdca6a4bfd942bb4a71dd20ab9c5af0aea0541/Core/Clauses/ResultOperatorBase.cs}{\texttt{ResultOperatorBase}}, które wykonują logikę na zbiorze wynikowym (na przykład metody agregujące \texttt{Count()}, \texttt{Average()}, \texttt{Distinct()} i im podobne, operacje na zbiorach \texttt{Union()}, \texttt{Distinct()} i im podobne).
+\end{itemize} % \pagebreak
 
-Biblioteka re-linq, poza przekształceniem obiektów \texttt{Expression} na \texttt{QueryModel}, pozwala również na znaczne uproszczenie implementacji \texttt{IQueryProvider}, udostępniając interfejs \texttt{QueryableBase}, po którym dziedziczy klasa budująca zapytanie docelowe. Klasa ta musi posiadać metodę \texttt{CreateQueryProvider}, która zwraca obiekt typu \texttt{IQueryProvider} wykorzystywany przez \texttt{IQueryable}. Takim obiektem jest oferany przez re-linq \texttt{DefaultQueryProvider}, który jest budowany z trzech argumentów: typu docelowego implementującego \texttt{IQueryable}, obiektu \texttt{QueryParser} dokonującego translacji drzewa \texttt{Expression} do obiektu \texttt{QueryModel} (istnieje możliwość napisania własnego tłumacza, ale autor pracy korzysta z domyślnego, który został dostarczony razem z biblioteką), oraz własnej implementacji interfejsu \texttt{IQueryExecutor} (patrz: \texttt{Thesis.Relinq/PsqlQueryable.cs}). Taka implementacja powinna posiadać trzy metody:
+Biblioteka re-linq, poza przekształceniem obiektów \texttt{Expression} na \texttt{QueryModel}, pozwala również na znaczne uproszczenie implementacji \texttt{IQueryProvider}, udostępniając klasę abstrakcyjną \href{https://github.com/re-motion/Relinq/blob/82fdca6a4bfd942bb4a71dd20ab9c5af0aea0541/Core/QueryableBase.cs}{\texttt{QueryableBase}}, po której dziedziczy klasa budująca zapytanie docelowe. Klasa ta musi posiadać metodę \texttt{CreateQueryProvider}, która zwraca obiekt typu \texttt{IQueryProvider} wykorzystywany przez \texttt{IQueryable}. Takim obiektem może być oferany przez re-linq \href{https://github.com/re-motion/Relinq/blob/82fdca6a4bfd942bb4a71dd20ab9c5af0aea0541/Core/DefaultQueryProvider.cs}{\texttt{DefaultQueryProvider}}, który jest budowany z trzech argumentów: typu docelowego implementującego \texttt{IQueryable}, obiektu \texttt{QueryParser} dokonującego translacji drzewa \texttt{Expression} do obiektu \texttt{QueryModel} (istnieje możliwość napisania własnego tłumacza, ale autor pracy korzysta z domyślnego, który został dostarczony razem z biblioteką), oraz własnej implementacji interfejsu \href{https://github.com/re-motion/Relinq/blob/82fdca6a4bfd942bb4a71dd20ab9c5af0aea0541/Core/IQueryExecutor.cs}{\texttt{IQueryExecutor}} (patrz: \texttt{Thesis.Relinq/PsqlQueryable.cs}). Taka implementacja powinna posiadać trzy metody:
 
 \begin{itemize}
 \item \texttt{IEnumerable<T> ExecuteCollection<T>(QueryModel queryModel)},
