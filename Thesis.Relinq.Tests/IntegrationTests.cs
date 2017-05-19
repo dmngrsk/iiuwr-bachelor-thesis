@@ -1,17 +1,18 @@
+using Dapper;
 using Npgsql;
-using NUnit.Framework;
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Thesis.Relinq.NpgsqlWrapper;
 using Thesis.Relinq.Tests.Helpers;
 using Thesis.Relinq.Tests.Models;
+using Xunit;
 
 namespace Thesis.Relinq.Tests
 {
-    [TestFixture]
-    public class IntegrationTests : ThesisTestsBase
+    public class IntegrationTests : TestsBase
     {
-        [Test]
+        [Fact]
         public void select_all()
         {
             // Arrange
@@ -25,16 +26,16 @@ namespace Thesis.Relinq.Tests
             string psqlCommand = "SELECT * FROM Customers;";
 
             // Act
-            var expected = NpgsqlRowConverter<Customers>.ReadAllRows(connection, psqlCommand).ToArray();
+            var expected = connection.Query<Customers>(psqlCommand).ToArray();
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 
             // Assert
-            AssertExtension.AreEqualByJson(expected, actual);
-            AssertExtension.AreEqualByJson(expected, actual2);
+            AssertExtension.EqualByJson(expected, actual);
+            AssertExtension.EqualByJson(expected, actual2);
         }
 
-        [Test]
+        [Fact]
         public void select_columns_creating_an_anonymous_type()
         {
             // Arrange
@@ -50,21 +51,18 @@ namespace Thesis.Relinq.Tests
                 .Select(c => new { Name = c.ContactName, City = c.City });
             
             string psqlCommand = "SELECT \"ContactName\", \"City\" FROM Customers;";
-            var rowConverterType = typeof(NpgsqlRowConverter<>).MakeGenericType(myQuery.ElementType);
-            var rowConverterMethod = rowConverterType.GetMethod(
-                "ReadAllRows", new [] { typeof(NpgsqlConnection), typeof(string) });
 
             // Act
-            var expected = rowConverterMethod.Invoke(this, new object[] { connection, psqlCommand });
+            var expected = connection.Query(psqlCommand).ToArray();
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
             
             // Assert
-            AssertExtension.AreEqualByJson(expected, actual);
-            AssertExtension.AreEqualByJson(expected, actual2);
+            AssertExtension.EqualByJson(expected, actual);
+            AssertExtension.EqualByJson(expected, actual2);
         }
 
-        [Test]
+        [Fact]
         public void select_with_where()
         {
             // Arrange
@@ -79,16 +77,16 @@ namespace Thesis.Relinq.Tests
             string psqlCommand = "SELECT * FROM Customers WHERE \"CustomerID\" = 'PARIS';";
 
             // Act
-            var expected = NpgsqlRowConverter<Customers>.ReadAllRows(connection, psqlCommand).ToArray();
+            var expected = connection.Query<Customers>(psqlCommand);
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
             
             // Assert
-            AssertExtension.AreEqualByJson(expected, actual);
-            AssertExtension.AreEqualByJson(expected, actual2);
+            AssertExtension.EqualByJson(expected, actual);
+            AssertExtension.EqualByJson(expected, actual2);
         }
 
-        [Test]
+        [Fact]
         public void select_with_multiconditional_where()
         {
             // Arrange
@@ -105,16 +103,16 @@ namespace Thesis.Relinq.Tests
                 "WHERE \"EmployeeID\" > 5 AND \"City\" = 'London';";
 
             // Act
-            var expected = NpgsqlRowConverter<Employees>.ReadAllRows(connection, psqlCommand).ToArray();
+            var expected = connection.Query<Employees>(psqlCommand);
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
             
             // Assert
-            AssertExtension.AreEqualByJson(expected, actual);
-            AssertExtension.AreEqualByJson(expected, actual2);
+            AssertExtension.EqualByJson(expected, actual);
+            AssertExtension.EqualByJson(expected, actual2);
         }
 
-        [Test]
+        [Fact]
         public void select_with_multiple_wheres()
         {
             // Arrange
@@ -133,16 +131,16 @@ namespace Thesis.Relinq.Tests
                 "WHERE \"EmployeeID\" > 5 AND \"City\" = 'London';";
 
             // Act
-            var expected = NpgsqlRowConverter<Employees>.ReadAllRows(connection, psqlCommand).ToArray();
+            var expected = connection.Query<Employees>(psqlCommand);
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
             
             // Assert
-            AssertExtension.AreEqualByJson(expected, actual);
-            AssertExtension.AreEqualByJson(expected, actual2);
+            AssertExtension.EqualByJson(expected, actual);
+            AssertExtension.EqualByJson(expected, actual2);
         }
 
-        [Test]
+        [Fact]
         public void queries_are_sanitized()
         {
             // Arrange
@@ -158,12 +156,12 @@ namespace Thesis.Relinq.Tests
             var rowCountAfterQuery = connection.Database.Count();
 
             // Arrange
-            Assert.Positive(rowCountBeforeQuery);
-            Assert.AreEqual(rowCountBeforeQuery, rowCountAfterQuery);
-            Assert.AreEqual(expected, actual);
+            Assert.True(rowCountBeforeQuery > 0);
+            Assert.Equal(rowCountBeforeQuery, rowCountAfterQuery);
+            Assert.Equal(expected, actual);
         }
 
-        [Test]
+        [Fact]
         public void handles_string_addition()
         {
             var myQuery = 
@@ -178,16 +176,16 @@ namespace Thesis.Relinq.Tests
                 "' has ID: ' || \"EmployeeID\" FROM employees;";
 
             // Act
-            var expected = NpgsqlRowConverter<string>.ReadAllRows(connection, psqlCommand).ToArray();
+            var expected = connection.Query<string>(psqlCommand);
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 
             // Assert
-            AssertExtension.AreEqualByJson(expected, actual);
-            AssertExtension.AreEqualByJson(expected, actual2);
+            AssertExtension.EqualByJson(expected, actual);
+            AssertExtension.EqualByJson(expected, actual2);
         }
 
-        [Test]
+        [Fact]
         public void logical_not_applied()
         {
             // Arrange
@@ -204,16 +202,16 @@ namespace Thesis.Relinq.Tests
                 "WHERE NOT (\"EmployeeID\" < 7 AND \"EmployeeID\" > 3);";
 
             // Act
-            var expected = NpgsqlRowConverter<Employees>.ReadAllRows(connection, psqlCommand).ToArray();
+            var expected = connection.Query<Employees>(psqlCommand);
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 
             // Assert
-            AssertExtension.AreEqualByJson(expected, actual);
-            AssertExtension.AreEqualByJson(expected, actual2);
+            AssertExtension.EqualByJson(expected, actual);
+            AssertExtension.EqualByJson(expected, actual2);
         }
 
-        [Test]
+        [Fact]
         public void select_empty_result_with_always_false_where()
         {
             // Arrange
@@ -228,16 +226,16 @@ namespace Thesis.Relinq.Tests
             string psqlCommand = "SELECT * FROM Employees WHERE 3 > 5;";
 
             // Act
-            var expected = NpgsqlRowConverter<Employees>.ReadAllRows(connection, psqlCommand).ToArray();
+            var expected = connection.Query<Employees>(psqlCommand);
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 
             // Assert
-            AssertExtension.AreEqualByJson(expected, actual);
-            AssertExtension.AreEqualByJson(expected, actual2);
+            AssertExtension.EqualByJson(expected, actual);
+            AssertExtension.EqualByJson(expected, actual2);
         }
 
-        [Test]
+        [Fact]
         public void select_with_multiple_orderings_joined()
         {
             // Arrange
@@ -255,16 +253,16 @@ namespace Thesis.Relinq.Tests
                 "ORDER BY \"City\", \"EmployeeID\" DESC;";
 
             // Act
-            var expected = NpgsqlRowConverter<Employees>.ReadAllRows(connection, psqlCommand).ToArray();
+            var expected = connection.Query<Employees>(psqlCommand);
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 
             // Assert
-            AssertExtension.AreEqualByJson(expected, actual);
-            AssertExtension.AreEqualByJson(expected, actual2);
+            AssertExtension.EqualByJson(expected, actual);
+            AssertExtension.EqualByJson(expected, actual2);
         }
 
-        [Test]
+        [Fact]
         public void select_with_multiple_orderings_split()
         {
             // Arrange
@@ -283,16 +281,16 @@ namespace Thesis.Relinq.Tests
                 "ORDER BY \"City\", \"EmployeeID\" DESC;";
 
             // Act
-            var expected = NpgsqlRowConverter<Employees>.ReadAllRows(connection, psqlCommand).ToArray();
+            var expected = connection.Query<Employees>(psqlCommand);
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 
             // Assert
-            AssertExtension.AreEqualByJson(expected, actual);
-            AssertExtension.AreEqualByJson(expected, actual2);
+            AssertExtension.EqualByJson(expected, actual);
+            AssertExtension.EqualByJson(expected, actual2);
         }
 
-        [Test]
+        [Fact]
         public void select_with_join()
         {
             // Arrange
@@ -320,21 +318,22 @@ namespace Thesis.Relinq.Tests
                 "SELECT \"ContactName\", \"OrderID\" " + 
                 "FROM Customers t1 INNER JOIN Orders t2 ON " +
                 "t1.\"CustomerID\" = t2.\"CustomerID\";";
-            var rowConverterType = typeof(NpgsqlRowConverter<>).MakeGenericType(myQuery.ElementType);
-            var rowConverterMethod = rowConverterType.GetMethod(
-                "ReadAllRows", new [] { typeof(NpgsqlConnection), typeof(string) });
 
             // Act
-            var expected = rowConverterMethod.Invoke(this, new object[] { connection, psqlCommand });
+            var expected = connection.Query(psqlCommand)
+                    .Select(x => (IDictionary<string, object>)x)
+                    .Select(d => d.Values.ToArray())
+                    .Select(row => Activator.CreateInstance(myQuery.ElementType, row))
+                    .Select(i => Convert.ChangeType(i, myQuery.ElementType));
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 
             // Assert
-            AssertExtension.AreEqualByJson(expected, actual);
-            AssertExtension.AreEqualByJson(expected, actual2);
+            AssertExtension.EqualByJson(expected, actual);
+            AssertExtension.EqualByJson(expected, actual2);
         }
 
-        [Test]
+        [Fact]
         public void select_with_additional_from()
         {
             // Arrange
@@ -362,21 +361,22 @@ namespace Thesis.Relinq.Tests
             string psqlCommand = 
                 "SELECT Orders.\"EmployeeID\", Orders.\"OrderID\" " + 
                 "FROM Orders, Employees WHERE Orders.\"EmployeeID\" = Employees.\"EmployeeID\";";
-            var rowConverterType = typeof(NpgsqlRowConverter<>).MakeGenericType(myQuery.ElementType);
-            var rowConverterMethod = rowConverterType.GetMethod(
-                "ReadAllRows", new [] { typeof(NpgsqlConnection), typeof(string) });
 
             // Act
-            var expected = rowConverterMethod.Invoke(this, new object[] { connection, psqlCommand });
+            var expected = connection.Query(psqlCommand)
+                    .Select(x => (IDictionary<string, object>)x)
+                    .Select(d => d.Values.ToArray())
+                    .Select(row => Activator.CreateInstance(myQuery.ElementType, row))
+                    .Select(i => Convert.ChangeType(i, myQuery.ElementType));
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 
             // Assert
-            AssertExtension.AreEqualByJson(expected, actual);
-            AssertExtension.AreEqualByJson(expected, actual2);
+            AssertExtension.EqualByJson(expected, actual);
+            AssertExtension.EqualByJson(expected, actual2);
         }
 
-/*        [Test]
+/*        [Fact]
         public void select_with_group_join()
         {
             // Arrange
@@ -409,11 +409,11 @@ namespace Thesis.Relinq.Tests
             var actual2 = myQuery2.ToArray();
 
             // Assert
-            AssertExtension.AreEqualByJson(expected, actual);
-            AssertExtension.AreEqualByJson(expected, actual2);
+            AssertExtension.EqualByJson(expected, actual);
+            AssertExtension.EqualByJson(expected, actual2);
         }*/
 
-        [Test]
+        [Fact]
         public void select_with_case()
         {
             // Arrange
@@ -444,21 +444,22 @@ namespace Thesis.Relinq.Tests
                 "WHEN \"EmployeeID\" = 5 THEN 'equal to five' " + 
                 "ELSE 'larger than five' END " +
                 "FROM employees WHERE \"EmployeeID\" < 8;";
-            var rowConverterType = typeof(NpgsqlRowConverter<>).MakeGenericType(myQuery.ElementType);
-            var rowConverterMethod = rowConverterType.GetMethod(
-                "ReadAllRows", new [] { typeof(NpgsqlConnection), typeof(string) });
 
             // Act
-            var expected = rowConverterMethod.Invoke(this, new object[] { connection, psqlCommand });
+            var expected = connection.Query(psqlCommand)
+                    .Select(x => (IDictionary<string, object>)x)
+                    .Select(d => d.Values.ToArray())
+                    .Select(row => Activator.CreateInstance(myQuery.ElementType, row))
+                    .Select(i => Convert.ChangeType(i, myQuery.ElementType));
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 
             // Assert
-            AssertExtension.AreEqualByJson(expected, actual);
-            AssertExtension.AreEqualByJson(expected, actual2);
+            AssertExtension.EqualByJson(expected, actual);
+            AssertExtension.EqualByJson(expected, actual2);
         }
 
-        [Test]
+        [Fact]
         public void fetches_data_from_tables_with_different_name_casing()
         {
             // Arrange
@@ -483,13 +484,16 @@ namespace Thesis.Relinq.Tests
             var psqlCommand = "SELECT * FROM grupa WHERE grupa.rodzaj_zajec = 'w';";
 
             // Act
-            var expected = NpgsqlRowConverter<Grupa>.ReadAllRows(newConnection, psqlCommand).ToArray();
-            var actual = myQuery.ToList();
-            var actual2 = myQuery2.ToList();
+            newConnection.Open();
+            var expected = newConnection.Query<Grupa>(psqlCommand).ToArray();
+            newConnection.Close();
+
+            var actual = myQuery.ToArray();
+            var actual2 = myQuery2.ToArray();
 
             // Assert
-            AssertExtension.AreEqualByJson(expected, actual);
-            AssertExtension.AreEqualByJson(expected, actual2);
+            AssertExtension.EqualByJson(expected, actual);
+            AssertExtension.EqualByJson(expected, actual2);
         }
     }
 }

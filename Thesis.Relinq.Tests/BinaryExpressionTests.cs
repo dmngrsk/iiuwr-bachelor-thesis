@@ -1,15 +1,14 @@
-using NUnit.Framework;
+using Dapper;
 using System.Linq;
-using Thesis.Relinq.NpgsqlWrapper;
 using Thesis.Relinq.Tests.Helpers;
 using Thesis.Relinq.Tests.Models;
+using Xunit;
 
 namespace Thesis.Relinq.Tests
 {
-    [TestFixture]
-    public class BinaryExpressionTests : ThesisTestsBase
+    public class BinaryExpressionTests : TestsBase
     {
-        [Test]
+        [Fact]
         public void equal()
         {
             // Arrange
@@ -24,16 +23,16 @@ namespace Thesis.Relinq.Tests
             string psqlCommand = "SELECT * FROM Employees WHERE \"EmployeeID\" = 7;";
 
             // Act
-            var expected = NpgsqlRowConverter<Employees>.ReadAllRows(connection, psqlCommand).ToArray();
+            var expected = connection.Query<Employees>(psqlCommand);
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 
             // Assert
-            AssertExtension.AreEqualByJson(expected, actual);
-            AssertExtension.AreEqualByJson(expected, actual2);
+            AssertExtension.EqualByJson(expected, actual);
+            AssertExtension.EqualByJson(expected, actual2);
         }
 
-        [Test]
+        [Fact]
         public void not_equal()
         {
             // Arrange
@@ -48,16 +47,16 @@ namespace Thesis.Relinq.Tests
             string psqlCommand = "SELECT * FROM Employees WHERE \"EmployeeID\" != 7;";
 
             // Act
-            var expected = NpgsqlRowConverter<Employees>.ReadAllRows(connection, psqlCommand).ToArray();
+            var expected = connection.Query<Employees>(psqlCommand);
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 
             // Assert
-            AssertExtension.AreEqualByJson(expected, actual);
-            AssertExtension.AreEqualByJson(expected, actual2);
+            AssertExtension.EqualByJson(expected, actual);
+            AssertExtension.EqualByJson(expected, actual2);
         }
 
-        [Test]
+        [Fact]
         public void greater_than()
         {
             // Arrange
@@ -72,16 +71,16 @@ namespace Thesis.Relinq.Tests
             string psqlCommand = "SELECT * FROM Employees WHERE \"EmployeeID\" > 7;";
 
             // Act
-            var expected = NpgsqlRowConverter<Employees>.ReadAllRows(connection, psqlCommand).ToArray();
+            var expected = connection.Query<Employees>(psqlCommand);
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 
             // Assert
-            AssertExtension.AreEqualByJson(expected, actual);
-            AssertExtension.AreEqualByJson(expected, actual2);
+            AssertExtension.EqualByJson(expected, actual);
+            AssertExtension.EqualByJson(expected, actual2);
         }
 
-        [Test]
+        [Fact]
         public void greater_than_or_equal()
         {
             // Arrange
@@ -96,16 +95,16 @@ namespace Thesis.Relinq.Tests
             string psqlCommand = "SELECT * FROM Employees WHERE \"EmployeeID\" >= 7;";
 
             // Act
-            var expected = NpgsqlRowConverter<Employees>.ReadAllRows(connection, psqlCommand).ToArray();
+            var expected = connection.Query<Employees>(psqlCommand);
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 
             // Assert
-            AssertExtension.AreEqualByJson(expected, actual);
-            AssertExtension.AreEqualByJson(expected, actual2);
+            AssertExtension.EqualByJson(expected, actual);
+            AssertExtension.EqualByJson(expected, actual2);
         }
 
-        [Test]
+        [Fact]
         public void less_than()
         {
             // Arrange
@@ -120,16 +119,16 @@ namespace Thesis.Relinq.Tests
             string psqlCommand = "SELECT * FROM Employees WHERE \"EmployeeID\" < 7;";
 
             // Act
-            var expected = NpgsqlRowConverter<Employees>.ReadAllRows(connection, psqlCommand).ToArray();
+            var expected = connection.Query<Employees>(psqlCommand);
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 
             // Assert
-            AssertExtension.AreEqualByJson(expected, actual);
-            AssertExtension.AreEqualByJson(expected, actual2);
+            AssertExtension.EqualByJson(expected, actual);
+            AssertExtension.EqualByJson(expected, actual2);
         }
 
-        [Test]
+        [Fact]
         public void less_than_or_equal()
         {
             // Arrange
@@ -144,16 +143,16 @@ namespace Thesis.Relinq.Tests
             string psqlCommand = "SELECT * FROM Employees WHERE \"EmployeeID\" <= 7;";
 
             // Act
-            var expected = NpgsqlRowConverter<Employees>.ReadAllRows(connection, psqlCommand).ToArray();
+            var expected = connection.Query<Employees>(psqlCommand);
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 
             // Assert
-            AssertExtension.AreEqualByJson(expected, actual);
-            AssertExtension.AreEqualByJson(expected, actual2);
+            AssertExtension.EqualByJson(expected, actual);
+            AssertExtension.EqualByJson(expected, actual2);
         }
 
-        [Test]
+        [Fact]
         public void add()
         {
             // Arrange
@@ -168,16 +167,16 @@ namespace Thesis.Relinq.Tests
             string psqlCommand = "SELECT * FROM Employees WHERE (\"EmployeeID\" + 5) < 10;";
 
             // Act
-            var expected = NpgsqlRowConverter<Employees>.ReadAllRows(connection, psqlCommand).ToArray();
+            var expected = connection.Query<Employees>(psqlCommand);
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 
             // Assert
-            AssertExtension.AreEqualByJson(expected, actual);
-            AssertExtension.AreEqualByJson(expected, actual2);
+            AssertExtension.EqualByJson(expected, actual);
+            AssertExtension.EqualByJson(expected, actual2);
         }
 
-        [Test]
+        [Fact]
         public void substract()
         {
             // Arrange
@@ -192,16 +191,16 @@ namespace Thesis.Relinq.Tests
             string psqlCommand = "SELECT * FROM Employees WHERE (\"EmployeeID\" - 5) > 0;";
 
             // Act
-            var expected = NpgsqlRowConverter<Employees>.ReadAllRows(connection, psqlCommand).ToArray();
+            var expected = connection.Query<Employees>(psqlCommand);
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 
             // Assert
-            AssertExtension.AreEqualByJson(expected, actual);
-            AssertExtension.AreEqualByJson(expected, actual2);
+            AssertExtension.EqualByJson(expected, actual);
+            AssertExtension.EqualByJson(expected, actual2);
         }
 
-        [Test]
+        [Fact]
         public void multiply()
         {
             // Arrange
@@ -216,16 +215,16 @@ namespace Thesis.Relinq.Tests
             string psqlCommand = "SELECT * FROM Employees WHERE (\"EmployeeID\" * 2) < 10;";
 
             // Act
-            var expected = NpgsqlRowConverter<Employees>.ReadAllRows(connection, psqlCommand).ToArray();
+            var expected = connection.Query<Employees>(psqlCommand);
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 
             // Assert
-            AssertExtension.AreEqualByJson(expected, actual);
-            AssertExtension.AreEqualByJson(expected, actual2);
+            AssertExtension.EqualByJson(expected, actual);
+            AssertExtension.EqualByJson(expected, actual2);
         }
 
-        [Test]
+        [Fact]
         public void divide()
         {
             // Arrange
@@ -240,16 +239,16 @@ namespace Thesis.Relinq.Tests
             string psqlCommand = "SELECT * FROM Employees WHERE (\"EmployeeID\" / 5) > 0;";
 
             // Act
-            var expected = NpgsqlRowConverter<Employees>.ReadAllRows(connection, psqlCommand).ToArray();
+            var expected = connection.Query<Employees>(psqlCommand);
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 
             // Assert
-            AssertExtension.AreEqualByJson(expected, actual);
-            AssertExtension.AreEqualByJson(expected, actual2);
+            AssertExtension.EqualByJson(expected, actual);
+            AssertExtension.EqualByJson(expected, actual2);
         }
 
-        [Test]
+        [Fact]
         public void modulo()
         {
             // Arrange
@@ -264,16 +263,16 @@ namespace Thesis.Relinq.Tests
             string psqlCommand = "SELECT * FROM Employees WHERE (\"EmployeeID\" % 2) = 0;";
 
             // Act
-            var expected = NpgsqlRowConverter<Employees>.ReadAllRows(connection, psqlCommand).ToArray();
+            var expected = connection.Query<Employees>(psqlCommand);
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 
             // Assert
-            AssertExtension.AreEqualByJson(expected, actual);
-            AssertExtension.AreEqualByJson(expected, actual2);
+            AssertExtension.EqualByJson(expected, actual);
+            AssertExtension.EqualByJson(expected, actual2);
         }
 
-        [Test]
+        [Fact]
         public void bitwise_and()
         {
             // Arrange
@@ -288,16 +287,16 @@ namespace Thesis.Relinq.Tests
             string psqlCommand = "SELECT * FROM Employees WHERE (\"EmployeeID\" & 4) = 0;";
 
             // Act
-            var expected = NpgsqlRowConverter<Employees>.ReadAllRows(connection, psqlCommand).ToArray();
+            var expected = connection.Query<Employees>(psqlCommand);
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 
             // Assert
-            AssertExtension.AreEqualByJson(expected, actual);
-            AssertExtension.AreEqualByJson(expected, actual2);
+            AssertExtension.EqualByJson(expected, actual);
+            AssertExtension.EqualByJson(expected, actual2);
         }
 
-        [Test]
+        [Fact]
         public void bitwise_or()
         {
             // Arrange
@@ -312,16 +311,16 @@ namespace Thesis.Relinq.Tests
             string psqlCommand = "SELECT * FROM Employees WHERE (\"EmployeeID\" | 1) != \"EmployeeID\";";
 
             // Act
-            var expected = NpgsqlRowConverter<Employees>.ReadAllRows(connection, psqlCommand).ToArray();
+            var expected = connection.Query<Employees>(psqlCommand);
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 
             // Assert
-            AssertExtension.AreEqualByJson(expected, actual);
-            AssertExtension.AreEqualByJson(expected, actual2);
+            AssertExtension.EqualByJson(expected, actual);
+            AssertExtension.EqualByJson(expected, actual2);
         }
 
-        [Test]
+        [Fact]
         public void bitwise_xor()
         {
             // Arrange
@@ -336,16 +335,16 @@ namespace Thesis.Relinq.Tests
             string psqlCommand = "SELECT * FROM Employees WHERE (\"EmployeeID\" # 2) = 0;";
 
             // Act
-            var expected = NpgsqlRowConverter<Employees>.ReadAllRows(connection, psqlCommand).ToArray();
+            var expected = connection.Query<Employees>(psqlCommand);
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 
             // Assert
-            AssertExtension.AreEqualByJson(expected, actual);
-            AssertExtension.AreEqualByJson(expected, actual2);
+            AssertExtension.EqualByJson(expected, actual);
+            AssertExtension.EqualByJson(expected, actual2);
         }
 
-        [Test]
+        [Fact]
         public void bitwise_shift_left()
         {
             // Arrange
@@ -360,16 +359,16 @@ namespace Thesis.Relinq.Tests
             string psqlCommand = "SELECT * FROM Employees WHERE (\"EmployeeID\" << 2) < 16;";
 
             // Act
-            var expected = NpgsqlRowConverter<Employees>.ReadAllRows(connection, psqlCommand).ToArray();
+            var expected = connection.Query<Employees>(psqlCommand);
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 
             // Assert
-            AssertExtension.AreEqualByJson(expected, actual);
-            AssertExtension.AreEqualByJson(expected, actual2);
+            AssertExtension.EqualByJson(expected, actual);
+            AssertExtension.EqualByJson(expected, actual2);
         }
 
-        [Test]
+        [Fact]
         public void bitwise_shift_right()
         {
             // Arrange
@@ -384,16 +383,16 @@ namespace Thesis.Relinq.Tests
             string psqlCommand = "SELECT * FROM Employees WHERE (\"EmployeeID\" >> 3) > 0;";
 
             // Act
-            var expected = NpgsqlRowConverter<Employees>.ReadAllRows(connection, psqlCommand).ToArray();
+            var expected = connection.Query<Employees>(psqlCommand);
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 
             // Assert
-            AssertExtension.AreEqualByJson(expected, actual);
-            AssertExtension.AreEqualByJson(expected, actual2);
+            AssertExtension.EqualByJson(expected, actual);
+            AssertExtension.EqualByJson(expected, actual2);
         }
 
-        [Test]
+        [Fact]
         public void logical_and()
         {
             // Arrange
@@ -410,16 +409,16 @@ namespace Thesis.Relinq.Tests
                 "WHERE \"EmployeeID\" < 7 AND \"EmployeeID\" > 3;";
 
             // Act
-            var expected = NpgsqlRowConverter<Employees>.ReadAllRows(connection, psqlCommand).ToArray();
+            var expected = connection.Query<Employees>(psqlCommand);
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 
             // Assert
-            AssertExtension.AreEqualByJson(expected, actual);
-            AssertExtension.AreEqualByJson(expected, actual2);
+            AssertExtension.EqualByJson(expected, actual);
+            AssertExtension.EqualByJson(expected, actual2);
         }
 
-        [Test]
+        [Fact]
         public void logical_or()
         {
             // Arrange
@@ -436,13 +435,13 @@ namespace Thesis.Relinq.Tests
                 "WHERE \"EmployeeID\" > 7 OR \"EmployeeID\" < 3;";
 
             // Act
-            var expected = NpgsqlRowConverter<Employees>.ReadAllRows(connection, psqlCommand).ToArray();
+            var expected = connection.Query<Employees>(psqlCommand);
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 
             // Assert
-            AssertExtension.AreEqualByJson(expected, actual);
-            AssertExtension.AreEqualByJson(expected, actual2);
+            AssertExtension.EqualByJson(expected, actual);
+            AssertExtension.EqualByJson(expected, actual2);
         }
     }
 }

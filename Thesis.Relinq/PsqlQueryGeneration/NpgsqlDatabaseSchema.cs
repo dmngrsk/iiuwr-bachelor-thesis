@@ -22,8 +22,6 @@ namespace Thesis.Relinq.PsqlQueryGeneration
         {
             if (_tables == null)
             {
-                _connection.Open();
-
                 var tablesQuery = "SELECT tablename FROM pg_tables WHERE schemaname = 'public';";
                 using (var command = new NpgsqlCommand(tablesQuery, _connection))
                 {
@@ -32,13 +30,13 @@ namespace Thesis.Relinq.PsqlQueryGeneration
                         var names = new List<string>();
 
                         while (reader.Read())
+                        {
                             names.Add((string)reader.GetValue(0));
+                        }
 
                         _tables = names.ToArray();
                     }
                 }
-
-                _connection.Close();
             }
 
             foreach (var name in _tables)
@@ -58,8 +56,6 @@ namespace Thesis.Relinq.PsqlQueryGeneration
             // We're using the fact that columns are always called following its tables
             if (!_columns.ContainsKey(_lastVisitedTable))
             {
-                _connection.Open();
-
                 var columnsQuery = $"SELECT * FROM {_lastVisitedTable} WHERE false;";
                 using (var command = new NpgsqlCommand(columnsQuery, _connection))
                 {
@@ -74,8 +70,6 @@ namespace Thesis.Relinq.PsqlQueryGeneration
                         _columns[_lastVisitedTable] = names.ToArray();
                     }
                 }
-
-                _connection.Close();
             }
 
             foreach (var name in _columns[_lastVisitedTable])
@@ -91,7 +85,9 @@ namespace Thesis.Relinq.PsqlQueryGeneration
 
         private string _filter = @"[^a-zA-Z0-9]";
         
-        private bool MatchCase(string parsable, string target) =>
-            Regex.Replace(parsable, _filter, "").ToLower() == Regex.Replace(target, _filter, "").ToLower();
+        private bool MatchCase(string parsable, string target)
+        {
+            return Regex.Replace(parsable, _filter, "").ToLower() == Regex.Replace(target, _filter, "").ToLower();
+        }
     }
 }

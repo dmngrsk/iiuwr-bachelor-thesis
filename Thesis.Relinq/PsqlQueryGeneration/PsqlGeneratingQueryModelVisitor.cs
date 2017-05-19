@@ -49,7 +49,7 @@ namespace Thesis.Relinq.PsqlQueryGeneration
         }
 
         public NpgsqlCommandData GetPsqlCommand() =>
-            new NpgsqlCommandData(_queryParts.BuildPsqlString(), _parameterAggregator.GetParameters());
+            new NpgsqlCommandData(_queryParts.BuildPsqlString(), _parameterAggregator.Parameters);
 
         public override void VisitQueryModel(QueryModel queryModel)
         {

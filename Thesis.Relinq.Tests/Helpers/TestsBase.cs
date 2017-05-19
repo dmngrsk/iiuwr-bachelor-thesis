@@ -1,16 +1,13 @@
+using System;
 using Npgsql;
-using NUnit.Framework;
-using Thesis.Relinq.NpgsqlWrapper;
 
 namespace Thesis.Relinq.Tests.Helpers
 {
-    [TestFixture]
-    public class ThesisTestsBase
+    public abstract class TestsBase : IDisposable
     {
         protected NpgsqlConnection connection;
 
-        [SetUp]
-        public void Setup()
+        public TestsBase()
         {
             NpgsqlConnectionAdapter adapter = new NpgsqlConnectionAdapter
             {
@@ -24,8 +21,7 @@ namespace Thesis.Relinq.Tests.Helpers
             connection = adapter.GetConnection();
         }
 
-        [TearDown]
-        public void TearDown()
+        public void Dispose()
         {
             if (connection != null)
             {

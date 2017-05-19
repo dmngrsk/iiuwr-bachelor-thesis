@@ -1,17 +1,18 @@
+using System.Collections.Generic;
 using Npgsql;
 
 namespace Thesis.Relinq.PsqlQueryGeneration
 {
     public class NpgsqlCommandData
     {
-        public NpgsqlCommandData(string statement, NpgsqlParameter[] parameters)
+        public NpgsqlCommandData(string statement, Dictionary<string, object> parameters)
         {
             Statement = statement;
             Parameters = parameters;
         }
 
         public string Statement { get; private set; }
-        public NpgsqlParameter[] Parameters { get; private set; }
+        public Dictionary<string, object> Parameters { get; private set; }
 
         public NpgsqlCommand CreateQuery(NpgsqlConnection connection)
         {
@@ -21,7 +22,9 @@ namespace Thesis.Relinq.PsqlQueryGeneration
             query.CommandText = Statement;
 
             foreach (var parameter in Parameters)
-                query.Parameters.AddWithValue(parameter.Name, parameter.Value);
+            {
+                query.Parameters.AddWithValue(parameter.Key, parameter.Value);
+            }
 
             return query;
         }

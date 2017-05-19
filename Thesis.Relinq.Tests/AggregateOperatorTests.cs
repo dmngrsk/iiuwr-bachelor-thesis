@@ -1,15 +1,14 @@
-using NUnit.Framework;
+using Dapper;
 using System.Linq;
-using Thesis.Relinq.NpgsqlWrapper;
 using Thesis.Relinq.Tests.Helpers;
 using Thesis.Relinq.Tests.Models;
+using Xunit;
 
 namespace Thesis.Relinq.Tests
 {
-    [TestFixture]
-    public class AggregateOperatorTests : ThesisTestsBase
+    public class AggregateOperatorTests : TestsBase
     {
-        [Test]
+        [Fact]
         public void count()
         {
             // Arrange
@@ -23,16 +22,16 @@ namespace Thesis.Relinq.Tests
             string psqlCommand = "SELECT COUNT(*) FROM Customers;";
 
             // Act
-            var expected = NpgsqlRowConverter<int>.ReadAllRows(connection, psqlCommand).Single();
+            var expected = connection.Query<int>(psqlCommand).Single();
             var actual = myQuery.Count();
             var actual2 = myQuery2.Count();
 
             // Assert
-            Assert.AreEqual(expected, actual);
-            Assert.AreEqual(expected, actual2);
+            Assert.Equal(expected, actual);
+            Assert.Equal(expected, actual2);
         }
 
-        [Test]
+        [Fact]
         public void average()
         {
             // Arrange
@@ -46,16 +45,16 @@ namespace Thesis.Relinq.Tests
             string psqlCommand = "SELECT AVG(\"EmployeeID\") FROM Employees;";
 
             // Act
-            var expected = NpgsqlRowConverter<decimal>.ReadAllRows(connection, psqlCommand).Single();
+            var expected = connection.Query<decimal>(psqlCommand).Single();
             var actual = myQuery.Average();
             var actual2 = myQuery2.Average();
 
             // Assert
-            Assert.AreEqual(expected, actual);
-            Assert.AreEqual(expected, actual2);
+            Assert.Equal(expected, actual);
+            Assert.Equal(expected, actual2);
         }
 
-        [Test]
+        [Fact]
         public void sum()
         {
             // Arrange
@@ -69,16 +68,16 @@ namespace Thesis.Relinq.Tests
             string psqlCommand = "SELECT SUM(\"EmployeeID\") FROM Employees;";
 
             // Act
-            var expected = NpgsqlRowConverter<int>.ReadAllRows(connection, psqlCommand).Single();
+            var expected = connection.Query<int>(psqlCommand).Single();
             var actual = myQuery.Sum();
             var actual2 = myQuery2.Sum();
 
             // Assert
-            Assert.AreEqual(expected, actual);
-            Assert.AreEqual(expected, actual2);
+            Assert.Equal(expected, actual);
+            Assert.Equal(expected, actual2);
         }
         
-        [Test]
+        [Fact]
         public void min()
         {
             // Arrange
@@ -92,16 +91,16 @@ namespace Thesis.Relinq.Tests
             string psqlCommand = "SELECT MIN(\"EmployeeID\") FROM Employees;";
 
             // Act
-            var expected = NpgsqlRowConverter<int>.ReadAllRows(connection, psqlCommand).Single();
+            var expected = connection.Query<int>(psqlCommand).Single();
             var actual = myQuery.Min();
             var actual2 = myQuery2.Min();
 
             // Assert
-            Assert.AreEqual(expected, actual);
-            Assert.AreEqual(expected, actual2);
+            Assert.Equal(expected, actual);
+            Assert.Equal(expected, actual2);
         }
 
-        [Test]
+        [Fact]
         public void max()
         {
             // Arrange
@@ -115,16 +114,16 @@ namespace Thesis.Relinq.Tests
             string psqlCommand = "SELECT MAX(\"EmployeeID\") FROM Employees;";
 
             // Act
-            var expected = NpgsqlRowConverter<int>.ReadAllRows(connection, psqlCommand).Single();
+            var expected = connection.Query<int>(psqlCommand).Single();
             var actual = myQuery.Max();
             var actual2 = myQuery2.Max();
 
             // Assert
-            Assert.AreEqual(expected, actual);
-            Assert.AreEqual(expected, actual2);
+            Assert.Equal(expected, actual);
+            Assert.Equal(expected, actual2);
         }
 
-        [Test]
+        [Fact]
         public void distinct()
         {
             // Arrange
@@ -139,13 +138,13 @@ namespace Thesis.Relinq.Tests
             var psqlCommand = "SELECT DISTINCT(\"City\") FROM Customers;";
 
             // Act
-            var expected = NpgsqlRowConverter<string>.ReadAllRows(connection, psqlCommand);
+            var expected = connection.Query<string>(psqlCommand).ToArray();
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 
             // Assert
-            Assert.AreEqual(expected, actual);
-            Assert.AreEqual(expected, actual2);
+            Assert.Equal(expected, actual);
+            Assert.Equal(expected, actual2);
         }
     }
 }
