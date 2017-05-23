@@ -3,7 +3,7 @@ using Xunit;
 
 namespace Thesis.Relinq.Tests.Helpers
 {
-    public static class AssertExtension
+    public static class AssertExtensions
     {
        public static void EqualByJson(object expected, object actual)
         {

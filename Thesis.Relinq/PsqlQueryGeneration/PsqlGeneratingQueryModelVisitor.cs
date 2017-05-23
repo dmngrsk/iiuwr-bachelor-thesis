@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using Remotion.Linq;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.Expressions;
@@ -158,7 +159,22 @@ namespace Thesis.Relinq.PsqlQueryGeneration
 
         public override void VisitSelectClause(SelectClause selectClause, QueryModel queryModel)
         {
-            _queryParts.SetSelectPart(GetPsqlExpression(selectClause.Selector));
+            if (selectClause.Selector is QuerySourceReferenceExpression)
+            {
+                var selector = selectClause.Selector as QuerySourceReferenceExpression;
+                var itemType = selector.ReferencedQuerySource.ItemType;
+                var tableName = _dbSchema.GetTableName(itemType.Name);
+
+                var properties = itemType.GetProperties();
+                var rowNames = properties.Select(x =>
+                    $"\"{tableName}\".\"{_dbSchema.GetColumnName(x.Name)}\" AS {x.Name}");
+
+                _queryParts.SetSelectPart(string.Join(", ", rowNames));
+            }
+            else
+            {
+                _queryParts.SetSelectPart(GetPsqlExpression(selectClause.Selector));
+            }
             base.VisitSelectClause(selectClause, queryModel);
         }
 

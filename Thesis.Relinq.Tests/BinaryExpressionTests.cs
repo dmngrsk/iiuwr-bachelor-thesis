@@ -23,13 +23,13 @@ namespace Thesis.Relinq.Tests
             string psqlCommand = "SELECT * FROM Employees WHERE \"EmployeeID\" = 7;";
 
             // Act
-            var expected = connection.Query<Employees>(psqlCommand);
+            var expected = connection.Query<Employees>(psqlCommand).ToArray();
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 
             // Assert
-            AssertExtension.EqualByJson(expected, actual);
-            AssertExtension.EqualByJson(expected, actual2);
+            AssertExtensions.EqualByJson(expected, actual);
+            AssertExtensions.EqualByJson(expected, actual2);
         }
 
         [Fact]
@@ -47,13 +47,13 @@ namespace Thesis.Relinq.Tests
             string psqlCommand = "SELECT * FROM Employees WHERE \"EmployeeID\" != 7;";
 
             // Act
-            var expected = connection.Query<Employees>(psqlCommand);
+            var expected = connection.Query<Employees>(psqlCommand).ToArray();
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 
             // Assert
-            AssertExtension.EqualByJson(expected, actual);
-            AssertExtension.EqualByJson(expected, actual2);
+            AssertExtensions.EqualByJson(expected, actual);
+            AssertExtensions.EqualByJson(expected, actual2);
         }
 
         [Fact]
@@ -71,13 +71,13 @@ namespace Thesis.Relinq.Tests
             string psqlCommand = "SELECT * FROM Employees WHERE \"EmployeeID\" > 7;";
 
             // Act
-            var expected = connection.Query<Employees>(psqlCommand);
+            var expected = connection.Query<Employees>(psqlCommand).ToArray();
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 
             // Assert
-            AssertExtension.EqualByJson(expected, actual);
-            AssertExtension.EqualByJson(expected, actual2);
+            AssertExtensions.EqualByJson(expected, actual);
+            AssertExtensions.EqualByJson(expected, actual2);
         }
 
         [Fact]
@@ -95,13 +95,13 @@ namespace Thesis.Relinq.Tests
             string psqlCommand = "SELECT * FROM Employees WHERE \"EmployeeID\" >= 7;";
 
             // Act
-            var expected = connection.Query<Employees>(psqlCommand);
+            var expected = connection.Query<Employees>(psqlCommand).ToArray();
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 
             // Assert
-            AssertExtension.EqualByJson(expected, actual);
-            AssertExtension.EqualByJson(expected, actual2);
+            AssertExtensions.EqualByJson(expected, actual);
+            AssertExtensions.EqualByJson(expected, actual2);
         }
 
         [Fact]
@@ -119,13 +119,13 @@ namespace Thesis.Relinq.Tests
             string psqlCommand = "SELECT * FROM Employees WHERE \"EmployeeID\" < 7;";
 
             // Act
-            var expected = connection.Query<Employees>(psqlCommand);
+            var expected = connection.Query<Employees>(psqlCommand).ToArray();
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 
             // Assert
-            AssertExtension.EqualByJson(expected, actual);
-            AssertExtension.EqualByJson(expected, actual2);
+            AssertExtensions.EqualByJson(expected, actual);
+            AssertExtensions.EqualByJson(expected, actual2);
         }
 
         [Fact]
@@ -143,13 +143,13 @@ namespace Thesis.Relinq.Tests
             string psqlCommand = "SELECT * FROM Employees WHERE \"EmployeeID\" <= 7;";
 
             // Act
-            var expected = connection.Query<Employees>(psqlCommand);
+            var expected = connection.Query<Employees>(psqlCommand).ToArray();
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 
             // Assert
-            AssertExtension.EqualByJson(expected, actual);
-            AssertExtension.EqualByJson(expected, actual2);
+            AssertExtensions.EqualByJson(expected, actual);
+            AssertExtensions.EqualByJson(expected, actual2);
         }
 
         [Fact]
@@ -167,13 +167,13 @@ namespace Thesis.Relinq.Tests
             string psqlCommand = "SELECT * FROM Employees WHERE (\"EmployeeID\" + 5) < 10;";
 
             // Act
-            var expected = connection.Query<Employees>(psqlCommand);
+            var expected = connection.Query<Employees>(psqlCommand).ToArray();
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 
             // Assert
-            AssertExtension.EqualByJson(expected, actual);
-            AssertExtension.EqualByJson(expected, actual2);
+            AssertExtensions.EqualByJson(expected, actual);
+            AssertExtensions.EqualByJson(expected, actual2);
         }
 
         [Fact]
@@ -191,13 +191,13 @@ namespace Thesis.Relinq.Tests
             string psqlCommand = "SELECT * FROM Employees WHERE (\"EmployeeID\" - 5) > 0;";
 
             // Act
-            var expected = connection.Query<Employees>(psqlCommand);
+            var expected = connection.Query<Employees>(psqlCommand).ToArray();
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 
             // Assert
-            AssertExtension.EqualByJson(expected, actual);
-            AssertExtension.EqualByJson(expected, actual2);
+            AssertExtensions.EqualByJson(expected, actual);
+            AssertExtensions.EqualByJson(expected, actual2);
         }
 
         [Fact]
@@ -215,13 +215,13 @@ namespace Thesis.Relinq.Tests
             string psqlCommand = "SELECT * FROM Employees WHERE (\"EmployeeID\" * 2) < 10;";
 
             // Act
-            var expected = connection.Query<Employees>(psqlCommand);
+            var expected = connection.Query<Employees>(psqlCommand).ToArray();
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 
             // Assert
-            AssertExtension.EqualByJson(expected, actual);
-            AssertExtension.EqualByJson(expected, actual2);
+            AssertExtensions.EqualByJson(expected, actual);
+            AssertExtensions.EqualByJson(expected, actual2);
         }
 
         [Fact]
@@ -239,13 +239,13 @@ namespace Thesis.Relinq.Tests
             string psqlCommand = "SELECT * FROM Employees WHERE (\"EmployeeID\" / 5) > 0;";
 
             // Act
-            var expected = connection.Query<Employees>(psqlCommand);
+            var expected = connection.Query<Employees>(psqlCommand).ToArray();
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 
             // Assert
-            AssertExtension.EqualByJson(expected, actual);
-            AssertExtension.EqualByJson(expected, actual2);
+            AssertExtensions.EqualByJson(expected, actual);
+            AssertExtensions.EqualByJson(expected, actual2);
         }
 
         [Fact]
@@ -263,13 +263,13 @@ namespace Thesis.Relinq.Tests
             string psqlCommand = "SELECT * FROM Employees WHERE (\"EmployeeID\" % 2) = 0;";
 
             // Act
-            var expected = connection.Query<Employees>(psqlCommand);
+            var expected = connection.Query<Employees>(psqlCommand).ToArray();
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 
             // Assert
-            AssertExtension.EqualByJson(expected, actual);
-            AssertExtension.EqualByJson(expected, actual2);
+            AssertExtensions.EqualByJson(expected, actual);
+            AssertExtensions.EqualByJson(expected, actual2);
         }
 
         [Fact]
@@ -287,13 +287,13 @@ namespace Thesis.Relinq.Tests
             string psqlCommand = "SELECT * FROM Employees WHERE (\"EmployeeID\" & 4) = 0;";
 
             // Act
-            var expected = connection.Query<Employees>(psqlCommand);
+            var expected = connection.Query<Employees>(psqlCommand).ToArray();
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 
             // Assert
-            AssertExtension.EqualByJson(expected, actual);
-            AssertExtension.EqualByJson(expected, actual2);
+            AssertExtensions.EqualByJson(expected, actual);
+            AssertExtensions.EqualByJson(expected, actual2);
         }
 
         [Fact]
@@ -311,13 +311,13 @@ namespace Thesis.Relinq.Tests
             string psqlCommand = "SELECT * FROM Employees WHERE (\"EmployeeID\" | 1) != \"EmployeeID\";";
 
             // Act
-            var expected = connection.Query<Employees>(psqlCommand);
+            var expected = connection.Query<Employees>(psqlCommand).ToArray();
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 
             // Assert
-            AssertExtension.EqualByJson(expected, actual);
-            AssertExtension.EqualByJson(expected, actual2);
+            AssertExtensions.EqualByJson(expected, actual);
+            AssertExtensions.EqualByJson(expected, actual2);
         }
 
         [Fact]
@@ -335,13 +335,13 @@ namespace Thesis.Relinq.Tests
             string psqlCommand = "SELECT * FROM Employees WHERE (\"EmployeeID\" # 2) = 0;";
 
             // Act
-            var expected = connection.Query<Employees>(psqlCommand);
+            var expected = connection.Query<Employees>(psqlCommand).ToArray();
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 
             // Assert
-            AssertExtension.EqualByJson(expected, actual);
-            AssertExtension.EqualByJson(expected, actual2);
+            AssertExtensions.EqualByJson(expected, actual);
+            AssertExtensions.EqualByJson(expected, actual2);
         }
 
         [Fact]
@@ -359,13 +359,13 @@ namespace Thesis.Relinq.Tests
             string psqlCommand = "SELECT * FROM Employees WHERE (\"EmployeeID\" << 2) < 16;";
 
             // Act
-            var expected = connection.Query<Employees>(psqlCommand);
+            var expected = connection.Query<Employees>(psqlCommand).ToArray();
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 
             // Assert
-            AssertExtension.EqualByJson(expected, actual);
-            AssertExtension.EqualByJson(expected, actual2);
+            AssertExtensions.EqualByJson(expected, actual);
+            AssertExtensions.EqualByJson(expected, actual2);
         }
 
         [Fact]
@@ -383,13 +383,13 @@ namespace Thesis.Relinq.Tests
             string psqlCommand = "SELECT * FROM Employees WHERE (\"EmployeeID\" >> 3) > 0;";
 
             // Act
-            var expected = connection.Query<Employees>(psqlCommand);
+            var expected = connection.Query<Employees>(psqlCommand).ToArray();
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 
             // Assert
-            AssertExtension.EqualByJson(expected, actual);
-            AssertExtension.EqualByJson(expected, actual2);
+            AssertExtensions.EqualByJson(expected, actual);
+            AssertExtensions.EqualByJson(expected, actual2);
         }
 
         [Fact]
@@ -409,13 +409,13 @@ namespace Thesis.Relinq.Tests
                 "WHERE \"EmployeeID\" < 7 AND \"EmployeeID\" > 3;";
 
             // Act
-            var expected = connection.Query<Employees>(psqlCommand);
+            var expected = connection.Query<Employees>(psqlCommand).ToArray();
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 
             // Assert
-            AssertExtension.EqualByJson(expected, actual);
-            AssertExtension.EqualByJson(expected, actual2);
+            AssertExtensions.EqualByJson(expected, actual);
+            AssertExtensions.EqualByJson(expected, actual2);
         }
 
         [Fact]
@@ -435,13 +435,13 @@ namespace Thesis.Relinq.Tests
                 "WHERE \"EmployeeID\" > 7 OR \"EmployeeID\" < 3;";
 
             // Act
-            var expected = connection.Query<Employees>(psqlCommand);
+            var expected = connection.Query<Employees>(psqlCommand).ToArray();
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 
             // Assert
-            AssertExtension.EqualByJson(expected, actual);
-            AssertExtension.EqualByJson(expected, actual2);
+            AssertExtensions.EqualByJson(expected, actual);
+            AssertExtensions.EqualByJson(expected, actual2);
         }
     }
 }

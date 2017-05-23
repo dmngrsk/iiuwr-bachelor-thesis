@@ -26,13 +26,13 @@ namespace Thesis.Relinq.Tests
             string psqlCommand = "SELECT LOWER(\"ContactName\") FROM Customers;";
 
             // Act
-            var expected = connection.Query<string>(psqlCommand);
+            var expected = connection.Query<string>(psqlCommand).ToArray();
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 
             // Assert
-            AssertExtension.EqualByJson(expected, actual);
-            AssertExtension.EqualByJson(expected, actual2);
+            AssertExtensions.EqualByJson(expected, actual);
+            AssertExtensions.EqualByJson(expected, actual2);
         }
 
         [Fact]
@@ -49,13 +49,13 @@ namespace Thesis.Relinq.Tests
             string psqlCommand = "SELECT UPPER(\"ContactName\") FROM Customers;";
 
             // Act
-            var expected = connection.Query<string>(psqlCommand);
+            var expected = connection.Query<string>(psqlCommand).ToArray();
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 
             // Assert
-            AssertExtension.EqualByJson(expected, actual);
-            AssertExtension.EqualByJson(expected, actual2);
+            AssertExtensions.EqualByJson(expected, actual);
+            AssertExtensions.EqualByJson(expected, actual2);
         }
 
         [Fact]
@@ -76,13 +76,13 @@ namespace Thesis.Relinq.Tests
                 "WHERE \"ContactName\" LIKE '%A%';";
 
             // Act
-            var expected = connection.Query<string>(psqlCommand);
+            var expected = connection.Query<string>(psqlCommand).ToArray();
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 
             // Assert
-            AssertExtension.EqualByJson(expected, actual);
-            AssertExtension.EqualByJson(expected, actual2);
+            AssertExtensions.EqualByJson(expected, actual);
+            AssertExtensions.EqualByJson(expected, actual2);
         }
 
         [Fact]
@@ -103,13 +103,13 @@ namespace Thesis.Relinq.Tests
                 "WHERE \"ContactName\" LIKE 'C%';";
 
             // Act
-            var expected = connection.Query<string>(psqlCommand);
+            var expected = connection.Query<string>(psqlCommand).ToArray();
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 
             // Assert
-            AssertExtension.EqualByJson(expected, actual);
-            AssertExtension.EqualByJson(expected, actual2);
+            AssertExtensions.EqualByJson(expected, actual);
+            AssertExtensions.EqualByJson(expected, actual2);
         }
 
         [Fact]
@@ -130,13 +130,13 @@ namespace Thesis.Relinq.Tests
                 "WHERE \"ContactName\" LIKE '%e';";
 
             // Act
-            var expected = connection.Query<string>(psqlCommand);
+            var expected = connection.Query<string>(psqlCommand).ToArray();
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 
             // Assert
-            AssertExtension.EqualByJson(expected, actual);
-            AssertExtension.EqualByJson(expected, actual2);
+            AssertExtensions.EqualByJson(expected, actual);
+            AssertExtensions.EqualByJson(expected, actual2);
         }
 
         [Fact]
@@ -154,14 +154,14 @@ namespace Thesis.Relinq.Tests
             var psqlCommand2 = "SELECT SUBSTRING(\"CustomerID\" FROM 1 FOR 2) FROM Customers;";
 
             // Act
-            var expected = connection.Query<string>(psqlCommand);
+            var expected = connection.Query<string>(psqlCommand).ToArray();
             var expected2 = connection.Query<string>(psqlCommand2);
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 
             // Assert
-            AssertExtension.EqualByJson(expected, actual);
-            AssertExtension.EqualByJson(expected2, actual2);
+            AssertExtensions.EqualByJson(expected, actual);
+            AssertExtensions.EqualByJson(expected2, actual2);
         }
 
         [Fact]
@@ -195,8 +195,8 @@ namespace Thesis.Relinq.Tests
             var actual2 = myQuery2.ToArray();
 
             // Assert
-            AssertExtension.EqualByJson(expected, actual);
-            AssertExtension.EqualByJson(expected, actual2);
+            AssertExtensions.EqualByJson(expected, actual);
+            AssertExtensions.EqualByJson(expected, actual2);
         }
 
 
@@ -214,13 +214,13 @@ namespace Thesis.Relinq.Tests
             string psqlCommand = "SELECT TRIM(both 'AB' from \"CustomerID\") FROM Customers;";
 
             // Act
-            var expected = connection.Query<string>(psqlCommand);
+            var expected = connection.Query<string>(psqlCommand).ToArray();
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 
             // Assert
-            AssertExtension.EqualByJson(expected, actual);
-            AssertExtension.EqualByJson(expected, actual2);
+            AssertExtensions.EqualByJson(expected, actual);
+            AssertExtensions.EqualByJson(expected, actual2);
         }
 
         [Fact]
@@ -237,13 +237,13 @@ namespace Thesis.Relinq.Tests
             string psqlCommand = "SELECT TRIM(leading 'AB' from \"CustomerID\") FROM Customers;";
 
             // Act
-            var expected = connection.Query<string>(psqlCommand);
+            var expected = connection.Query<string>(psqlCommand).ToArray();
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 
             // Assert
-            AssertExtension.EqualByJson(expected, actual);
-            AssertExtension.EqualByJson(expected, actual2);
+            AssertExtensions.EqualByJson(expected, actual);
+            AssertExtensions.EqualByJson(expected, actual2);
         }
 
         [Fact]
@@ -260,13 +260,13 @@ namespace Thesis.Relinq.Tests
             string psqlCommand = "SELECT TRIM(trailing 'AB' from \"CustomerID\") FROM Customers;";
 
             // Act
-            var expected = connection.Query<string>(psqlCommand);
+            var expected = connection.Query<string>(psqlCommand).ToArray();
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 
             // Assert
-            AssertExtension.EqualByJson(expected, actual);
-            AssertExtension.EqualByJson(expected, actual2);
+            AssertExtensions.EqualByJson(expected, actual);
+            AssertExtensions.EqualByJson(expected, actual2);
         }
 
         [Fact]
@@ -283,13 +283,13 @@ namespace Thesis.Relinq.Tests
             string psqlCommand = "SELECT TRIM(both from \"CustomerID\") FROM Customers;";
 
             // Act
-            var expected = connection.Query<string>(psqlCommand);
+            var expected = connection.Query<string>(psqlCommand).ToArray();
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 
             // Assert
-            AssertExtension.EqualByJson(expected, actual);
-            AssertExtension.EqualByJson(expected, actual2);
+            AssertExtensions.EqualByJson(expected, actual);
+            AssertExtensions.EqualByJson(expected, actual2);
         }
 
         [Fact]
@@ -306,13 +306,13 @@ namespace Thesis.Relinq.Tests
             string psqlCommand = "SELECT TRIM(leading from \"CustomerID\") FROM Customers;";
 
             // Act
-            var expected = connection.Query<string>(psqlCommand);
+            var expected = connection.Query<string>(psqlCommand).ToArray();
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 
             // Assert
-            AssertExtension.EqualByJson(expected, actual);
-            AssertExtension.EqualByJson(expected, actual2);
+            AssertExtensions.EqualByJson(expected, actual);
+            AssertExtensions.EqualByJson(expected, actual2);
         }
 
         [Fact]
@@ -329,13 +329,13 @@ namespace Thesis.Relinq.Tests
             string psqlCommand = "SELECT TRIM(trailing from \"CustomerID\") FROM Customers;";
 
             // Act
-            var expected = connection.Query<string>(psqlCommand);
+            var expected = connection.Query<string>(psqlCommand).ToArray();
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 
             // Assert
-            AssertExtension.EqualByJson(expected, actual);
-            AssertExtension.EqualByJson(expected, actual2);
+            AssertExtensions.EqualByJson(expected, actual);
+            AssertExtensions.EqualByJson(expected, actual2);
         }
 
         [Fact]
@@ -354,13 +354,13 @@ namespace Thesis.Relinq.Tests
                 "FROM Customers;";
 
             // Act
-            var expected = connection.Query<string>(psqlCommand);
+            var expected = connection.Query<string>(psqlCommand).ToArray();
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 
             // Assert
-            AssertExtension.EqualByJson(expected, actual);
-            AssertExtension.EqualByJson(expected, actual2);
+            AssertExtensions.EqualByJson(expected, actual);
+            AssertExtensions.EqualByJson(expected, actual2);
         }
 
         [Fact]
@@ -378,14 +378,14 @@ namespace Thesis.Relinq.Tests
             var psqlCommand2 = "SELECT REPLACE(\"CustomerID\", 'A', 'Hello') FROM Customers;";
 
             // Act
-            var expected = connection.Query<string>(psqlCommand);
+            var expected = connection.Query<string>(psqlCommand).ToArray();
             var expected2 = connection.Query<string>(psqlCommand2);
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 
             // Assert
-            AssertExtension.EqualByJson(expected, actual);
-            AssertExtension.EqualByJson(expected2, actual2);
+            AssertExtensions.EqualByJson(expected, actual);
+            AssertExtensions.EqualByJson(expected2, actual2);
         }
     }
 }

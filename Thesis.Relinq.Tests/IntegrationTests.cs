@@ -31,8 +31,8 @@ namespace Thesis.Relinq.Tests
             var actual2 = myQuery2.ToArray();
 
             // Assert
-            AssertExtension.EqualByJson(expected, actual);
-            AssertExtension.EqualByJson(expected, actual2);
+            AssertExtensions.EqualByJson(expected, actual);
+            AssertExtensions.EqualByJson(expected, actual2);
         }
 
         [Fact]
@@ -53,13 +53,17 @@ namespace Thesis.Relinq.Tests
             string psqlCommand = "SELECT \"ContactName\", \"City\" FROM Customers;";
 
             // Act
-            var expected = connection.Query(psqlCommand).ToArray();
+            var expected = connection.Query(psqlCommand)
+                .Select(x => (IDictionary<string, object>)x)
+                .Select(d => d.Values.ToArray())
+                .Select(row => Activator.CreateInstance(myQuery.ElementType, row))
+                .Select(i => Convert.ChangeType(i, myQuery.ElementType)).ToArray();
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
             
             // Assert
-            AssertExtension.EqualByJson(expected, actual);
-            AssertExtension.EqualByJson(expected, actual2);
+            AssertExtensions.EqualByJson(expected, actual);
+            AssertExtensions.EqualByJson(expected, actual2);
         }
 
         [Fact]
@@ -77,13 +81,13 @@ namespace Thesis.Relinq.Tests
             string psqlCommand = "SELECT * FROM Customers WHERE \"CustomerID\" = 'PARIS';";
 
             // Act
-            var expected = connection.Query<Customers>(psqlCommand);
+            var expected = connection.Query<Customers>(psqlCommand).ToArray();
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
             
             // Assert
-            AssertExtension.EqualByJson(expected, actual);
-            AssertExtension.EqualByJson(expected, actual2);
+            AssertExtensions.EqualByJson(expected, actual);
+            AssertExtensions.EqualByJson(expected, actual2);
         }
 
         [Fact]
@@ -103,13 +107,13 @@ namespace Thesis.Relinq.Tests
                 "WHERE \"EmployeeID\" > 5 AND \"City\" = 'London';";
 
             // Act
-            var expected = connection.Query<Employees>(psqlCommand);
+            var expected = connection.Query<Employees>(psqlCommand).ToArray();
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
             
             // Assert
-            AssertExtension.EqualByJson(expected, actual);
-            AssertExtension.EqualByJson(expected, actual2);
+            AssertExtensions.EqualByJson(expected, actual);
+            AssertExtensions.EqualByJson(expected, actual2);
         }
 
         [Fact]
@@ -131,13 +135,13 @@ namespace Thesis.Relinq.Tests
                 "WHERE \"EmployeeID\" > 5 AND \"City\" = 'London';";
 
             // Act
-            var expected = connection.Query<Employees>(psqlCommand);
+            var expected = connection.Query<Employees>(psqlCommand).ToArray();
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
             
             // Assert
-            AssertExtension.EqualByJson(expected, actual);
-            AssertExtension.EqualByJson(expected, actual2);
+            AssertExtensions.EqualByJson(expected, actual);
+            AssertExtensions.EqualByJson(expected, actual2);
         }
 
         [Fact]
@@ -176,13 +180,13 @@ namespace Thesis.Relinq.Tests
                 "' has ID: ' || \"EmployeeID\" FROM employees;";
 
             // Act
-            var expected = connection.Query<string>(psqlCommand);
+            var expected = connection.Query<string>(psqlCommand).ToArray();
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 
             // Assert
-            AssertExtension.EqualByJson(expected, actual);
-            AssertExtension.EqualByJson(expected, actual2);
+            AssertExtensions.EqualByJson(expected, actual);
+            AssertExtensions.EqualByJson(expected, actual2);
         }
 
         [Fact]
@@ -202,13 +206,13 @@ namespace Thesis.Relinq.Tests
                 "WHERE NOT (\"EmployeeID\" < 7 AND \"EmployeeID\" > 3);";
 
             // Act
-            var expected = connection.Query<Employees>(psqlCommand);
+            var expected = connection.Query<Employees>(psqlCommand).ToArray();
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 
             // Assert
-            AssertExtension.EqualByJson(expected, actual);
-            AssertExtension.EqualByJson(expected, actual2);
+            AssertExtensions.EqualByJson(expected, actual);
+            AssertExtensions.EqualByJson(expected, actual2);
         }
 
         [Fact]
@@ -226,13 +230,13 @@ namespace Thesis.Relinq.Tests
             string psqlCommand = "SELECT * FROM Employees WHERE 3 > 5;";
 
             // Act
-            var expected = connection.Query<Employees>(psqlCommand);
+            var expected = connection.Query<Employees>(psqlCommand).ToArray();
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 
             // Assert
-            AssertExtension.EqualByJson(expected, actual);
-            AssertExtension.EqualByJson(expected, actual2);
+            AssertExtensions.EqualByJson(expected, actual);
+            AssertExtensions.EqualByJson(expected, actual2);
         }
 
         [Fact]
@@ -253,13 +257,13 @@ namespace Thesis.Relinq.Tests
                 "ORDER BY \"City\", \"EmployeeID\" DESC;";
 
             // Act
-            var expected = connection.Query<Employees>(psqlCommand);
+            var expected = connection.Query<Employees>(psqlCommand).ToArray();
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 
             // Assert
-            AssertExtension.EqualByJson(expected, actual);
-            AssertExtension.EqualByJson(expected, actual2);
+            AssertExtensions.EqualByJson(expected, actual);
+            AssertExtensions.EqualByJson(expected, actual2);
         }
 
         [Fact]
@@ -281,13 +285,13 @@ namespace Thesis.Relinq.Tests
                 "ORDER BY \"City\", \"EmployeeID\" DESC;";
 
             // Act
-            var expected = connection.Query<Employees>(psqlCommand);
+            var expected = connection.Query<Employees>(psqlCommand).ToArray();
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 
             // Assert
-            AssertExtension.EqualByJson(expected, actual);
-            AssertExtension.EqualByJson(expected, actual2);
+            AssertExtensions.EqualByJson(expected, actual);
+            AssertExtensions.EqualByJson(expected, actual2);
         }
 
         [Fact]
@@ -321,16 +325,16 @@ namespace Thesis.Relinq.Tests
 
             // Act
             var expected = connection.Query(psqlCommand)
-                    .Select(x => (IDictionary<string, object>)x)
-                    .Select(d => d.Values.ToArray())
-                    .Select(row => Activator.CreateInstance(myQuery.ElementType, row))
-                    .Select(i => Convert.ChangeType(i, myQuery.ElementType));
+                .Select(x => (IDictionary<string, object>)x)
+                .Select(d => d.Values.ToArray())
+                .Select(row => Activator.CreateInstance(myQuery.ElementType, row))
+                .Select(i => Convert.ChangeType(i, myQuery.ElementType)).ToArray();
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 
             // Assert
-            AssertExtension.EqualByJson(expected, actual);
-            AssertExtension.EqualByJson(expected, actual2);
+            AssertExtensions.EqualByJson(expected, actual);
+            AssertExtensions.EqualByJson(expected, actual2);
         }
 
         [Fact]
@@ -364,16 +368,27 @@ namespace Thesis.Relinq.Tests
 
             // Act
             var expected = connection.Query(psqlCommand)
-                    .Select(x => (IDictionary<string, object>)x)
-                    .Select(d => d.Values.ToArray())
-                    .Select(row => Activator.CreateInstance(myQuery.ElementType, row))
-                    .Select(i => Convert.ChangeType(i, myQuery.ElementType));
+                .Select(x => (IDictionary<string, object>)x)
+                .Select(d => d.Values.ToArray())
+                .Select(row => Activator.CreateInstance(myQuery.ElementType, row))
+                .Select(i => Convert.ChangeType(i, myQuery.ElementType)).ToArray();
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 
             // Assert
-            AssertExtension.EqualByJson(expected, actual);
-            AssertExtension.EqualByJson(expected, actual2);
+            AssertExtensions.EqualByJson(expected, actual);
+            AssertExtensions.EqualByJson(expected, actual2);
+        }
+
+        [Fact]
+        public void select_with_grouping()
+        {
+            var myQuery = 
+                from c in PsqlQueryFactory.Queryable<Customers>(connection)
+                select new 
+                {
+                    City = c.City
+                };
         }
 
 /*        [Fact]
@@ -421,7 +436,7 @@ namespace Thesis.Relinq.Tests
                 from e in PsqlQueryFactory.Queryable<Employees>(connection)
                 where e.EmployeeID < 8
                 select new 
-                { 
+                {
                     EmployeeID = e.EmployeeID, 
                     CaseResult = (e.EmployeeID < 5 ? "smaller than five" :
                                   e.EmployeeID == 5 ? "equal to five" :
@@ -447,16 +462,16 @@ namespace Thesis.Relinq.Tests
 
             // Act
             var expected = connection.Query(psqlCommand)
-                    .Select(x => (IDictionary<string, object>)x)
-                    .Select(d => d.Values.ToArray())
-                    .Select(row => Activator.CreateInstance(myQuery.ElementType, row))
-                    .Select(i => Convert.ChangeType(i, myQuery.ElementType));
+                .Select(x => (IDictionary<string, object>)x)
+                .Select(d => d.Values.ToArray())
+                .Select(row => Activator.CreateInstance(myQuery.ElementType, row))
+                .Select(i => Convert.ChangeType(i, myQuery.ElementType)).ToArray();
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 
             // Assert
-            AssertExtension.EqualByJson(expected, actual);
-            AssertExtension.EqualByJson(expected, actual2);
+            AssertExtensions.EqualByJson(expected, actual);
+            AssertExtensions.EqualByJson(expected, actual2);
         }
 
         [Fact]
@@ -492,8 +507,8 @@ namespace Thesis.Relinq.Tests
             var actual2 = myQuery2.ToArray();
 
             // Assert
-            AssertExtension.EqualByJson(expected, actual);
-            AssertExtension.EqualByJson(expected, actual2);
+            AssertExtensions.EqualByJson(expected, actual);
+            AssertExtensions.EqualByJson(expected, actual2);
         }
     }
 }

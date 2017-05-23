@@ -40,4 +40,29 @@ TODO.
 TODO.
 
 \section{Czynności następujące budowę zapytania}
-TODO.
+Potrafiąc zbudować dowolne zapytanie SQL-owe na podstawie zapytania LINQ, pozostaje już tylko kwestia wykonania go i zwrócenia wyniku w postaci obiektowej. Autor pracy postanowił użyć do tego celu bibliotek \href{}{Npgsql} (połączenie z bazą PostgreSQL, wykonywanie zapytania) oraz \href{}{Dapper} (rozszerzenie umożliwiające wygodne mapowanie relacyjno-obiektowe).
+
+Z użyciem tych dwóch bibliotek, wykonanie zapytania i przetłumaczenie wyniku do postaci obiektowej jest bardzo proste - biblioteka Dapper rozszerza obiekt \texttt{NpgsqlConnection} służący do łączenia z bazą danych o metody \texttt{Query} i \texttt{Query<T>}, które umożliwiają automatyczne mapowanie wyniku do postaci obiektowej. Poniżej fragment kodu z przykładowej implementacji \texttt{IQueryExecutor}:
+
+\begin{lstlisting}
+var commandData = SomeQueryModelVisitor.GenerateQuery(queryModel);
+
+var s = commandData.Statement;
+var p = commandData.Parameters;
+
+return connection.Query<SomeClass>(s, p);
+\end{lstlisting}
+
+W tym miejscu zmienna \texttt{result} jest typu \texttt{IEnumerable<SomeClass>}, gdzie \texttt{SomeClass} jest typem obiektu, który zwraca oryginalne zapytanie LINQ (jest ono typu \texttt{IQueryable<SomeClass>)}. Dapper wymaga, aby nazwy kolumn w relacjach mapowanych na obiekty były takie same, jak nazwy właściwości w klasie modelowej - stąd, podczas budowy zapytania, każda kolumna została przemianowana na nazwę odpowiadającej właściwości w klasie z użyciem słowa kluczowego \texttt{AS}.
+
+Autorowi pracy niestety nie udało się dotrzeć do tego, w jaki sposób Dapper może mapować krotki na typy anonimowe, lecz znalazł obejście tego problemu. Algorytm składa się z następujących kroków:
+
+\begin{enumerate}
+\item Sprawdź, czy typ obiektu wyjściowego jest anonimowy. Jeśli nie, wykonaj metodę \texttt{Query<T>} i zwróć wynik.
+\item Wiadomo, że typ obiektu jest anonimowy. Wykonaj metodę \texttt{Query}, która zwraca wynik w postaci obiektów \texttt{DapperRow}. 
+\item Przetłumacz DapperRow na słownik \texttt{IDictionary}.
+\item Wyciągnij tylko i wyłącznie wartości każ Wewnętrzna implementacja \texttt{DapperRow} gwarantuje, że kolejność wartości z par kluczy-wartość będzie zgodna z kolejnością kolumn w wynikowym zapytania.
+\item Korzystając z klasy \texttt{Activator}, dla każdej krotki stwórz instancję typu \texttt{T}, której wartościami będzie krotka przekazywana jako argument do metody \texttt{Activator.CreateInstance}. Zwróć wynik.
+\end{enumerate}
+
+W ten sposób, implementacja \texttt{IQueryExecutor} jest w stanie przemapować \textit{prawie} każde zapytanie do postaci obiektowej. Trzeba jednak jeszcze rozpatrzyć przypadek, gdzie zapytanie LINQ wykorzystywało metodę \texttt{GroupBy}. TODO.

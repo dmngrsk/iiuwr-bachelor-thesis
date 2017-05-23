@@ -30,8 +30,8 @@ namespace Thesis.Relinq.Tests
             var actual2 = myQuery2.ToArray();
 
             // Assert
-            AssertExtension.EqualByJson(expected, actual);
-            AssertExtension.EqualByJson(expected, actual2);
+            AssertExtensions.EqualByJson(expected, actual);
+            AssertExtensions.EqualByJson(expected, actual2);
         }
 
         [Fact]
@@ -53,8 +53,8 @@ namespace Thesis.Relinq.Tests
             var actual2 = myQuery2.Take(5).ToArray();
 
             // Assert
-            AssertExtension.EqualByJson(expected, actual);
-            AssertExtension.EqualByJson(expected, actual2);
+            AssertExtensions.EqualByJson(expected, actual);
+            AssertExtensions.EqualByJson(expected, actual2);
         }
 
         [Fact]
@@ -76,8 +76,8 @@ namespace Thesis.Relinq.Tests
             var actual2 = myQuery2.Skip(5).ToArray();
 
             // Assert
-            AssertExtension.EqualByJson(expected, actual);
-            AssertExtension.EqualByJson(expected, actual2);
+            AssertExtensions.EqualByJson(expected, actual);
+            AssertExtensions.EqualByJson(expected, actual2);
         }
 
         [Fact]
@@ -99,8 +99,8 @@ namespace Thesis.Relinq.Tests
             var actual2 = myQuery2.Take(3).Skip(5).ToArray();
 
             // Assert
-            AssertExtension.EqualByJson(expected, actual);
-            AssertExtension.EqualByJson(expected, actual2);
+            AssertExtensions.EqualByJson(expected, actual);
+            AssertExtensions.EqualByJson(expected, actual2);
         }
 
         [Fact]
@@ -129,8 +129,8 @@ namespace Thesis.Relinq.Tests
             var actual2 = myQuery2.ToArray();
 
             // Assert
-            AssertExtension.EqualByJson(expected, actual);
-            AssertExtension.EqualByJson(expected, actual2);
+            AssertExtensions.EqualByJson(expected, actual);
+            AssertExtensions.EqualByJson(expected, actual2);
         }
 
         [Fact]
@@ -159,8 +159,8 @@ namespace Thesis.Relinq.Tests
             var actual2 = myQuery2.ToArray();
 
             // Assert
-            AssertExtension.EqualByJson(expected, actual);
-            AssertExtension.EqualByJson(expected, actual2);
+            AssertExtensions.EqualByJson(expected, actual);
+            AssertExtensions.EqualByJson(expected, actual2);
         }
 
         [Fact]
@@ -192,8 +192,8 @@ namespace Thesis.Relinq.Tests
             var actual2 = myQuery2.ToArray();
 
             // Assert
-            AssertExtension.EqualByJson(expected, actual);
-            AssertExtension.EqualByJson(expected, actual2);
+            AssertExtensions.EqualByJson(expected, actual);
+            AssertExtensions.EqualByJson(expected, actual2);
         }
 
         [Fact]
@@ -223,8 +223,8 @@ namespace Thesis.Relinq.Tests
             var actual2 = myQuery2.ToArray();
 
             // Assert
-            AssertExtension.EqualByJson(expected, actual);
-            AssertExtension.EqualByJson(expected, actual2);
+            AssertExtensions.EqualByJson(expected, actual);
+            AssertExtensions.EqualByJson(expected, actual2);
         }
 
         [Fact]
@@ -256,8 +256,8 @@ namespace Thesis.Relinq.Tests
             var actual2 = myQuery2.ToArray();
 
             // Assert
-            AssertExtension.EqualByJson(expected, actual);
-            AssertExtension.EqualByJson(expected, actual2);
+            AssertExtensions.EqualByJson(expected, actual);
+            AssertExtensions.EqualByJson(expected, actual2);
         }
 
         [Fact]
@@ -287,8 +287,8 @@ namespace Thesis.Relinq.Tests
             var actual2 = myQuery2.ToArray();
 
             // Assert
-            AssertExtension.EqualByJson(expected, actual);
-            AssertExtension.EqualByJson(expected, actual2);
+            AssertExtensions.EqualByJson(expected, actual);
+            AssertExtensions.EqualByJson(expected, actual2);
         }
     }
 }

@@ -2,4 +2,4 @@ make: Makefile iithesis.cls iithesis.tex abstracts.tex bibitems.tex Chapters/*.t
 	pdflatex iithesis.tex
 
 clean: Makefile
-	rm -rf *.aux */*.aux *.log *.out *.toc *.fls *.fdb_latexmk 
+	rm -rf *.aux */*.aux *.log *.out *.toc *.fls *.fdb_latexmk *.synctex.gz

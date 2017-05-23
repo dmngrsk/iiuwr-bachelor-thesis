@@ -231,8 +231,8 @@ namespace Thesis.Relinq.PsqlQueryGeneration
             else
             {
                 this.Visit(expression.Expression);
-                _psqlExpression.Append(
-                    $".\"{_queryModelVisitor.DbSchema.GetColumnName(expression.Member.Name)}\"");
+                var columnName = _queryModelVisitor.DbSchema.GetColumnName(expression.Member.Name);
+                _psqlExpression.Append($".\"{columnName}\"");
             }
 
             return expression;
@@ -310,11 +310,17 @@ namespace Thesis.Relinq.PsqlQueryGeneration
         protected override Expression VisitNew(NewExpression expression)
         {
             this.Visit(expression.Arguments[0]);
-            
-            for (int i = 1; i < expression.Arguments.Count; i++)
+
+            if (expression.Members != null)
             {
-                _psqlExpression.Append(", ");
-                this.Visit(expression.Arguments[i]);
+                _psqlExpression.Append($" AS {expression.Members[0].Name}");
+            
+                for (int i = 1; i < expression.Members.Count; i++)
+                {
+                    _psqlExpression.Append(", ");
+                    this.Visit(expression.Arguments[i]);
+                    _psqlExpression.Append($" AS {expression.Members[i].Name}");
+                }
             }
 
             return expression;
