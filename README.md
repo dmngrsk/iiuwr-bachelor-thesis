@@ -12,4 +12,4 @@ Framework: [.NET Core](https://www.microsoft.com/net/core). Database: [PostgreSQ
 
 Libraries: [re-linq](https://relinq.codeplex.com/), [Npgsql](http://www.npgsql.org/), [Dapper](https://github.com/StackExchange/Dapper), [Xunit](https://xunit.github.io/). They all are licensed under their respective open licenses.
 
-Sample databases used in tests: Northwind, II (also used at my university's database class). They are both included in ```Thesis.Samples``` folder.
+Sample databases used in tests: Northwind, II (also used at my university's database class). They are both included in ```Thesis.Migrations``` folder.

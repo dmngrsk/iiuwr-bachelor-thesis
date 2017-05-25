@@ -2,9 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
+using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.Expressions;
+using Remotion.Linq.Clauses.ResultOperators;
 using Remotion.Linq.Parsing;
 
 namespace Thesis.Relinq.PsqlQueryGeneration
@@ -88,17 +91,36 @@ namespace Thesis.Relinq.PsqlQueryGeneration
             return visitor.GetPsqlExpression();
         }
 
-        private string GetPsqlExpression() => _psqlExpression.ToString();
+        private string GetPsqlExpression()
+        {
+            return _psqlExpression.ToString();
+        }
 
         // RelinqExpressionVisitor override methods.
         protected override Expression VisitQuerySourceReference(
             QuerySourceReferenceExpression expression)
         {
-            string fullType = expression.ReferencedQuerySource.ItemType.ToString();
-            int index = fullType.LastIndexOf('.') + 1;
-            string type = fullType.Substring(index);
+            if (expression.Type.FullName.Contains("IGrouping"))
+            {
+                var groupResultOperator = ((expression.ReferencedQuerySource as MainFromClause)
+                    .FromExpression as SubQueryExpression)
+                    .QueryModel.ResultOperators[0] as GroupResultOperator;
 
-            _psqlExpression.Append($"\"{_queryModelVisitor.DbSchema.GetTableName(type)}\"");
+                this.Visit(groupResultOperator.ElementSelector);
+                _psqlExpression.Append(", ");
+                this.Visit(groupResultOperator.KeySelector);
+
+                // throw new NotImplementedException("This LINQ provider does not provide grouping yet.");
+            }
+            else
+            {
+                string fullType = expression.ReferencedQuerySource.ItemType.ToString();
+                int index = fullType.LastIndexOf('.') + 1;
+                string type = fullType.Substring(index);
+
+                _psqlExpression.Append($"\"{_queryModelVisitor.DbSchema.GetTableName(type)}\"");
+            }
+
             return expression;
         }
 

@@ -9,6 +9,7 @@ using System.Runtime.CompilerServices;
 using System;
 using System.Dynamic;
 using System.Collections;
+using System.Data.Common;
 
 namespace Thesis.Relinq
 {
@@ -28,11 +29,8 @@ namespace Thesis.Relinq
             var dbSchema = new NpgsqlDatabaseSchema(_connection);
             var commandData = PsqlGeneratingQueryModelVisitor.GeneratePsqlQuery(queryModel, dbSchema);
 
-            var result = TypeIsAnonymous(typeof(T)) ?
-                _connection.Query(commandData.Statement, commandData.Parameters)
-                    .Select(x => (IDictionary<string, object>)x)
-                    .Select(d => d.Values.ToArray())
-                    .Select(row => (T)Activator.CreateInstance(typeof(T), row)) :
+            var result = typeof(T).IsAnonymous() ?
+                _connection.QueryAnonymous<T>(commandData.Statement, commandData.Parameters) :
                 _connection.Query<T>(commandData.Statement, commandData.Parameters);
 
             _connection.Close();
@@ -49,16 +47,6 @@ namespace Thesis.Relinq
             return returnDefaultWhenEmpty ?
                 ExecuteCollection<T>(queryModel).SingleOrDefault() : 
                 ExecuteCollection<T>(queryModel).Single();
-        }
-
-        private bool TypeIsAnonymous(Type type)
-        {
-            var typeInfo = type.GetTypeInfo();
-            return typeInfo.GetCustomAttribute<CompilerGeneratedAttribute>() != null
-                && typeInfo.IsGenericType
-                && typeInfo.Name.Contains("AnonymousType")
-                && (typeInfo.Name.StartsWith("<>") || typeInfo.Name.StartsWith("VB$"))
-                && typeInfo.Attributes.HasFlag(TypeAttributes.NotPublic);
         }
     }
 }

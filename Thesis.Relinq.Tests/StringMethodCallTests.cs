@@ -2,6 +2,7 @@ using Dapper;
 using Npgsql;
 using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Linq;
 using System.Reflection;
 using Thesis.Relinq.Tests.Helpers;
@@ -184,13 +185,12 @@ namespace Thesis.Relinq.Tests
                                });
 
             var psqlCommand = "SELECT \"ContactName\", LENGTH(\"ContactName\") FROM Customers;";
+            var queryMethod = typeof(ExtensionMethods)
+                .GetMethod("QueryAnonymous", new[] { typeof(DbConnection), typeof(string) })
+                .MakeGenericMethod(myQuery.ElementType);
 
             // Act
-            var expected = connection.Query(psqlCommand)
-                    .Select(x => (IDictionary<string, object>)x)
-                    .Select(d => d.Values.ToArray())
-                    .Select(row => Activator.CreateInstance(myQuery.ElementType, row))
-                    .Select(i => Convert.ChangeType(i, myQuery.ElementType));
+            var expected = queryMethod.Invoke(null, new object[] { connection, psqlCommand });
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 
@@ -198,7 +198,6 @@ namespace Thesis.Relinq.Tests
             AssertExtensions.EqualByJson(expected, actual);
             AssertExtensions.EqualByJson(expected, actual2);
         }
-
 
         [Fact]
         public void trim()

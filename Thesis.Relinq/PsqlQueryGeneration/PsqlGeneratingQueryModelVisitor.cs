@@ -194,7 +194,9 @@ namespace Thesis.Relinq.PsqlQueryGeneration
             _queryParts.CloseSubQuery();
         }
 
-        private string GetPsqlExpression(Expression expression) =>
-            PsqlGeneratingExpressionVisitor.GetPsqlExpression(expression, _parameterAggregator, this);
+        private string GetPsqlExpression(Expression expression)
+        {
+            return PsqlGeneratingExpressionVisitor.GetPsqlExpression(expression, _parameterAggregator, this);
+        }
     }
 }
