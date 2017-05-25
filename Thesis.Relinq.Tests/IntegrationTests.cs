@@ -429,7 +429,7 @@ namespace Thesis.Relinq.Tests
                 "\"orders\".\"ShipRegion\" AS \"Orders.ShipRegion\", " + 
                 "\"orders\".\"ShipPostalCode\" AS \"Orders.ShipPostalCode\", " +
                 "\"orders\".\"ShipCountry\" AS \"Orders.ShipCountry\", " +
-                "(SELECT COUNT(*) from orders AS temp1_orders WHERE temp1_orders.\"CustomerID\" = customers.\"CustomerID\") AS \"Orders.Count\" " +
+                "(SELECT COUNT(*) from orders AS temp1_orders WHERE temp1_orders.\"CustomerID\" = customers.\"CustomerID\") AS \"Orders.__GROUP_COUNT\" " +
                 "FROM customers LEFT OUTER JOIN orders ON customers.\"CustomerID\" = orders.\"CustomerID\" " +
                 "ORDER BY customers.\"CustomerID\", orders.\"CustomerID\";";
             var queryMethod = typeof(ExtensionMethods)
