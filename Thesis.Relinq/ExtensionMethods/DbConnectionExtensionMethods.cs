@@ -49,31 +49,31 @@ namespace Thesis.Relinq
                 
                 for (int i = 0; i < rows.Length; i++)
                 {
-                    if (i > 800 || (string)rows[i]["CustomerID"] == "PARIS")
-                    {
-                        Console.Write("ho");
-                    }
-
+                    List<object> convertableRow = new List<object>(rows[i].Select(r => r.Value));
                     var groupedItemsCount = (long)rows[i][groupedType.Name + ".__GROUP_COUNT"];
                     var groupedItems = (IList)Activator.CreateInstance(genericListType);
 
-                    for (int j = 0; j < groupedItemsCount; i++, j++)
+                    if (groupedItemsCount > 0)
                     {
-                        var entity = Activator.CreateInstance(groupedType);
-
-                        var entityProperties = rows[i]
-                            .Where(x => x.Key.StartsWith(groupedType.Name) && !x.Key.EndsWith("__GROUP_COUNT"))
-                            .ToDictionary(kvp => kvp.Key.Remove(0, groupedType.Name.Length + 1), kvp => kvp.Value);
-
-                        foreach (var prop in groupedTypeProperties)
+                        for (int j = 0; j < groupedItemsCount; j++)
                         {
-                            prop.SetValue(entity, entityProperties[prop.Name]);
+                            var entity = Activator.CreateInstance(groupedType);
+
+                            var entityProperties = rows[i + j]
+                                .Where(x => x.Key.StartsWith(groupedType.Name) && !x.Key.EndsWith("__GROUP_COUNT"))
+                                .ToDictionary(kvp => kvp.Key.Remove(0, groupedType.Name.Length + 1), kvp => kvp.Value);
+
+                            foreach (var prop in groupedTypeProperties)
+                            {
+                                prop.SetValue(entity, entityProperties[prop.Name]);
+                            }
+
+                            groupedItems.Add(entity);
                         }
 
-                        groupedItems.Add(entity);
+                        i += (int)(groupedItemsCount - 1);
                     }
 
-                    List<object> convertableRow = new List<object>(rows[i - 1].Select(r => r.Value));
                     convertableRow.RemoveRange(groupedTypeCollectionIndex, groupedTypeProperties.Count() + 1);
                     convertableRow.Insert(groupedTypeCollectionIndex, groupedItems);
 

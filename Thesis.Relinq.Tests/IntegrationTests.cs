@@ -442,8 +442,8 @@ namespace Thesis.Relinq.Tests
             var actual2 = myQuery2.ToArray();
 
             // Assert
-            // AssertExtension.EqualByJson(expected, actual);
-            // AssertExtension.EqualByJson(expected, actual2);
+            AssertExtensions.EqualByJson(expected, actual);
+            AssertExtensions.EqualByJson(expected, actual2);
         }
 
         [Fact]
