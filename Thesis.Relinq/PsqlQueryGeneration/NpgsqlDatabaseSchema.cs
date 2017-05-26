@@ -65,7 +65,9 @@ namespace Thesis.Relinq.PsqlQueryGeneration
                         var names = new List<string>();
 
                         foreach (var column in columnSchema)
+                        {
                             names.Add(column.ColumnName);
+                        }
 
                         _columns[_lastVisitedTable] = names.ToArray();
                     }

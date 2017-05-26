@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -96,6 +97,15 @@ namespace Thesis.Relinq.PsqlQueryGeneration
             return _psqlExpression.ToString();
         }
 
+        private string GetPsqlExpression(Expression linqExpression)
+        {
+            var visitor = new PsqlGeneratingExpressionVisitor(
+                _parameterAggregator, _queryModelVisitor);
+            visitor.Visit(linqExpression);
+            return visitor.GetPsqlExpression();
+        }
+
+
         // RelinqExpressionVisitor override methods.
         protected override Expression VisitQuerySourceReference(
             QuerySourceReferenceExpression expression)
@@ -112,13 +122,34 @@ namespace Thesis.Relinq.PsqlQueryGeneration
 
                 // throw new NotImplementedException("This LINQ provider does not provide grouping yet.");
             }
+            else if (expression.ReferencedQuerySource is GroupJoinClause)
+            {
+                var itemType = expression.ReferencedQuerySource.ItemType.GetGenericArguments()[0];
+                var tableName = _queryModelVisitor.DbSchema.GetTableName(itemType.Name);
+
+                var properties = itemType.GetPublicSettableProperties();
+                var rowNames = properties.Select(x =>
+                {
+                    var columnName = _queryModelVisitor.DbSchema.GetColumnName(x.Name);
+                    return $"\"{tableName}\".\"{columnName}\" AS \"{itemType.Name}.{x.Name}\"";
+                });
+
+                _psqlExpression.Append(string.Join(", ", rowNames));
+
+                var joinClause = (expression.ReferencedQuerySource as GroupJoinClause).JoinClause;
+                var outerKeySelector = GetPsqlExpression(joinClause.OuterKeySelector);
+                var innerKeySelector = GetPsqlExpression(joinClause.InnerKeySelector).Replace(tableName, $"temp_{tableName}");
+                
+                _psqlExpression.Append(
+                    $", (SELECT COUNT(*) FROM {tableName} AS \"temp_{tableName}\" " + 
+                    $"WHERE {innerKeySelector} = {outerKeySelector}) " +
+                    $"AS \"{itemType.Name}.__GROUP_COUNT\"");
+            }
+
             else
             {
-                string fullType = expression.ReferencedQuerySource.ItemType.ToString();
-                int index = fullType.LastIndexOf('.') + 1;
-                string type = fullType.Substring(index);
-
-                _psqlExpression.Append($"\"{_queryModelVisitor.DbSchema.GetTableName(type)}\"");
+                string typeName = expression.ReferencedQuerySource.ItemType.Name;
+                _psqlExpression.Append($"\"{_queryModelVisitor.DbSchema.GetTableName(typeName)}\"");
             }
 
             return expression;
@@ -340,8 +371,12 @@ namespace Thesis.Relinq.PsqlQueryGeneration
                 for (int i = 1; i < expression.Members.Count; i++)
                 {
                     _psqlExpression.Append(", ");
+
                     this.Visit(expression.Arguments[i]);
-                    _psqlExpression.Append($" AS {expression.Members[i].Name}");
+                    if (!(expression.Arguments[i] is QuerySourceReferenceExpression))
+                    {
+                        _psqlExpression.Append($" AS {expression.Members[i].Name}");
+                    }
                 }
             }
 

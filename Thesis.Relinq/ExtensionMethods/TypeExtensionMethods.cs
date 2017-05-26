@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 
@@ -23,6 +25,14 @@ namespace Thesis.Relinq
                 && typeInfo.Name.Contains("AnonymousType")
                 && (typeInfo.Name.StartsWith("<>") || typeInfo.Name.StartsWith("VB$"))
                 && typeInfo.Attributes.HasFlag(TypeAttributes.NotPublic);
+        }
+
+        public static PropertyInfo[] GetPublicSettableProperties(this Type type)
+        {
+            return type
+                .GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                .Where(x => x.GetSetMethod() != null)
+                .ToArray();
         }
     }
 }

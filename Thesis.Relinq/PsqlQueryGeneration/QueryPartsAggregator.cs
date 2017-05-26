@@ -13,6 +13,7 @@ namespace Thesis.Relinq.PsqlQueryGeneration
             WhereParts = new List<string>();
             OrderByParts = new List<string>();
             PagingParts = new List<string>();
+            GroupByParts = new List<string>();
 
             SubQueries = new List<string>();
             SubQueryLinkActions = new List<string>();
@@ -24,6 +25,7 @@ namespace Thesis.Relinq.PsqlQueryGeneration
         private List<string> WhereParts { get; set; }
         private List<string> OrderByParts { get; set; }
         private List<string> PagingParts { get; set; }
+        private List<string> GroupByParts { get; set; }
 
         private List<string> SubQueries { get; set; }
         private List<string> SubQueryLinkActions { get; set; }
@@ -83,6 +85,28 @@ namespace Thesis.Relinq.PsqlQueryGeneration
                 // We're using the fact that the left source table was already added in AddFromPart
                 var index = FromParts.IndexOf(leftSource);
                 FromParts[index] = joinPart;
+            }
+        }
+
+        public void AddGroupJoinPart(string outerMember, string innerMember)
+        {
+            if (_subQueryOpen)
+            {
+                _subQuery.AddGroupJoinPart(outerMember, innerMember);
+            }
+            else
+            {
+                var outerSource = outerMember.Split('.')[0];
+                var innerSource = innerMember.Split('.')[0];
+                var groupJoinPart = 
+                    $"{outerSource} LEFT OUTER JOIN {innerSource} ON ({outerMember} = {innerMember})";
+
+                // We're using the fact that the left source table was already added in AddFromPart
+                var index = FromParts.IndexOf(outerSource);
+                FromParts[index] = groupJoinPart;
+
+                OrderByParts.Add(outerMember);
+                OrderByParts.Add(innerMember);
             }
         }
 

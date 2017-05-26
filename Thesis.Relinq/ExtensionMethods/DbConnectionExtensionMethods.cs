@@ -25,7 +25,7 @@ namespace Thesis.Relinq
             var propertyTypes = typeof(T)
                 .GetProperties()
                 .Select(x => x.PropertyType)
-                .ToArray();
+                .ToList();
             
             if (propertyTypes.All(x => x.IsSimple()))
             {
@@ -35,14 +35,12 @@ namespace Thesis.Relinq
             }
             else
             {
-                var groupedTypeCollectionIndex = propertyTypes
-                    .TakeWhile(x => !x.Name.Contains("IEnumerable")).Count();
+                var groupedCollectionType = propertyTypes
+                    .First(x => typeof(IEnumerable).IsAssignableFrom(x) && x != typeof(string));
+                var groupedCollectionTypeIndex = propertyTypes.IndexOf(groupedCollectionType);
 
-                var groupedType = propertyTypes[groupedTypeCollectionIndex]
-                    .GetGenericArguments()[0];
-
-                var groupedTypeProperties = groupedType.GetProperties(BindingFlags.Public | BindingFlags.Instance)
-                    .Where(x => x.GetSetMethod() != null);
+                var groupedType = groupedCollectionType.GetGenericArguments()[0];
+                var groupedTypeProperties = groupedType.GetPublicSettableProperties();
 
                 var result = new List<T>();
                 var genericListType = typeof(List<>).MakeGenericType(groupedType);
@@ -74,8 +72,8 @@ namespace Thesis.Relinq
                         i += (int)(groupedItemsCount - 1);
                     }
 
-                    convertableRow.RemoveRange(groupedTypeCollectionIndex, groupedTypeProperties.Count() + 1);
-                    convertableRow.Insert(groupedTypeCollectionIndex, groupedItems);
+                    convertableRow.RemoveRange(groupedCollectionTypeIndex, groupedTypeProperties.Count() + 1);
+                    convertableRow.Insert(groupedCollectionTypeIndex, groupedItems);
 
                     result.Add((T)Activator.CreateInstance(typeof(T), convertableRow.ToArray()));
                 }

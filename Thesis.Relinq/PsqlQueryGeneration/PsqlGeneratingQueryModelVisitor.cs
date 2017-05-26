@@ -62,8 +62,7 @@ namespace Thesis.Relinq.PsqlQueryGeneration
 
         public override void VisitAdditionalFromClause(AdditionalFromClause fromClause, QueryModel queryModel, int index)
         {
-            var fromPart = fromClause.ItemType.ToString();
-            fromPart = fromPart.Substring(fromPart.LastIndexOf('.') + 1);
+            var fromPart = fromClause.ItemType.Name;
             _queryParts.AddFromPart($"\"{_dbSchema.GetTableName(fromPart)}\"");
 
             base.VisitAdditionalFromClause(fromClause, queryModel, index);
@@ -71,7 +70,11 @@ namespace Thesis.Relinq.PsqlQueryGeneration
 
         public override void VisitGroupJoinClause(GroupJoinClause groupJoinClause, QueryModel queryModel, int index)
         {
-            throw new NotImplementedException();
+            _queryParts.AddGroupJoinPart(
+                GetPsqlExpression(groupJoinClause.JoinClause.OuterKeySelector),
+                GetPsqlExpression(groupJoinClause.JoinClause.InnerKeySelector));
+
+            base.VisitGroupJoinClause(groupJoinClause, queryModel, index);
         }
 
         public override void VisitJoinClause(JoinClause joinClause, QueryModel queryModel, int index)
@@ -83,15 +86,9 @@ namespace Thesis.Relinq.PsqlQueryGeneration
             base.VisitJoinClause(joinClause, queryModel, index);
         }
 
-        public override void VisitJoinClause(JoinClause joinClause, QueryModel queryModel, GroupJoinClause groupJoinClause)
-        {
-            throw new NotImplementedException();
-        }
-
         public override void VisitMainFromClause(MainFromClause fromClause, QueryModel queryModel)
         {
-            var fromPart = fromClause.ItemType.ToString();
-            fromPart = fromPart.Substring(fromPart.LastIndexOf('.') + 1);
+            var fromPart = fromClause.ItemType.Name;
             _queryParts.AddFromPart($"\"{_dbSchema.GetTableName(fromPart)}\"");
 
             base.VisitMainFromClause(fromClause, queryModel);
@@ -165,7 +162,7 @@ namespace Thesis.Relinq.PsqlQueryGeneration
                 var itemType = selector.ReferencedQuerySource.ItemType;
                 var tableName = _dbSchema.GetTableName(itemType.Name);
 
-                var properties = itemType.GetProperties();
+                var properties = itemType.GetPublicSettableProperties();
                 var rowNames = properties.Select(x =>
                     $"\"{tableName}\".\"{_dbSchema.GetColumnName(x.Name)}\" AS {x.Name}");
 
