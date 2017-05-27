@@ -17,7 +17,7 @@ namespace Thesis.Relinq.PsqlQueryGeneration
 
             SubQueries = new List<string>();
             SubQueryLinkActions = new List<string>();
-            _subQueryOpen = false;
+            _visitingSubQueryExpression = false;
         }
 
         private string SelectPart { get; set; }
@@ -29,15 +29,15 @@ namespace Thesis.Relinq.PsqlQueryGeneration
 
         private List<string> SubQueries { get; set; }
         private List<string> SubQueryLinkActions { get; set; }
+        private bool _visitingSubQueryExpression;
+        private QueryPartsAggregator _subQueryExpressionPartsAggregator;
 
-        private bool _subQueryOpen;
-        private QueryPartsAggregator _subQuery;
 
         public void SetSelectPart(string selectPart)
         {
-            if (_subQueryOpen)
+            if (_visitingSubQueryExpression)
             {
-                _subQuery.SetSelectPart(selectPart);
+                _subQueryExpressionPartsAggregator.SetSelectPart(selectPart);
             }
             else
             {
@@ -47,9 +47,9 @@ namespace Thesis.Relinq.PsqlQueryGeneration
 
         public void SetSelectPartAsScalar(string scalarPartFormat)
         {
-            if (_subQueryOpen)
+            if (_visitingSubQueryExpression)
             {
-                _subQuery.SetSelectPartAsScalar(scalarPartFormat);
+                _subQueryExpressionPartsAggregator.SetSelectPartAsScalar(scalarPartFormat);
             }
             else
             {
@@ -59,9 +59,9 @@ namespace Thesis.Relinq.PsqlQueryGeneration
 
         public void AddFromPart(string fromPart)
         {
-            if (_subQueryOpen)
+            if (_visitingSubQueryExpression)
             {
-                _subQuery.AddFromPart(fromPart);
+                _subQueryExpressionPartsAggregator.AddFromPart(fromPart);
             }
             else
             {
@@ -69,52 +69,11 @@ namespace Thesis.Relinq.PsqlQueryGeneration
             }
         }
 
-        public void AddJoinPart(string leftMember, string rightMember)
-        {
-            if (_subQueryOpen)
-            {
-                _subQuery.AddJoinPart(leftMember, rightMember);
-            }
-            else
-            {
-                var leftSource = leftMember.Split('.')[0];
-                var rightSource = rightMember.Split('.')[0];
-                var joinPart = 
-                    $"{leftSource} INNER JOIN {rightSource} ON ({leftMember} = {rightMember})";
-
-                // We're using the fact that the left source table was already added in AddFromPart
-                var index = FromParts.IndexOf(leftSource);
-                FromParts[index] = joinPart;
-            }
-        }
-
-        public void AddGroupJoinPart(string outerMember, string innerMember)
-        {
-            if (_subQueryOpen)
-            {
-                _subQuery.AddGroupJoinPart(outerMember, innerMember);
-            }
-            else
-            {
-                var outerSource = outerMember.Split('.')[0];
-                var innerSource = innerMember.Split('.')[0];
-                var groupJoinPart = 
-                    $"{outerSource} LEFT OUTER JOIN {innerSource} ON ({outerMember} = {innerMember})";
-
-                // We're using the fact that the left source table was already added in AddFromPart
-                var index = FromParts.IndexOf(outerSource);
-                FromParts[index] = groupJoinPart;
-
-                OrderByParts.Add(outerMember);
-                OrderByParts.Add(innerMember);
-            }
-        }
-
         public void AddWherePart(string formatString, params object[] args)
         {
-            if (_subQueryOpen)
+            if (_visitingSubQueryExpression)
             {
-                _subQuery.AddWherePart(formatString, args);
+                _subQueryExpressionPartsAggregator.AddWherePart(formatString, args);
             }
             else
             {
@@ -127,9 +86,9 @@ namespace Thesis.Relinq.PsqlQueryGeneration
 
         public void AddOrderByPart(IEnumerable< Tuple<string, OrderingDirection> > orderings)
         {
-            if (_subQueryOpen)
+            if (_visitingSubQueryExpression)
             {
-                _subQuery.AddOrderByPart(orderings);
+                _subQueryExpressionPartsAggregator.AddOrderByPart(orderings);
             }
             else
             {
@@ -150,11 +109,53 @@ namespace Thesis.Relinq.PsqlQueryGeneration
             }
         }
 
+        public void AddJoinPart(string leftMember, string rightMember)
+        {
+            if (_visitingSubQueryExpression)
+            {
+                _subQueryExpressionPartsAggregator.AddJoinPart(leftMember, rightMember);
+            }
+            else
+            {
+                var leftSource = leftMember.Split('.')[0];
+                var rightSource = rightMember.Split('.')[0];
+                var joinPart = 
+                    $"{leftSource} INNER JOIN {rightSource} ON ({leftMember} = {rightMember})";
+
+                // We're using the fact that the left source table was already added in AddFromPart
+                var index = FromParts.IndexOf(leftSource);
+                FromParts[index] = joinPart;
+            }
+        }
+
+        public void AddGroupJoinPart(string outerMember, string innerMember)
+        {
+            if (_visitingSubQueryExpression)
+            {
+                _subQueryExpressionPartsAggregator.AddGroupJoinPart(outerMember, innerMember);
+            }
+            else
+            {
+                var outerSource = outerMember.Split('.')[0];
+                var innerSource = innerMember.Split('.')[0];
+                var groupJoinPart = 
+                    $"{outerSource} LEFT OUTER JOIN {innerSource} ON ({outerMember} = {innerMember})";
+
+                // We're using the fact that the left source table was already added in AddFromPart
+                var index = FromParts.IndexOf(outerSource);
+                FromParts[index] = groupJoinPart;
+
+                OrderByParts.Add(outerMember);
+                OrderByParts.Add(innerMember);
+            }
+        }
+
+
         public void AddPagingPart(string limitter, string count)
         {
-            if (_subQueryOpen)
+            if (_visitingSubQueryExpression)
             {
-                _subQuery.AddPagingPart(limitter, count);
+                _subQueryExpressionPartsAggregator.AddPagingPart(limitter, count);
             }
             else
             {
@@ -164,25 +165,25 @@ namespace Thesis.Relinq.PsqlQueryGeneration
 
         public void OpenSubQuery()
         {
-            _subQueryOpen = true;
-            _subQuery = new QueryPartsAggregator();
+            _visitingSubQueryExpression = true;
+            _subQueryExpressionPartsAggregator = new QueryPartsAggregator();
         }
 
         public void CloseSubQuery()
         {
-            SubQueries.Add(_subQuery.BuildPsqlString().Trim(';'));
-            _subQueryOpen = false;
+            SubQueries.Add(_subQueryExpressionPartsAggregator.BuildPsqlString().Trim(';'));
+            _visitingSubQueryExpression = false;
         }
 
         public void AddSubQueryLinkAction(string queryLinkAction)
         {
             SubQueryLinkActions.Add(queryLinkAction);
-            _subQueryOpen = false;
+            _visitingSubQueryExpression = false;
         }
 
         public string BuildPsqlString()
         {
-            WrapSubQueriesToQueryParts();
+            this.WrapSubQueryExpressionsToQueryParts();
 
             var stringBuilder = new StringBuilder();
 
@@ -192,7 +193,6 @@ namespace Thesis.Relinq.PsqlQueryGeneration
             if (FromParts.Count == 0)
                 throw new InvalidOperationException("A query must have at least one FROM part.");
 
-            // TODO: Check if table's name can contains a dot
             stringBuilder.AppendFormat("SELECT {0}", SelectPart);
             
             stringBuilder.AppendFormat(" FROM {0}", string.Join(", ", FromParts));
@@ -218,12 +218,12 @@ namespace Thesis.Relinq.PsqlQueryGeneration
             return $"{psqlQuery};";
         }
 
-        private void WrapSubQueriesToQueryParts()
+        private void WrapSubQueryExpressionsToQueryParts()
         {
             if (SubQueries.Count != SubQueryLinkActions.Count)
             {
                 throw new ArgumentException(
-                    "Amount of subqueries and the actions to take with them is not equal.");
+                    "Amounts of subqueries and the actions to take with them are not equal.");
             }
 
             for (int i = SubQueries.Count - 1; i >= 0; i--)

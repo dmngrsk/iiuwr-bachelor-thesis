@@ -8,7 +8,7 @@ using Xunit;
 
 namespace Thesis.Relinq.Tests
 {
-    public class MethodCallTests : TestsBase
+    public class MethodCallTests : TestClassBase
     {
         [Fact]
         public void equals()

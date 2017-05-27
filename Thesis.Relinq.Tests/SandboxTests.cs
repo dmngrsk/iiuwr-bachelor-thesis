@@ -22,7 +22,7 @@ namespace Thesis.Relinq.Tests
         }
     }
 
-    public class SandboxTests : TestsBase
+    public class SandboxTests : TestClassBase
     {
         [Fact]
         public void sample_test()

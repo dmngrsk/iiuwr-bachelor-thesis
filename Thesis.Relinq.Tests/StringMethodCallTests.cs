@@ -11,7 +11,7 @@ using Xunit;
 
 namespace Thesis.Relinq.Tests
 {
-    public class StringMethodCallTests : TestsBase
+    public class StringMethodCallTests : TestClassBase
     {
         [Fact]
         public void to_lower()

@@ -12,10 +12,9 @@ namespace Thesis.Relinq.PsqlQueryGeneration
 {
     public class PsqlGeneratingQueryModelVisitor : QueryModelVisitorBase
     {
-        private readonly QueryPartsAggregator _queryParts = new QueryPartsAggregator();
-        private readonly NpgsqlParameterAggregator _parameterAggregator = new NpgsqlParameterAggregator();
-        public readonly NpgsqlDatabaseSchema _dbSchema;
-        public NpgsqlDatabaseSchema DbSchema { get { return _dbSchema; } }
+        private readonly QueryPartsAggregator _queryParts;
+        private readonly NpgsqlParameterAggregator _parameterAggregator;
+        private readonly NpgsqlDatabaseSchema _dbSchema;
 
         private readonly static Dictionary<Type, string> _aggretatingOperators =
             new Dictionary<Type, string>()
@@ -37,9 +36,20 @@ namespace Thesis.Relinq.PsqlQueryGeneration
                 { typeof(ExceptResultOperator),         "({0}) EXCEPT ({1})" }
             };
 
+        public QueryPartsAggregator QueryParts { get { return _queryParts; } }
+        public NpgsqlParameterAggregator ParameterAggregator { get { return _parameterAggregator; } }
+        public NpgsqlDatabaseSchema DbSchema { get { return _dbSchema; } }
+
         public PsqlGeneratingQueryModelVisitor(NpgsqlDatabaseSchema dbSchema) : base()
         {
+            _queryParts = new QueryPartsAggregator();
+            _parameterAggregator = new NpgsqlParameterAggregator();
             _dbSchema = dbSchema;
+        }
+
+        public NpgsqlCommandData GetPsqlCommand()
+        {
+            return new NpgsqlCommandData(_queryParts.BuildPsqlString(), _parameterAggregator.Parameters);
         }
 
         public static NpgsqlCommandData GeneratePsqlQuery(QueryModel queryModel, NpgsqlDatabaseSchema dbSchema)
@@ -49,8 +59,7 @@ namespace Thesis.Relinq.PsqlQueryGeneration
             return visitor.GetPsqlCommand();
         }
 
-        public NpgsqlCommandData GetPsqlCommand() =>
-            new NpgsqlCommandData(_queryParts.BuildPsqlString(), _parameterAggregator.Parameters);
+
 
         public override void VisitQueryModel(QueryModel queryModel)
         {
@@ -58,6 +67,43 @@ namespace Thesis.Relinq.PsqlQueryGeneration
             queryModel.MainFromClause.Accept(this, queryModel);
             this.VisitBodyClauses(queryModel.BodyClauses, queryModel);
             this.VisitResultOperators(queryModel.ResultOperators, queryModel);
+        }
+
+        public override void VisitSelectClause(SelectClause selectClause, QueryModel queryModel)
+        {
+            _queryParts.SetSelectPart(GetPsqlExpression(selectClause.Selector));
+            base.VisitSelectClause(selectClause, queryModel);
+        }
+
+        public override void VisitMainFromClause(MainFromClause fromClause, QueryModel queryModel)
+        {
+            var fromPart = fromClause.ItemType.Name;
+            _queryParts.AddFromPart($"\"{_dbSchema.GetTableName(fromPart)}\"");
+
+            base.VisitMainFromClause(fromClause, queryModel);
+        }
+
+        public override void VisitWhereClause(WhereClause whereClause, QueryModel queryModel, int index)
+        {
+            _queryParts.AddWherePart(GetPsqlExpression(whereClause.Predicate));
+            base.VisitWhereClause(whereClause, queryModel, index);
+        }
+
+        public override void VisitOrderByClause(OrderByClause orderByClause, QueryModel queryModel, int index)
+        {
+            _queryParts.AddOrderByPart(orderByClause.Orderings.Select(o => 
+                new Tuple<string, OrderingDirection>(GetPsqlExpression(o.Expression), o.OrderingDirection)));
+           
+            base.VisitOrderByClause(orderByClause, queryModel, index);
+        }
+
+        public override void VisitJoinClause(JoinClause joinClause, QueryModel queryModel, int index)
+        {
+            _queryParts.AddJoinPart(
+                GetPsqlExpression(joinClause.OuterKeySelector),
+                GetPsqlExpression(joinClause.InnerKeySelector));
+
+            base.VisitJoinClause(joinClause, queryModel, index);
         }
 
         public override void VisitAdditionalFromClause(AdditionalFromClause fromClause, QueryModel queryModel, int index)
@@ -77,31 +123,6 @@ namespace Thesis.Relinq.PsqlQueryGeneration
             base.VisitGroupJoinClause(groupJoinClause, queryModel, index);
         }
 
-        public override void VisitJoinClause(JoinClause joinClause, QueryModel queryModel, int index)
-        {
-            _queryParts.AddJoinPart(
-                GetPsqlExpression(joinClause.OuterKeySelector),
-                GetPsqlExpression(joinClause.InnerKeySelector));
-
-            base.VisitJoinClause(joinClause, queryModel, index);
-        }
-
-        public override void VisitMainFromClause(MainFromClause fromClause, QueryModel queryModel)
-        {
-            var fromPart = fromClause.ItemType.Name;
-            _queryParts.AddFromPart($"\"{_dbSchema.GetTableName(fromPart)}\"");
-
-            base.VisitMainFromClause(fromClause, queryModel);
-        }
-
-        public override void VisitOrderByClause(OrderByClause orderByClause, QueryModel queryModel, int index)
-        {
-            _queryParts.AddOrderByPart(orderByClause.Orderings.Select(o => 
-                new Tuple<string, OrderingDirection>(GetPsqlExpression(o.Expression), o.OrderingDirection)));
-           
-            base.VisitOrderByClause(orderByClause, queryModel, index);
-        }
-
         public override void VisitResultOperator(ResultOperatorBase resultOperator, QueryModel queryModel, int index)
         {
             // TODO: https://www.tutorialspoint.com/linq/linq_query_operators.htm
@@ -117,15 +138,15 @@ namespace Thesis.Relinq.PsqlQueryGeneration
             else if (_setOperators.ContainsKey(operatorType))
             {
                 dynamic subQueryResultOperator = Convert.ChangeType(resultOperator, operatorType);
-                GetPsqlExpression(subQueryResultOperator.Source2); // Source2 is a SubQueryExpression.
+                this.VisitSubQueryExpression(subQueryResultOperator.Source2); // Source2 is a SubQueryExpression.
                 _queryParts.AddSubQueryLinkAction(_setOperators[operatorType]);
                 base.VisitResultOperator(resultOperator, queryModel, index);
             }
 
-            else if (operatorType == typeof(TakeResultOperator) || operatorType == typeof(SkipResultOperator))
+            else if (resultOperator is TakeResultOperator || resultOperator is SkipResultOperator)
             {
-                var limitter = operatorType == typeof(TakeResultOperator) ? "LIMIT" : "OFFSET";
-                var constExpression = operatorType == typeof(TakeResultOperator) ?
+                var limitter = resultOperator is TakeResultOperator ? "LIMIT" : "OFFSET";
+                var constExpression = resultOperator is TakeResultOperator ?
                     (resultOperator as TakeResultOperator).Count :
                     (resultOperator as SkipResultOperator).Count;
                 
@@ -133,18 +154,20 @@ namespace Thesis.Relinq.PsqlQueryGeneration
                 base.VisitResultOperator(resultOperator, queryModel, index);
             }
 
-            else if (operatorType == typeof(AnyResultOperator) || operatorType == typeof(AllResultOperator))
+            else if (resultOperator is AnyResultOperator)
             {
-                if (operatorType == typeof(AnyResultOperator))
-                {
-                    _queryParts.AddSubQueryLinkAction("EXISTS ({0})");
-                }
-                else
-                {
-                    var subQuery = (resultOperator as AllResultOperator);
-                    _queryParts.AddWherePart($"NOT ({GetPsqlExpression(subQuery.Predicate)})");
-                    _queryParts.AddSubQueryLinkAction("NOT EXISTS ({0})");
-                }
+                _queryParts.AddSubQueryLinkAction("EXISTS ({0})");
+            }
+            else if (resultOperator is AllResultOperator)
+            {
+                var subQuery = (resultOperator as AllResultOperator);
+                _queryParts.AddWherePart($"NOT ({GetPsqlExpression(subQuery.Predicate)})");
+                _queryParts.AddSubQueryLinkAction("NOT EXISTS ({0})");
+            }
+
+            else if (resultOperator is GroupResultOperator)
+            {
+                Console.WriteLine("foo");
             }
 
             else
@@ -154,46 +177,17 @@ namespace Thesis.Relinq.PsqlQueryGeneration
             }
         }
 
-        public override void VisitSelectClause(SelectClause selectClause, QueryModel queryModel)
+
+
+        /// Visits the QueryModel in a SubQueryExpression using this PsqlGeneratingQueryModelVisitor.
+        private void VisitSubQueryExpression(Expression expression)
         {
-            if (selectClause.Selector is QuerySourceReferenceExpression)
-            {
-                var selector = selectClause.Selector as QuerySourceReferenceExpression;
-                var itemType = selector.ReferencedQuerySource.ItemType;
-                var tableName = _dbSchema.GetTableName(itemType.Name);
-
-                var properties = itemType.GetPublicSettableProperties();
-                var rowNames = properties.Select(x =>
-                    $"\"{tableName}\".\"{_dbSchema.GetColumnName(x.Name)}\" AS {x.Name}");
-
-                _queryParts.SetSelectPart(string.Join(", ", rowNames));
-            }
-            else
-            {
-                _queryParts.SetSelectPart(GetPsqlExpression(selectClause.Selector));
-            }
-            base.VisitSelectClause(selectClause, queryModel);
-        }
-
-        public override void VisitWhereClause(WhereClause whereClause, QueryModel queryModel, int index)
-        {
-            _queryParts.AddWherePart(GetPsqlExpression(whereClause.Predicate));
-            base.VisitWhereClause(whereClause, queryModel, index);
-        }
-
-        public void OpenSubQuery()
-        {
-            _queryParts.OpenSubQuery();
-        }
-
-        public void CloseSubQuery()
-        {
-            _queryParts.CloseSubQuery();
+            PsqlGeneratingExpressionVisitor.GetPsqlExpression(expression, this);
         }
 
         private string GetPsqlExpression(Expression expression)
         {
-            return PsqlGeneratingExpressionVisitor.GetPsqlExpression(expression, _parameterAggregator, this);
+            return PsqlGeneratingExpressionVisitor.GetPsqlExpression(expression, this);
         }
     }
 }

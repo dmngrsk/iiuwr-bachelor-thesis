@@ -15,9 +15,9 @@ namespace Thesis.Relinq.PsqlQueryGeneration
 {
     public class PsqlGeneratingExpressionVisitor : RelinqExpressionVisitor
     {
-        private readonly StringBuilder _psqlExpression = new StringBuilder();
-        private readonly NpgsqlParameterAggregator _parameterAggregator;
+        private readonly StringBuilder _psqlExpressionBuilder;
         private readonly PsqlGeneratingQueryModelVisitor _queryModelVisitor;
+        private bool _visitorTriggeredByMemberVisitor = false;
         private bool _conditionalStart = true;
 
         private readonly static Dictionary<ExpressionType, string> _binaryExpressionOperatorsToString = 
@@ -75,53 +75,50 @@ namespace Thesis.Relinq.PsqlQueryGeneration
                 { "EndsWith",                           "{0} LIKE '%' || {1}" }
             };
 
-        private PsqlGeneratingExpressionVisitor(NpgsqlParameterAggregator parameterAggregator, 
-            PsqlGeneratingQueryModelVisitor queryModelVisitor)
+        private PsqlGeneratingExpressionVisitor(PsqlGeneratingQueryModelVisitor queryModelVisitor)
         {
-            _parameterAggregator = parameterAggregator;
+            _psqlExpressionBuilder = new StringBuilder();
             _queryModelVisitor = queryModelVisitor;
+
+            _visitorTriggeredByMemberVisitor = false;
+            _conditionalStart = true;
         }
 
-        public static string GetPsqlExpression(Expression linqExpression, 
-            NpgsqlParameterAggregator parameterAggregator, 
+        public static string GetPsqlExpression(Expression linqExpression,
             PsqlGeneratingQueryModelVisitor queryModelVisitor)
         {
-            var visitor = new PsqlGeneratingExpressionVisitor(
-                parameterAggregator, queryModelVisitor);
-            visitor.Visit(linqExpression);
-            return visitor.GetPsqlExpression();
-        }
-
-        private string GetPsqlExpression()
-        {
-            return _psqlExpression.ToString();
-        }
-
-        private string GetPsqlExpression(Expression linqExpression)
-        {
-            var visitor = new PsqlGeneratingExpressionVisitor(
-                _parameterAggregator, _queryModelVisitor);
+            var visitor = new PsqlGeneratingExpressionVisitor(queryModelVisitor);
             visitor.Visit(linqExpression);
             return visitor.GetPsqlExpression();
         }
 
 
-        // RelinqExpressionVisitor override methods.
-        protected override Expression VisitQuerySourceReference(
-            QuerySourceReferenceExpression expression)
+
+        protected override Expression VisitQuerySourceReference(QuerySourceReferenceExpression expression)
         {
-            if (expression.Type.FullName.Contains("IGrouping"))
+            if (_visitorTriggeredByMemberVisitor)
             {
+                string typeName = expression.ReferencedQuerySource.ItemType.Name;
+                _psqlExpressionBuilder.Append($"\"{_queryModelVisitor.DbSchema.GetTableName(typeName)}\"");
+            }
+
+            else if (expression.Type.FullName.Contains("IGrouping")) // WIP.
+            {
+                var insideType = expression.Type.GetGenericArguments()[0];
+
+                var sth = this.GetNestedPsqlExpression((expression.ReferencedQuerySource as MainFromClause).FromExpression);
+
                 var groupResultOperator = ((expression.ReferencedQuerySource as MainFromClause)
                     .FromExpression as SubQueryExpression)
                     .QueryModel.ResultOperators[0] as GroupResultOperator;
 
                 this.Visit(groupResultOperator.ElementSelector);
-                _psqlExpression.Append(", ");
+                _psqlExpressionBuilder.Append(", ");
                 this.Visit(groupResultOperator.KeySelector);
 
                 // throw new NotImplementedException("This LINQ provider does not provide grouping yet.");
             }
+
             else if (expression.ReferencedQuerySource is GroupJoinClause)
             {
                 var itemType = expression.ReferencedQuerySource.ItemType.GetGenericArguments()[0];
@@ -134,13 +131,13 @@ namespace Thesis.Relinq.PsqlQueryGeneration
                     return $"\"{tableName}\".\"{columnName}\" AS \"{itemType.Name}.{x.Name}\"";
                 });
 
-                _psqlExpression.Append(string.Join(", ", rowNames));
+                _psqlExpressionBuilder.Append(string.Join(", ", rowNames));
 
                 var joinClause = (expression.ReferencedQuerySource as GroupJoinClause).JoinClause;
-                var outerKeySelector = GetPsqlExpression(joinClause.OuterKeySelector);
-                var innerKeySelector = GetPsqlExpression(joinClause.InnerKeySelector).Replace(tableName, $"temp_{tableName}");
+                var outerKeySelector = this.GetNestedPsqlExpression(joinClause.OuterKeySelector);
+                var innerKeySelector = this.GetNestedPsqlExpression(joinClause.InnerKeySelector).Replace(tableName, $"temp_{tableName}");
                 
-                _psqlExpression.Append(
+                _psqlExpressionBuilder.Append(
                     $", (SELECT COUNT(*) FROM {tableName} AS \"temp_{tableName}\" " + 
                     $"WHERE {innerKeySelector} = {outerKeySelector}) " +
                     $"AS \"{itemType.Name}.__GROUP_COUNT\"");
@@ -148,8 +145,14 @@ namespace Thesis.Relinq.PsqlQueryGeneration
 
             else
             {
-                string typeName = expression.ReferencedQuerySource.ItemType.Name;
-                _psqlExpression.Append($"\"{_queryModelVisitor.DbSchema.GetTableName(typeName)}\"");
+                var itemType = expression.ReferencedQuerySource.ItemType;
+                var tableName = _queryModelVisitor.DbSchema.GetTableName(itemType.Name);
+
+                var properties = itemType.GetPublicSettableProperties();
+                var rowNames = properties.Select(x =>
+                    $"\"{tableName}\".\"{_queryModelVisitor.DbSchema.GetColumnName(x.Name)}\" AS {x.Name}");
+
+                _psqlExpressionBuilder.Append(string.Join(", ", rowNames));
             }
 
             return expression;
@@ -157,13 +160,14 @@ namespace Thesis.Relinq.PsqlQueryGeneration
 
         protected override Expression VisitSubQuery(SubQueryExpression expression)
         {
-            _queryModelVisitor.OpenSubQuery();
+            _queryModelVisitor.QueryParts.OpenSubQuery();
             _queryModelVisitor.VisitQueryModel(expression.QueryModel);
-            _queryModelVisitor.CloseSubQuery();
+            _queryModelVisitor.QueryParts.CloseSubQuery();
             return expression;
         }
 
-        // ExpressionVisitor override methods.
+
+
         protected override Expression VisitBinary(BinaryExpression expression)
         {
             this.Visit(expression.Left);
@@ -173,9 +177,13 @@ namespace Thesis.Relinq.PsqlQueryGeneration
                 || expression.Right.Type == typeof(string));
 
             if (isAddingStrings)
-                _psqlExpression.Append(" || ");
+            {
+                _psqlExpressionBuilder.Append(" || ");
+            }
             else
-                _psqlExpression.Append(_binaryExpressionOperatorsToString[expression.NodeType]);
+            {
+                _psqlExpressionBuilder.Append(_binaryExpressionOperatorsToString[expression.NodeType]);
+            }
     
             this.Visit(expression.Right);
             return expression;
@@ -190,13 +198,13 @@ namespace Thesis.Relinq.PsqlQueryGeneration
         {
             if (_conditionalStart)
             {
-                _psqlExpression.Append("CASE");
+                _psqlExpressionBuilder.Append("CASE");
                 _conditionalStart = false;
             }
 
-            _psqlExpression.Append(" WHEN ");
+            _psqlExpressionBuilder.Append(" WHEN ");
             this.Visit(expression.Test);
-            _psqlExpression.Append(" THEN ");
+            _psqlExpressionBuilder.Append(" THEN ");
             this.Visit(expression.IfTrue);
 
             if (expression.IfFalse.NodeType == ExpressionType.Conditional)
@@ -205,9 +213,9 @@ namespace Thesis.Relinq.PsqlQueryGeneration
             }
             else // If constant, then that means the switch block has ended.
             {
-                _psqlExpression.Append(" ELSE ");
+                _psqlExpressionBuilder.Append(" ELSE ");
                 this.Visit(expression.IfFalse);
-                _psqlExpression.Append(" END");
+                _psqlExpressionBuilder.Append(" END");
                 _conditionalStart = true;
             }
 
@@ -216,8 +224,8 @@ namespace Thesis.Relinq.PsqlQueryGeneration
         
         protected override Expression VisitConstant(ConstantExpression expression)
         {
-            var parameterName = _parameterAggregator.AddParameter(expression.Value);
-            _psqlExpression.Append($"@{parameterName}");
+            var parameterName = _queryModelVisitor.ParameterAggregator.AddParameter(expression.Value);
+            _psqlExpressionBuilder.Append($"@{parameterName}");
             return expression;
         }
         // Visits the System.Linq.Expressions.DebugInfoExpression.
@@ -274,18 +282,19 @@ namespace Thesis.Relinq.PsqlQueryGeneration
         
         protected override Expression VisitMember(MemberExpression expression)
         {
-            if (expression.Expression.NodeType == ExpressionType.MemberAccess &&
-                expression.Member.Name == "Length")
+            if (expression.Expression.NodeType == ExpressionType.MemberAccess && expression.Member.Name == "Length")
             {
-                _psqlExpression.Append("LENGTH(");
-                this.Visit(expression.Expression);
-                _psqlExpression.Append(")");
+                var visitedExpression = this.GetNestedPsqlExpression(expression.Expression);
+                _psqlExpressionBuilder.Append($"LENGTH({visitedExpression})");
             }
             else
             {
+                _visitorTriggeredByMemberVisitor = true;
                 this.Visit(expression.Expression);
+                _visitorTriggeredByMemberVisitor = false;
+
                 var columnName = _queryModelVisitor.DbSchema.GetColumnName(expression.Member.Name);
-                _psqlExpression.Append($".\"{columnName}\"");
+                _psqlExpressionBuilder.Append($".\"{columnName}\"");
             }
 
             return expression;
@@ -303,14 +312,14 @@ namespace Thesis.Relinq.PsqlQueryGeneration
             if (_methodCallNamesToString.ContainsKey(methodName))
             {
                 this.Visit(expression.Object);
-                var expressionAccumulator = new List<object>(new object[] { _psqlExpression.ToString() });
-                _psqlExpression.Clear();
+                var expressionAccumulator = new List<object>(new object[] { _psqlExpressionBuilder.ToString() });
+                _psqlExpressionBuilder.Clear();
 
                 foreach (var argument in expression.Arguments)
                 {
                     this.Visit(argument);
-                    expressionAccumulator.Add(_psqlExpression.ToString());
-                    _psqlExpression.Clear();
+                    expressionAccumulator.Add(_psqlExpressionBuilder.ToString());
+                    _psqlExpressionBuilder.Clear();
                 }
 
                 var expectedArguments = Regex.Matches(
@@ -326,7 +335,7 @@ namespace Thesis.Relinq.PsqlQueryGeneration
                 {
                     case "Concat":
                         expressionAccumulator.RemoveAt(0);
-                        _psqlExpression.AppendFormat(
+                        _psqlExpressionBuilder.AppendFormat(
                             _methodCallNamesToString[methodName],
                             string.Join(", ", expressionAccumulator.Select(x => x.ToString()))
                         );
@@ -334,19 +343,23 @@ namespace Thesis.Relinq.PsqlQueryGeneration
 
                     case "Substring":
                         if (expressionAccumulator.Count == 3)
-                            _psqlExpression.AppendFormat(
+                        {
+                            _psqlExpressionBuilder.AppendFormat(
                                 _methodCallNamesToString[methodName + "For"],
                                 expressionAccumulator.ToArray()
                             );
+                        }
                         else // if (expressionAccumulator.Count == 2)
-                            _psqlExpression.AppendFormat(
+                        {
+                            _psqlExpressionBuilder.AppendFormat(
                                 _methodCallNamesToString[methodName],
                                 expressionAccumulator.ToArray()
                             );
+                        }
                         break;
 
                     default:
-                        _psqlExpression.AppendFormat(
+                        _psqlExpressionBuilder.AppendFormat(
                             _methodCallNamesToString[methodName], 
                             expressionAccumulator.ToArray()
                         );
@@ -356,8 +369,7 @@ namespace Thesis.Relinq.PsqlQueryGeneration
                 return expression;
             }
 
-            throw new NotImplementedException(
-                $"This LINQ provider does not provide the {methodName} method.");
+            throw new NotImplementedException($"This LINQ provider does not provide the {methodName} method.");
         }
 
         protected override Expression VisitNew(NewExpression expression)
@@ -366,16 +378,16 @@ namespace Thesis.Relinq.PsqlQueryGeneration
 
             if (expression.Members != null)
             {
-                _psqlExpression.Append($" AS {expression.Members[0].Name}");
+                _psqlExpressionBuilder.Append($" AS {expression.Members[0].Name}");
             
                 for (int i = 1; i < expression.Members.Count; i++)
                 {
-                    _psqlExpression.Append(", ");
+                    _psqlExpressionBuilder.Append(", ");
 
                     this.Visit(expression.Arguments[i]);
                     if (!(expression.Arguments[i] is QuerySourceReferenceExpression))
                     {
-                        _psqlExpression.Append($" AS {expression.Members[i].Name}");
+                        _psqlExpressionBuilder.Append($" AS {expression.Members[i].Name}");
                     }
                 }
             }
@@ -418,9 +430,8 @@ namespace Thesis.Relinq.PsqlQueryGeneration
         {
             if (expression.NodeType == ExpressionType.Not)
             {
-                _psqlExpression.Append("NOT (");
-                this.Visit(expression.Operand);
-                _psqlExpression.Append(")");
+                var visitedExpression = this.GetNestedPsqlExpression(expression.Operand);
+                _psqlExpressionBuilder.Append($"NOT ({visitedExpression})");
             }
             else
             {
@@ -428,6 +439,19 @@ namespace Thesis.Relinq.PsqlQueryGeneration
             }
                 
             return expression;
+        }
+
+
+        private string GetPsqlExpression()
+        {
+            return _psqlExpressionBuilder.ToString();
+        }
+
+        private string GetNestedPsqlExpression(Expression linqExpression)
+        {
+            var visitor = new PsqlGeneratingExpressionVisitor(_queryModelVisitor);
+            visitor.Visit(linqExpression);
+            return visitor.GetPsqlExpression();
         }
     }
 }

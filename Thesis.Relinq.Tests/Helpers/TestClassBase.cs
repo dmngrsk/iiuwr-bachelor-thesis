@@ -3,11 +3,11 @@ using Npgsql;
 
 namespace Thesis.Relinq.Tests.Helpers
 {
-    public abstract class TestsBase : IDisposable
+    public abstract class TestClassBase : IDisposable
     {
         protected NpgsqlConnection connection;
 
-        public TestsBase()
+        public TestClassBase()
         {
             NpgsqlConnectionAdapter adapter = new NpgsqlConnectionAdapter
             {

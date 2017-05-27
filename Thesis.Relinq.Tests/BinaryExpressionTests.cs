@@ -6,7 +6,7 @@ using Xunit;
 
 namespace Thesis.Relinq.Tests
 {
-    public class BinaryExpressionTests : TestsBase
+    public class BinaryExpressionTests : TestClassBase
     {
         [Fact]
         public void equal()

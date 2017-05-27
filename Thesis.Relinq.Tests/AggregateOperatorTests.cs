@@ -6,7 +6,7 @@ using Xunit;
 
 namespace Thesis.Relinq.Tests
 {
-    public class AggregateOperatorTests : TestsBase
+    public class AggregateOperatorTests : TestClassBase
     {
         [Fact]
         public void count()

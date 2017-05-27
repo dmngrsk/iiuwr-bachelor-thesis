@@ -11,7 +11,7 @@ using Xunit;
 
 namespace Thesis.Relinq.Tests
 {
-    public class IntegrationTests : TestsBase
+    public class IntegrationTests : TestClassBase
     {
         [Fact]
         public void select_all()
