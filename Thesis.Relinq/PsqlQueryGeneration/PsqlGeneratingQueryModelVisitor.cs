@@ -13,8 +13,8 @@ namespace Thesis.Relinq.PsqlQueryGeneration
     public class PsqlGeneratingQueryModelVisitor : QueryModelVisitorBase
     {
         private readonly QueryPartsAggregator _queryParts;
-        private readonly NpgsqlParameterAggregator _parameterAggregator;
-        private readonly NpgsqlDatabaseSchema _dbSchema;
+        private readonly QueryParametersAggregator _parameterAggregator;
+        private readonly DbSchema _dbSchema;
 
         private readonly static Dictionary<Type, string> _aggretatingOperators =
             new Dictionary<Type, string>()
@@ -37,22 +37,22 @@ namespace Thesis.Relinq.PsqlQueryGeneration
             };
 
         public QueryPartsAggregator QueryParts { get { return _queryParts; } }
-        public NpgsqlParameterAggregator ParameterAggregator { get { return _parameterAggregator; } }
-        public NpgsqlDatabaseSchema DbSchema { get { return _dbSchema; } }
+        public QueryParametersAggregator ParameterAggregator { get { return _parameterAggregator; } }
+        public DbSchema DbSchema { get { return _dbSchema; } }
 
-        public PsqlGeneratingQueryModelVisitor(NpgsqlDatabaseSchema dbSchema) : base()
+        public PsqlGeneratingQueryModelVisitor(DbSchema dbSchema) : base()
         {
             _queryParts = new QueryPartsAggregator();
-            _parameterAggregator = new NpgsqlParameterAggregator();
+            _parameterAggregator = new QueryParametersAggregator();
             _dbSchema = dbSchema;
         }
 
-        public NpgsqlCommandData GetPsqlCommand()
+        public QueryCommand GetPsqlCommand()
         {
-            return new NpgsqlCommandData(_queryParts.BuildPsqlString(), _parameterAggregator.Parameters);
+            return new QueryCommand(_queryParts.BuildPsqlString(), _parameterAggregator.Parameters);
         }
 
-        public static NpgsqlCommandData GeneratePsqlQuery(QueryModel queryModel, NpgsqlDatabaseSchema dbSchema)
+        public static QueryCommand GeneratePsqlQuery(QueryModel queryModel, DbSchema dbSchema)
         {
             var visitor = new PsqlGeneratingQueryModelVisitor(dbSchema);
             visitor.VisitQueryModel(queryModel);
@@ -78,7 +78,7 @@ namespace Thesis.Relinq.PsqlQueryGeneration
         public override void VisitMainFromClause(MainFromClause fromClause, QueryModel queryModel)
         {
             var fromPart = fromClause.ItemType.Name;
-            _queryParts.AddFromPart($"\"{_dbSchema.GetTableName(fromPart)}\"");
+            _queryParts.AddFromPart($"\"{_dbSchema.GetMatchingTableName(fromPart)}\"");
 
             base.VisitMainFromClause(fromClause, queryModel);
         }
@@ -116,7 +116,7 @@ namespace Thesis.Relinq.PsqlQueryGeneration
         public override void VisitAdditionalFromClause(AdditionalFromClause fromClause, QueryModel queryModel, int index)
         {
             var fromPart = fromClause.ItemType.Name;
-            _queryParts.AddFromPart($"\"{_dbSchema.GetTableName(fromPart)}\"");
+            _queryParts.AddFromPart($"\"{_dbSchema.GetMatchingTableName(fromPart)}\"");
 
             base.VisitAdditionalFromClause(fromClause, queryModel, index);
         }

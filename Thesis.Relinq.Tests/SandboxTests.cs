@@ -45,6 +45,9 @@ namespace Thesis.Relinq.Tests
                 Console.WriteLine("foo");
             }
 
+            var foo = lol.Find(x => x.Id < 0);
+            var bar = foo ?? throw new ArgumentException("hello");
+            Console.WriteLine(foo.Id);
         }
     }
 }

@@ -2,11 +2,11 @@ using System.Collections.Generic;
 
 namespace Thesis.Relinq.PsqlQueryGeneration
 {
-    public class NpgsqlParameterAggregator
+    public class QueryParametersAggregator
     {
         public Dictionary<string, object> Parameters { get; private set; } 
 
-        public NpgsqlParameterAggregator()
+        public QueryParametersAggregator()
         {
             this.Parameters = new Dictionary<string, object>();
         }

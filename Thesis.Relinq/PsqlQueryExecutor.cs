@@ -1,23 +1,17 @@
 using Dapper;
-using Npgsql;
 using Remotion.Linq;
 using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using Thesis.Relinq.PsqlQueryGeneration;
-using System.Runtime.CompilerServices;
-using System;
-using System.Dynamic;
-using System.Collections;
 using System.Data.Common;
+using System.Linq;
+using Thesis.Relinq.PsqlQueryGeneration;
 
 namespace Thesis.Relinq
 {
     public class PsqlQueryExecutor : IQueryExecutor
     {
-        private readonly NpgsqlConnection _connection;
+        private readonly DbConnection _connection;
 
-        public PsqlQueryExecutor (NpgsqlConnection connection)
+        public PsqlQueryExecutor (DbConnection connection)
         {
             _connection = connection;
         }
@@ -26,12 +20,12 @@ namespace Thesis.Relinq
         {
             _connection.Open();
 
-            var dbSchema = new NpgsqlDatabaseSchema(_connection);
-            var commandData = PsqlGeneratingQueryModelVisitor.GeneratePsqlQuery(queryModel, dbSchema);
+            var dbSchema = new DbSchema(_connection);
+            var psqlCommand = PsqlGeneratingQueryModelVisitor.GeneratePsqlQuery(queryModel, dbSchema);
 
             var result = typeof(T).IsAnonymous() ?
-                _connection.QueryAnonymous<T>(commandData.Statement, commandData.Parameters) :
-                _connection.Query<T>(commandData.Statement, commandData.Parameters);
+                _connection.QueryAnonymous<T>(psqlCommand.Statement, psqlCommand.Parameters) :
+                _connection.Query<T>(psqlCommand.Statement, psqlCommand.Parameters);
 
             _connection.Close();
             return result;

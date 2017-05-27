@@ -7,6 +7,18 @@ namespace Thesis.Relinq.PsqlQueryGeneration
 {
     public class QueryPartsAggregator
     {
+        private string SelectPart { get; set; }
+        private List<string> FromParts { get; set; }
+        private List<string> WhereParts { get; set; }
+        private List<string> OrderByParts { get; set; }
+        private List<string> PagingParts { get; set; }
+        private List<string> GroupByParts { get; set; }
+
+        private List<string> SubQueries { get; set; }
+        private List<string> SubQueryLinkActions { get; set; }
+        private bool _visitingSubQueryExpression;
+        private QueryPartsAggregator _subQueryExpressionPartsAggregator;
+
         public QueryPartsAggregator()
         {
             FromParts = new List<string>();
@@ -20,19 +32,6 @@ namespace Thesis.Relinq.PsqlQueryGeneration
             _visitingSubQueryExpression = false;
         }
 
-        private string SelectPart { get; set; }
-        private List<string> FromParts { get; set; }
-        private List<string> WhereParts { get; set; }
-        private List<string> OrderByParts { get; set; }
-        private List<string> PagingParts { get; set; }
-        private List<string> GroupByParts { get; set; }
-
-        private List<string> SubQueries { get; set; }
-        private List<string> SubQueryLinkActions { get; set; }
-        private bool _visitingSubQueryExpression;
-        private QueryPartsAggregator _subQueryExpressionPartsAggregator;
-
-
         public void SetSelectPart(string selectPart)
         {
             if (_visitingSubQueryExpression)
@@ -41,7 +40,7 @@ namespace Thesis.Relinq.PsqlQueryGeneration
             }
             else
             {
-                SelectPart = selectPart.Contains(".") ? selectPart : "*";
+                SelectPart = selectPart;
             }
         }
 
@@ -230,6 +229,7 @@ namespace Thesis.Relinq.PsqlQueryGeneration
             {
                 var subQuery = SubQueries[i];
                 var subQueryAction = SubQueryLinkActions[i];
+                
                 if (subQueryAction.Contains("EXISTS"))
                 {
                     WhereParts.Add(string.Format(subQueryAction, subQuery));
