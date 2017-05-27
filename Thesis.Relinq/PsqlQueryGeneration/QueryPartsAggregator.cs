@@ -109,11 +109,11 @@ namespace Thesis.Relinq.PsqlQueryGeneration
             }
         }
 
-        public void AddJoinPart(string leftMember, string rightMember)
+        public void AddInnerJoinPart(string leftMember, string rightMember)
         {
             if (_visitingSubQueryExpression)
             {
-                _subQueryExpressionPartsAggregator.AddJoinPart(leftMember, rightMember);
+                _subQueryExpressionPartsAggregator.AddInnerJoinPart(leftMember, rightMember);
             }
             else
             {
@@ -128,11 +128,11 @@ namespace Thesis.Relinq.PsqlQueryGeneration
             }
         }
 
-        public void AddGroupJoinPart(string outerMember, string innerMember)
+        public void AddOuterJoinPart(string outerMember, string innerMember)
         {
             if (_visitingSubQueryExpression)
             {
-                _subQueryExpressionPartsAggregator.AddGroupJoinPart(outerMember, innerMember);
+                _subQueryExpressionPartsAggregator.AddOuterJoinPart(outerMember, innerMember);
             }
             else
             {
@@ -163,13 +163,13 @@ namespace Thesis.Relinq.PsqlQueryGeneration
             }
         }
 
-        public void OpenSubQuery()
+        public void OpenSubQueryExpressionPartsAggregator()
         {
             _visitingSubQueryExpression = true;
             _subQueryExpressionPartsAggregator = new QueryPartsAggregator();
         }
 
-        public void CloseSubQuery()
+        public void CloseSubQueryExpressionPartsAggregator()
         {
             SubQueries.Add(_subQueryExpressionPartsAggregator.BuildPsqlString().Trim(';'));
             _visitingSubQueryExpression = false;

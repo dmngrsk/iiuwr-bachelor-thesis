@@ -160,9 +160,9 @@ namespace Thesis.Relinq.PsqlQueryGeneration
 
         protected override Expression VisitSubQuery(SubQueryExpression expression)
         {
-            _queryModelVisitor.QueryParts.OpenSubQuery();
+            _queryModelVisitor.QueryParts.OpenSubQueryExpressionPartsAggregator();
             _queryModelVisitor.VisitQueryModel(expression.QueryModel);
-            _queryModelVisitor.QueryParts.CloseSubQuery();
+            _queryModelVisitor.QueryParts.CloseSubQueryExpressionPartsAggregator();
             return expression;
         }
 

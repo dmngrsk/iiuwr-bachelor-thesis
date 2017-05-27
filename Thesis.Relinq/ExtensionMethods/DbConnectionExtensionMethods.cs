@@ -33,7 +33,7 @@ namespace Thesis.Relinq
                     .Select(row => row.Values.ToArray())
                     .Select(row => (T)Activator.CreateInstance(typeof(T), row));
             }
-            else
+            else // TODO: Refactor
             {
                 var groupedCollectionType = propertyTypes
                     .First(x => typeof(IEnumerable).IsAssignableFrom(x) && x != typeof(string));

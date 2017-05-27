@@ -295,7 +295,7 @@ namespace Thesis.Relinq.Tests
         }
 
         [Fact]
-        public void select_with_join()
+        public void select_with_inner_join()
         {
             // Arrange
             var myQuery = 
@@ -337,7 +337,26 @@ namespace Thesis.Relinq.Tests
         }
 
         [Fact]
-        public void select_with_additional_from()
+        public void select_with_outer_join()
+        {
+            /* TODO.
+            var myQuery = 
+                from c in PsqlQueryFactory.Queryable<Customers>(connection)
+                join o in PsqlQueryFactory.Queryable<Orders>(connection)
+                on c.CustomerID equals o.CustomerID into joined
+                from j in joined.DefaultIfEmpty()
+                select new
+                {
+                    OrderID = o.OrderID
+                    CustomerID = j.CustomerID,
+                };
+
+            var actual = myQuery.ToArray();
+            */
+        }
+
+        [Fact]
+        public void select_with_additional_from_as_cross_join()
         {
             // Arrange
             var myQuery =
@@ -381,6 +400,7 @@ namespace Thesis.Relinq.Tests
         [Fact]
         public void select_with_grouping()
         {
+            /* TODO.
             var myQuery = 
                 from c in PsqlQueryFactory.Queryable<Customers>(connection)
                 group c by c.City into groups
@@ -391,6 +411,7 @@ namespace Thesis.Relinq.Tests
                 };
 
             var actual = myQuery.ToArray();
+            */
         }
 
         [Fact]

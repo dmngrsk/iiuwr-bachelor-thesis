@@ -99,12 +99,19 @@ namespace Thesis.Relinq.PsqlQueryGeneration
 
         public override void VisitJoinClause(JoinClause joinClause, QueryModel queryModel, int index)
         {
-            _queryParts.AddJoinPart(
+            _queryParts.AddInnerJoinPart(
                 GetPsqlExpression(joinClause.OuterKeySelector),
                 GetPsqlExpression(joinClause.InnerKeySelector));
 
             base.VisitJoinClause(joinClause, queryModel, index);
         }
+
+        public override void VisitJoinClause(JoinClause joinClause, QueryModel queryModel, GroupJoinClause groupJoinClause)
+        {
+            
+            base.VisitJoinClause(joinClause, queryModel, groupJoinClause);
+        }
+
 
         public override void VisitAdditionalFromClause(AdditionalFromClause fromClause, QueryModel queryModel, int index)
         {
@@ -116,7 +123,7 @@ namespace Thesis.Relinq.PsqlQueryGeneration
 
         public override void VisitGroupJoinClause(GroupJoinClause groupJoinClause, QueryModel queryModel, int index)
         {
-            _queryParts.AddGroupJoinPart(
+            _queryParts.AddOuterJoinPart(
                 GetPsqlExpression(groupJoinClause.JoinClause.OuterKeySelector),
                 GetPsqlExpression(groupJoinClause.JoinClause.InnerKeySelector));
 
