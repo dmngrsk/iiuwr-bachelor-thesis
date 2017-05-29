@@ -10,11 +10,17 @@ namespace Thesis.Relinq
 {
     public static partial class ExtensionMethods
     {
+        /// Executes the query, returning data typed as per T, where T is anonymous.
+        ///
+        /// Also works for nested item sequences in T, which are the results of group join in a LINQ query.
         public static IEnumerable<T> QueryAnonymous<T>(this DbConnection connection, string statement)
         {
             return connection.QueryAnonymous<T>(statement, new Dictionary<string, object>());
         }
-
+        
+        /// Executes the query, returning data typed as per T, where T is anonymous.
+        ///
+        /// Also works for nested item sequences in T, which are the results of group join in a LINQ query.
         public static IEnumerable<T> QueryAnonymous<T>(this DbConnection connection, 
             string statement, Dictionary<string, object> parameters)
         {

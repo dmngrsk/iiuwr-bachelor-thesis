@@ -6,6 +6,7 @@ using Remotion.Linq.Parsing.Structure;
 
 namespace Thesis.Relinq
 {
+    /// Translates and executes LINQ queries against a PostgreSQL database.
     public class PsqlQueryable<T> : QueryableBase<T>
     {
         private static IQueryProvider CreateQueryProvider(DbConnection connection)

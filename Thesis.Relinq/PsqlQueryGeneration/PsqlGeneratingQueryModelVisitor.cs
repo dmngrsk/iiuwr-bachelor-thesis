@@ -10,12 +10,14 @@ using Remotion.Linq.Clauses.ResultOperators;
 
 namespace Thesis.Relinq.PsqlQueryGeneration
 {
+    /// Visits re-linq's QueryModel object and LINQ expressions in contains and generates a PostgreSQL query that is equivalent.
     public class PsqlGeneratingQueryModelVisitor : QueryModelVisitorBase
     {
         private readonly QueryPartsAggregator _queryParts;
         private readonly QueryParametersAggregator _parameterAggregator;
         private readonly DbSchema _dbSchema;
 
+        /// Contains a map that translates aggregating result operator types to a format string wrapping a PostgreSQL aggregating function and its parameters.
         private readonly static Dictionary<Type, string> _aggretatingOperators =
             new Dictionary<Type, string>()
             {
@@ -27,6 +29,7 @@ namespace Thesis.Relinq.PsqlQueryGeneration
                 { typeof(DistinctResultOperator),       "DISTINCT({0})" },
             };
 
+        /// Contains a map that translates set-based result operator types to a format string wrapping a PostgreSQL set operation and its parameters.
         private readonly static Dictionary<Type, string> _setOperators = 
             new Dictionary<Type, string>
             {
@@ -47,11 +50,13 @@ namespace Thesis.Relinq.PsqlQueryGeneration
             _dbSchema = dbSchema;
         }
 
+        /// Returns the generated PostgreSQL query in the form of a raw statement and a dictionary of arguments it uses.
         public QueryCommand GetPsqlCommand()
         {
-            return new QueryCommand(_queryParts.BuildPsqlString(), _parameterAggregator.Parameters);
+            return new QueryCommand(_queryParts.BuildQueryStatement(), _parameterAggregator.Parameters);
         }
 
+        /// Creates an instance of the PsqlGenratingQueryModelVisitor based on provided DbSchema instance to visit the QueryModel provided as an argument and to generate a corresponding PostgreSQL query.
         public static QueryCommand GeneratePsqlQuery(QueryModel queryModel, DbSchema dbSchema)
         {
             var visitor = new PsqlGeneratingQueryModelVisitor(dbSchema);
@@ -186,11 +191,13 @@ namespace Thesis.Relinq.PsqlQueryGeneration
 
 
 
-        /// Visits the QueryModel in a SubQueryExpression using this PsqlGeneratingQueryModelVisitor.
+        /// Visits the QueryModel nested in a SubQueryExpression using this PsqlGeneratingQueryModelVisitor.
         private void VisitSubQueryExpression(Expression expression)
         {
             PsqlGeneratingExpressionVisitor.GetPsqlExpression(expression, this);
         }
+
+        /// Creates an instance of the PsqlGeneratingExpressionVisitor based on this PsqlGeneratingQueryModelVisitor instance to visit the LINQ expression provided as an argument and to generate a corresponding part of the PostgreSQL query.
 
         private string GetPsqlExpression(Expression expression)
         {

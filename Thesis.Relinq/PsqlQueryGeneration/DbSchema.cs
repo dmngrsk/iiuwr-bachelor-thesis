@@ -8,6 +8,7 @@ using System.Text.RegularExpressions;
 
 namespace Thesis.Relinq.PsqlQueryGeneration
 {
+    /// Represents a schema of a database and allows to fetch the names of its tables and their columns.
     public class DbSchema
     {
         private DbConnection _connection;
@@ -23,6 +24,7 @@ namespace Thesis.Relinq.PsqlQueryGeneration
             _columns = new Dictionary<string, List<string>>();
         }
 
+        /// Returns a table name in the database of the corresponding name provided in the argument.
         public string GetMatchingTableName(string parsableName)
         {
             if (_tables == null)
@@ -35,9 +37,11 @@ namespace Thesis.Relinq.PsqlQueryGeneration
             return _lastVisitedTable ?? throw new ArgumentException($"Table {parsableName} does not exist in database {_connection.Database}.");
         }
 
+        /// Returns a column name in the database of the corresponding name provided in the argument.
+        /// 
+        /// Remarks: it is always following a GetMatchingTableName(string) call, so this method knows the table it needs to read a column name from.
         public string GetMatchingColumnName(string parsableName)
         {
-            // We're using the fact that columns are always called following its tables.
             if (!_columns.ContainsKey(_lastVisitedTable))
             {
                 var columnsQuery = $"SELECT column_name FROM information_schema.columns WHERE table_name='{_lastVisitedTable}';";

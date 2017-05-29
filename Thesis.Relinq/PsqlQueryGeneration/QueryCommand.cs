@@ -2,6 +2,7 @@ using System.Collections.Generic;
 
 namespace Thesis.Relinq.PsqlQueryGeneration
 {
+    /// An anemic class that holds the generated query statement and its parameters that are being passed to the DbConnection.
     public class QueryCommand
     {
         public string Statement { get; private set; }

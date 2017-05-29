@@ -5,6 +5,7 @@ using Remotion.Linq.Clauses;
 
 namespace Thesis.Relinq.PsqlQueryGeneration
 {
+    /// Aggregates query parts and provides a method to generate a complete SQL statement.
     public class QueryPartsAggregator
     {
         private string SelectPart { get; set; }
@@ -32,6 +33,9 @@ namespace Thesis.Relinq.PsqlQueryGeneration
             _visitingSubQueryExpression = false;
         }
 
+        /// Sets the SELECT part of the SQL query.
+        ///
+        /// If a subquery parts aggregator is open, redirects the call to it instead.
         public void SetSelectPart(string selectPart)
         {
             if (_visitingSubQueryExpression)
@@ -44,6 +48,9 @@ namespace Thesis.Relinq.PsqlQueryGeneration
             }
         }
 
+        /// Wraps the SELECT part of a query using a format string provided in the argument.
+        ///
+        /// If a subquery parts aggregator is open, redirects the call to it instead.
         public void SetSelectPartAsScalar(string scalarPartFormat)
         {
             if (_visitingSubQueryExpression)
@@ -56,6 +63,9 @@ namespace Thesis.Relinq.PsqlQueryGeneration
             }
         }
 
+        /// Adds a FROM part of the SQL query.
+        ///
+        /// If a subquery parts aggregator is open, redirects the call to it instead.
         public void AddFromPart(string fromPart)
         {
             if (_visitingSubQueryExpression)
@@ -68,6 +78,9 @@ namespace Thesis.Relinq.PsqlQueryGeneration
             }
         }
 
+        /// Adds a WHERE part of the SQL query.
+        ///
+        /// If a subquery parts aggregator is open, redirects the call to it instead.
         public void AddWherePart(string formatString, params object[] args)
         {
             if (_visitingSubQueryExpression)
@@ -83,6 +96,9 @@ namespace Thesis.Relinq.PsqlQueryGeneration
             }
         }
 
+        /// Adds an ORDER BY part of the SQL query.
+        ///
+        /// If a subquery parts aggregator is open, redirects the call to it instead.
         public void AddOrderByPart(IEnumerable< Tuple<string, OrderingDirection> > orderings)
         {
             if (_visitingSubQueryExpression)
@@ -108,6 +124,9 @@ namespace Thesis.Relinq.PsqlQueryGeneration
             }
         }
 
+        /// Adds an INNER JOIN part of the SQL query as FROM parts, while replacing corresponding FROM parts.
+        ///
+        /// If a subquery parts aggregator is open, redirects the call to it instead.
         public void AddInnerJoinPart(string leftMember, string rightMember)
         {
             if (_visitingSubQueryExpression)
@@ -127,6 +146,9 @@ namespace Thesis.Relinq.PsqlQueryGeneration
             }
         }
 
+        /// Adds a LEFT/RIGHT JOIN part of the SQL query as FROM parts, while replacing corresponding FROM parts.
+        ///
+        /// If a subquery parts aggregator is open, redirects the call to it instead.
         public void AddOuterJoinPart(string outerMember, string innerMember)
         {
             if (_visitingSubQueryExpression)
@@ -149,7 +171,9 @@ namespace Thesis.Relinq.PsqlQueryGeneration
             }
         }
 
-
+        /// Adds a paging part of the SQL query. 
+        ///
+        /// If a subquery parts aggregator is open, redirects the call to it instead.
         public void AddPagingPart(string limitter, string count)
         {
             if (_visitingSubQueryExpression)
@@ -162,25 +186,29 @@ namespace Thesis.Relinq.PsqlQueryGeneration
             }
         }
 
+        /// Opens a subquery parts aggregator.
         public void OpenSubQueryExpressionPartsAggregator()
         {
             _visitingSubQueryExpression = true;
             _subQueryExpressionPartsAggregator = new QueryPartsAggregator();
         }
 
+        /// Closes the subquery parts aggregator and adds a subquery as a part of this query.
         public void CloseSubQueryExpressionPartsAggregator()
         {
-            SubQueries.Add(_subQueryExpressionPartsAggregator.BuildPsqlString().Trim(';'));
+            SubQueries.Add(_subQueryExpressionPartsAggregator.BuildQueryStatement().Trim(';'));
             _visitingSubQueryExpression = false;
         }
 
+        /// Adds a format string that specifies an action to take with a previously generated subquery part.
         public void AddSubQueryLinkAction(string queryLinkAction)
         {
             SubQueryLinkActions.Add(queryLinkAction);
             _visitingSubQueryExpression = false;
         }
 
-        public string BuildPsqlString()
+        /// Builds a SQL statement using all the query parts previously added.
+        public string BuildQueryStatement()
         {
             this.WrapSubQueryExpressionsToQueryParts();
 

@@ -8,6 +8,7 @@ namespace Thesis.Relinq
 {
     public static partial class ExtensionMethods
     {
+        /// Checks whether the specified type is either a primitive, an enum, a string or a decimal.
         public static bool IsSimple(this Type type)
         {
             var typeInfo = type.GetTypeInfo();
@@ -17,6 +18,7 @@ namespace Thesis.Relinq
                 || typeInfo.Equals(typeof(decimal));
         }
 
+        /// Checks whether the specified type is anonymous.
         public static bool IsAnonymous(this Type type)
         {
             var typeInfo = type.GetTypeInfo();
@@ -27,6 +29,7 @@ namespace Thesis.Relinq
                 && typeInfo.Attributes.HasFlag(TypeAttributes.NotPublic);
         }
 
+        /// Returns specified type's public and settable properties.
         public static PropertyInfo[] GetPublicSettableProperties(this Type type)
         {
             return type

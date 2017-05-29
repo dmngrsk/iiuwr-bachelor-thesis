@@ -7,15 +7,19 @@ using Thesis.Relinq.PsqlQueryGeneration;
 
 namespace Thesis.Relinq
 {
+    /// Represents a bridge between re-linq and this PostgreSQL LINQ provider. Used by re-linq to create an IQueryProvider that executes queries.
     public class PsqlQueryExecutor : IQueryExecutor
     {
         private readonly DbConnection _connection;
 
-        public PsqlQueryExecutor (DbConnection connection)
+        public PsqlQueryExecutor(DbConnection connection)
         {
             _connection = connection;
         }
 
+        /// Translates re-linq's QueryModel object to a PostgreSQL query, executes it and returns the result.
+        ///
+        /// Returns: A collection of items being the result of the query.
         public IEnumerable<T> ExecuteCollection<T>(QueryModel queryModel)
         {
             _connection.Open();
@@ -31,11 +35,17 @@ namespace Thesis.Relinq
             return result;
         }
 
+        /// Translates re-linq's QueryModel object to a PostgreSQL query, executes it and returns the result.
+        ///
+        /// Returns: An item being the result of the query.
         public T ExecuteScalar<T>(QueryModel queryModel)
         {
             return ExecuteCollection<T>(queryModel).Single();
         }
 
+        /// Translates re-linq's QueryModel object to a PostgreSQL query, executes it and returns the result.
+        ///
+        /// Returns: An item being the result of the query.
         public T ExecuteSingle<T>(QueryModel queryModel, bool returnDefaultWhenEmpty)
         {
             return returnDefaultWhenEmpty ?

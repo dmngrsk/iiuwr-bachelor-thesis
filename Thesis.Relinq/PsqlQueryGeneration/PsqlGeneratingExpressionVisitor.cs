@@ -13,6 +13,7 @@ using Remotion.Linq.Parsing;
 
 namespace Thesis.Relinq.PsqlQueryGeneration
 {
+    /// Visits LINQ expressions and generates corresponding PostgreSQL query parts.
     public class PsqlGeneratingExpressionVisitor : RelinqExpressionVisitor
     {
         private readonly StringBuilder _psqlExpressionBuilder;
@@ -20,6 +21,7 @@ namespace Thesis.Relinq.PsqlQueryGeneration
         private bool _visitorTriggeredByMemberVisitor = false;
         private bool _conditionalStart = true;
 
+        /// Contains a map that translates binary expression types to equivalent PostgreSQL query parts.
         private readonly static Dictionary<ExpressionType, string> _binaryExpressionOperatorsToString = 
             new Dictionary<ExpressionType, string>()
             {
@@ -49,6 +51,7 @@ namespace Thesis.Relinq.PsqlQueryGeneration
                 { ExpressionType.OrElse,                " OR " }
             };
 
+        /// Contains a map that translates a C# method name to a format string wrapping a PostgreSQL function and its parameters.
         private readonly static Dictionary<string, string> _methodCallNamesToString = 
             new Dictionary<string, string>()
             {
@@ -84,6 +87,7 @@ namespace Thesis.Relinq.PsqlQueryGeneration
             _conditionalStart = true;
         }
 
+        /// Creates an instance of the PsqlGeneratingExpressionVisitor based on provided PsqlGeneratingQueryModelVisitor instance to visit the LINQ expression provided as an argument and to generate a corresponding part of the PostgreSQL query.
         public static string GetPsqlExpression(Expression linqExpression,
             PsqlGeneratingQueryModelVisitor queryModelVisitor)
         {
@@ -175,25 +179,19 @@ namespace Thesis.Relinq.PsqlQueryGeneration
             var isAddingStrings = expression.NodeType == ExpressionType.Add && 
                 (expression.Left.Type == typeof(string)
                 || expression.Right.Type == typeof(string));
+                
+            var middleDelimiter = isAddingStrings ? " || " : _binaryExpressionOperatorsToString[expression.NodeType];
+            _psqlExpressionBuilder.Append(middleDelimiter);
 
-            if (isAddingStrings)
-            {
-                _psqlExpressionBuilder.Append(" || ");
-            }
-            else
-            {
-                _psqlExpressionBuilder.Append(_binaryExpressionOperatorsToString[expression.NodeType]);
-            }
-    
             this.Visit(expression.Right);
             return expression;
         }
-        // Visits the children of the System.Linq.Expressions.BlockExpression.
+        
         protected override Expression VisitBlock(BlockExpression expression)
         {
             return expression;
         }
-        // Visits the children of the System.Linq.Expressions.ConditionalExpression.
+        
         protected override Expression VisitConditional(ConditionalExpression expression)
         {
             if (_conditionalStart)
@@ -228,53 +226,53 @@ namespace Thesis.Relinq.PsqlQueryGeneration
             _psqlExpressionBuilder.Append($"@{parameterName}");
             return expression;
         }
-        // Visits the System.Linq.Expressions.DebugInfoExpression.
+        
         protected override Expression VisitDebugInfo(DebugInfoExpression expression)
         {
             return expression;
         }
-        // Visits the System.Linq.Expressions.DefaultExpression.
+        
         protected override Expression VisitDefault(DefaultExpression expression)
         {
             return expression;
         }
-        // Visits the children of the extension expression.
+        
         protected override Expression VisitExtension(Expression expression)
         {
             Console.WriteLine("Hello, world!");
             return expression;
         }
-        // Visits the children of the System.Linq.Expressions.GotoExpression.
+        
         protected override Expression VisitGoto(GotoExpression expression)
         {
-            return expression;
+            return expression;                                        
         }
-        // Visits the children of the System.Linq.Expressions.IndexExpression.
+        
         protected override Expression VisitIndex(IndexExpression expression)
-        {
+        {                    
             return expression;
         }
-        // Visits the children of the System.Linq.Expressions.InvocationExpression.
+        
         protected override Expression VisitInvocation(InvocationExpression expression)
         {
             return expression;
         }
-        // Visits the children of the System.Linq.Expressions.LabelExpression.
+        
         protected override Expression VisitLabel(LabelExpression expression)
         {
             return expression;
         }
-        // Visits the children of the System.Linq.Expressions.Expression`1.
+        
         protected override Expression VisitLambda<T>(Expression<T> expression)
         {
             return expression;
         }
-        // Visits the children of the System.Linq.Expressions.ListInitExpression.
+        
         protected override Expression VisitListInit(ListInitExpression expression)
         {
             return expression;
         }
-        // Visits the children of the System.Linq.Expressions.LoopExpression.
+        
         protected override Expression VisitLoop(LoopExpression expression)
         {
             return expression;
@@ -299,7 +297,7 @@ namespace Thesis.Relinq.PsqlQueryGeneration
 
             return expression;
         }
-        // Visits the children of the System.Linq.Expressions.MemberInitExpression.
+        
         protected override Expression VisitMemberInit(MemberInitExpression expression)
         {
             return expression;
@@ -322,9 +320,7 @@ namespace Thesis.Relinq.PsqlQueryGeneration
                     _psqlExpressionBuilder.Clear();
                 }
 
-                var expectedArguments = Regex.Matches(
-                    _methodCallNamesToString[methodName], "\\{([^}]+)\\}"
-                );
+                var expectedArguments = Regex.Matches(_methodCallNamesToString[methodName], "\\{([^}]+)\\}");
 
                 while (expressionAccumulator.Count < expectedArguments.Count) 
                 {
@@ -337,8 +333,7 @@ namespace Thesis.Relinq.PsqlQueryGeneration
                         expressionAccumulator.RemoveAt(0);
                         _psqlExpressionBuilder.AppendFormat(
                             _methodCallNamesToString[methodName],
-                            string.Join(", ", expressionAccumulator.Select(x => x.ToString()))
-                        );
+                            string.Join(", ", expressionAccumulator.Select(x => x.ToString())));
                         break;
 
                     case "Substring":
@@ -346,23 +341,20 @@ namespace Thesis.Relinq.PsqlQueryGeneration
                         {
                             _psqlExpressionBuilder.AppendFormat(
                                 _methodCallNamesToString[methodName + "For"],
-                                expressionAccumulator.ToArray()
-                            );
+                                expressionAccumulator.ToArray());
                         }
                         else // if (expressionAccumulator.Count == 2)
                         {
                             _psqlExpressionBuilder.AppendFormat(
                                 _methodCallNamesToString[methodName],
-                                expressionAccumulator.ToArray()
-                            );
+                                expressionAccumulator.ToArray());
                         }
                         break;
 
                     default:
                         _psqlExpressionBuilder.AppendFormat(
                             _methodCallNamesToString[methodName], 
-                            expressionAccumulator.ToArray()
-                        );
+                            expressionAccumulator.ToArray());
                         break;
                 }
 
@@ -394,33 +386,32 @@ namespace Thesis.Relinq.PsqlQueryGeneration
 
             return expression;
         }
-        // Visits the children of the System.Linq.Expressions.NewArrayExpression.
+        
         protected override Expression VisitNewArray(NewArrayExpression expression)
         {
             return expression;
         }
-        // Visits the System.Linq.Expressions.ParameterExpression.
+        
         protected override Expression VisitParameter(ParameterExpression expression)
         {
             return expression;
         }
 
-        // Visits the children of the System.Linq.Expressions.RuntimeVariablesExpression.
         protected override Expression VisitRuntimeVariables(RuntimeVariablesExpression expression)
         {
             return expression;
         }
-        // Visits the children of the System.Linq.Expressions.SwitchExpression.
+        
         protected override Expression VisitSwitch(SwitchExpression expression)
         {
             return expression;
         }
-        // Visits the children of the System.Linq.Expressions.TryExpression.
+        
         protected override Expression VisitTry(TryExpression expression)
         {
             return expression;
         }
-        // Visits the children of the System.Linq.Expressions.TypeBinaryExpression.
+        
         protected override Expression VisitTypeBinary(TypeBinaryExpression expression)
         {
             return expression;
@@ -441,12 +432,13 @@ namespace Thesis.Relinq.PsqlQueryGeneration
             return expression;
         }
 
-
+        /// Returns the part of a PostgreSQL query that was generated using visitor methods. 
         private string GetPsqlExpression()
         {
             return _psqlExpressionBuilder.ToString();
         }
 
+        /// Visits a LINQ expression using a new expression visitor and returns a part of the PostgreSQL query it represents.
         private string GetNestedPsqlExpression(Expression linqExpression)
         {
             var visitor = new PsqlGeneratingExpressionVisitor(_queryModelVisitor);
