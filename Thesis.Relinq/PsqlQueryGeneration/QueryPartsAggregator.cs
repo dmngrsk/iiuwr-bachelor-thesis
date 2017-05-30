@@ -59,6 +59,9 @@ namespace Thesis.Relinq.PsqlQueryGeneration
             }
             else
             {
+                var renamingPartIndex = SelectPart.IndexOf("\" AS \"") + 1;
+                SelectPart = renamingPartIndex > 0 ? SelectPart.Substring(0, renamingPartIndex) : SelectPart;
+
                 SelectPart = string.Format(scalarPartFormat, SelectPart);
             }
         }

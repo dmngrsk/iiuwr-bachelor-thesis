@@ -18,8 +18,9 @@ namespace Thesis.Relinq.PsqlQueryGeneration
     {
         private readonly StringBuilder _psqlExpressionBuilder;
         private readonly PsqlGeneratingQueryModelVisitor _queryModelVisitor;
-        private bool _visitorTriggeredByMemberVisitor = false;
-        private bool _conditionalStart = true;
+        private bool _visitorTriggeredByMemberVisitor;
+        private bool _readingConditionalStatement;
+        private bool _renamingColumns;
 
         /// Contains a map that translates binary expression types to equivalent PostgreSQL query parts.
         private readonly static Dictionary<ExpressionType, string> _binaryExpressionOperatorsToString = 
@@ -84,7 +85,8 @@ namespace Thesis.Relinq.PsqlQueryGeneration
             _queryModelVisitor = queryModelVisitor;
 
             _visitorTriggeredByMemberVisitor = false;
-            _conditionalStart = true;
+            _readingConditionalStatement = false;
+            _renamingColumns = false;
         }
 
         /// Creates an instance of the PsqlGeneratingExpressionVisitor based on provided PsqlGeneratingQueryModelVisitor instance to visit the LINQ expression provided as an argument and to generate a corresponding part of the PostgreSQL query.
@@ -154,7 +156,7 @@ namespace Thesis.Relinq.PsqlQueryGeneration
 
                 var properties = itemType.GetPublicSettableProperties();
                 var rowNames = properties.Select(x =>
-                    $"\"{tableName}\".\"{_queryModelVisitor.DbSchema.GetMatchingColumnName(x.Name)}\" AS {x.Name}");
+                    $"\"{tableName}\".\"{_queryModelVisitor.DbSchema.GetMatchingColumnName(x.Name)}\" AS \"{x.Name}\"");
 
                 _psqlExpressionBuilder.Append(string.Join(", ", rowNames));
             }
@@ -194,10 +196,13 @@ namespace Thesis.Relinq.PsqlQueryGeneration
         
         protected override Expression VisitConditional(ConditionalExpression expression)
         {
-            if (_conditionalStart)
+            var renamingColumnsAccumulator = _renamingColumns;
+            _renamingColumns = false;
+
+            if (!_readingConditionalStatement)
             {
                 _psqlExpressionBuilder.Append("CASE");
-                _conditionalStart = false;
+                _readingConditionalStatement = true;
             }
 
             _psqlExpressionBuilder.Append(" WHEN ");
@@ -214,9 +219,10 @@ namespace Thesis.Relinq.PsqlQueryGeneration
                 _psqlExpressionBuilder.Append(" ELSE ");
                 this.Visit(expression.IfFalse);
                 _psqlExpressionBuilder.Append(" END");
-                _conditionalStart = true;
+                _readingConditionalStatement = false;
             }
 
+            _renamingColumns = renamingColumnsAccumulator;
             return expression;
         }
         
@@ -292,7 +298,9 @@ namespace Thesis.Relinq.PsqlQueryGeneration
                 _visitorTriggeredByMemberVisitor = false;
 
                 var columnName = _queryModelVisitor.DbSchema.GetMatchingColumnName(expression.Member.Name);
+
                 _psqlExpressionBuilder.Append($".\"{columnName}\"");
+                if (_renamingColumns) _psqlExpressionBuilder.Append($" AS \"{expression.Member.Name}\"");
             }
 
             return expression;
@@ -366,24 +374,16 @@ namespace Thesis.Relinq.PsqlQueryGeneration
 
         protected override Expression VisitNew(NewExpression expression)
         {
+            _renamingColumns = true;
             this.Visit(expression.Arguments[0]);
 
-            if (expression.Members != null)
+            for (int i = 1; i < expression.Arguments.Count; i++)
             {
-                _psqlExpressionBuilder.Append($" AS {expression.Members[0].Name}");
-            
-                for (int i = 1; i < expression.Members.Count; i++)
-                {
-                    _psqlExpressionBuilder.Append(", ");
-
-                    this.Visit(expression.Arguments[i]);
-                    if (!(expression.Arguments[i] is QuerySourceReferenceExpression))
-                    {
-                        _psqlExpressionBuilder.Append($" AS {expression.Members[i].Name}");
-                    }
-                }
+                _psqlExpressionBuilder.Append(", ");
+                this.Visit(expression.Arguments[i]);
             }
 
+            _renamingColumns = false;
             return expression;
         }
         

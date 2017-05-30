@@ -113,10 +113,8 @@ namespace Thesis.Relinq.PsqlQueryGeneration
 
         public override void VisitJoinClause(JoinClause joinClause, QueryModel queryModel, GroupJoinClause groupJoinClause)
         {
-            
             base.VisitJoinClause(joinClause, queryModel, groupJoinClause);
         }
-
 
         public override void VisitAdditionalFromClause(AdditionalFromClause fromClause, QueryModel queryModel, int index)
         {
