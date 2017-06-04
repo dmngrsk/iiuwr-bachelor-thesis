@@ -295,6 +295,48 @@ namespace Thesis.Relinq.Tests
         }
 
         [Fact]
+        public void select_with_additional_from_as_cross_join()
+        {
+            // Arrange
+            var myQuery =
+                from o in PsqlQueryFactory.Queryable<Orders>(connection)
+                from e in PsqlQueryFactory.Queryable<Employees>(connection)
+                where o.EmployeeID == e.EmployeeID
+                select new
+                {
+                    Employee = o.EmployeeID,
+                    Order = o.OrderID
+                };
+
+            var myQuery2 = PsqlQueryFactory.Queryable<Orders>(connection)
+                .SelectMany(o => 
+                    PsqlQueryFactory.Queryable<Employees>(connection),
+                    (o, e) => new { o, e })
+                .Where(x => x.o.EmployeeID == x.e.EmployeeID)
+                .Select(x => new
+                {
+                    Employee = x.o.EmployeeID,
+                    Order = x.o.OrderID
+                });
+
+            string psqlCommand = 
+                "SELECT Orders.\"EmployeeID\", Orders.\"OrderID\" " + 
+                "FROM Orders, Employees WHERE Orders.\"EmployeeID\" = Employees.\"EmployeeID\";";
+            var queryMethod = typeof(ExtensionMethods)
+                .GetMethod("QueryAnonymous", new[] { typeof(DbConnection), typeof(string) })
+                .MakeGenericMethod(myQuery.ElementType);
+
+            // Act
+            var expected = queryMethod.Invoke(null, new object[] { connection, psqlCommand });
+            var actual = myQuery.ToArray();
+            var actual2 = myQuery2.ToArray();
+
+            // Assert
+            AssertExtensions.EqualByJson(expected, actual);
+            AssertExtensions.EqualByJson(expected, actual2);
+        }
+
+        [Fact]
         public void select_with_inner_join()
         {
             // Arrange
@@ -310,13 +352,13 @@ namespace Thesis.Relinq.Tests
             
             var myQuery2 = PsqlQueryFactory.Queryable<Customers>(connection)
                 .Join(PsqlQueryFactory.Queryable<Orders>(connection),
-                      c => c.CustomerID,
-                      o => o.CustomerID,
-                      (c, o) => new 
-                                {
-                                    Name = c.ContactName,
-                                    Order = o.OrderID
-                                });
+                    c => c.CustomerID,
+                    o => o.CustomerID,
+                    (c, o) => new 
+                    {
+                        Name = c.ContactName,
+                        Order = o.OrderID
+                    });
 
             string psqlCommand = 
                 "SELECT \"ContactName\", \"OrderID\" " + 
@@ -337,84 +379,6 @@ namespace Thesis.Relinq.Tests
         }
 
         [Fact]
-        public void select_with_outer_join()
-        {
-            /* TODO.
-            var myQuery = 
-                from c in PsqlQueryFactory.Queryable<Customers>(connection)
-                join o in PsqlQueryFactory.Queryable<Orders>(connection)
-                on c.CustomerID equals o.CustomerID into joined
-                from j in joined.DefaultIfEmpty()
-                select new
-                {
-                    OrderID = o.OrderID
-                    CustomerID = j.CustomerID,
-                };
-
-            var actual = myQuery.ToArray();
-            */
-        }
-
-        [Fact]
-        public void select_with_additional_from_as_cross_join()
-        {
-            // Arrange
-            var myQuery =
-                from o in PsqlQueryFactory.Queryable<Orders>(connection)
-                from e in PsqlQueryFactory.Queryable<Employees>(connection)
-                where o.EmployeeID == e.EmployeeID
-                select new
-                {
-                    Employee = o.EmployeeID,
-                    Order = o.OrderID
-                };
-
-            var myQuery2 = PsqlQueryFactory.Queryable<Orders>(connection)
-                .SelectMany(o => 
-                    PsqlQueryFactory.Queryable<Employees>(connection),
-                    (o, e) => new { o, e })
-                .Where(x => x.o.EmployeeID == x.e.EmployeeID)
-                .Select(x => new
-                               {
-                                   Employee = x.o.EmployeeID,
-                                   Order = x.o.OrderID
-                               });
-
-            string psqlCommand = 
-                "SELECT Orders.\"EmployeeID\", Orders.\"OrderID\" " + 
-                "FROM Orders, Employees WHERE Orders.\"EmployeeID\" = Employees.\"EmployeeID\";";
-            var queryMethod = typeof(ExtensionMethods)
-                .GetMethod("QueryAnonymous", new[] { typeof(DbConnection), typeof(string) })
-                .MakeGenericMethod(myQuery.ElementType);
-
-            // Act
-            var expected = queryMethod.Invoke(null, new object[] { connection, psqlCommand });
-            var actual = myQuery.ToArray();
-            var actual2 = myQuery2.ToArray();
-
-            // Assert
-            AssertExtensions.EqualByJson(expected, actual);
-            AssertExtensions.EqualByJson(expected, actual2);
-        }
-
-        [Fact]
-        public void select_with_grouping()
-        {
-            /* TODO.
-            var myQuery = 
-                from c in PsqlQueryFactory.Queryable<Customers>(connection)
-                group c by c.City into groups
-                select new 
-                {
-                    City = groups.Key,
-                    Customers = groups.ToArray()
-                };
-
-            var actual = myQuery.ToArray();
-            */
-        }
-
-        [Fact]
         public void select_with_group_join()
         {
             // Arrange
@@ -432,7 +396,11 @@ namespace Thesis.Relinq.Tests
                 .GroupJoin(PsqlQueryFactory.Queryable<Orders>(connection),
                     c => c.CustomerID,
                     o => o.CustomerID,
-                    (c, result) => new { Customer = c.CustomerID, Orders = result });
+                    (c, result) => new 
+                    { 
+                        Customer = c.CustomerID, 
+                        Orders = result 
+                    });
 
             string psqlCommand = // Required by the QueryAnonymous method to map properly.
                 "SELECT \"customers\".\"CustomerID\" AS \"CustomerID\", " + 
@@ -468,6 +436,73 @@ namespace Thesis.Relinq.Tests
         }
 
         [Fact]
+        public void select_with_outer_join()
+        {
+            var myQuery = 
+                from c in PsqlQueryFactory.Queryable<Customers>(connection)
+                join o in PsqlQueryFactory.Queryable<Orders>(connection)
+                on c.CustomerID equals o.CustomerID into joined
+                from j in joined.DefaultIfEmpty()
+                select new
+                {
+                    CustomerID = c.CustomerID,
+                    OrderID = j.OrderID
+                };
+
+            var myQuery2 = PsqlQueryFactory.Queryable<Customers>(connection)
+                .GroupJoin(PsqlQueryFactory.Queryable<Orders>(connection),
+                    c => c.CustomerID,
+                    o => o.CustomerID,
+                    (c, os) => new 
+                    { 
+                        CustomerID = c.CustomerID,
+                        Orders = os
+                    })
+                .SelectMany(j =>
+                    j.Orders.DefaultIfEmpty(),
+                    (j, o) => new
+                    {
+                        CustomerID = j.CustomerID,
+                        OrderID = o.OrderID
+                    });
+            
+            var psqlCommand = 
+                "SELECT customers.\"CustomerID\", \"OrderID\" " +
+                "FROM customers LEFT JOIN orders " +
+                "ON customers.\"CustomerID\" = orders.\"CustomerID\";";
+            var queryMethod = typeof(ExtensionMethods)
+                .GetMethod("QueryAnonymous", new[] { typeof(DbConnection), typeof(string) })
+                .MakeGenericMethod(myQuery.ElementType);
+
+            // Act
+            var expected = queryMethod.Invoke(null, new object[] { connection, psqlCommand });
+            var actual = myQuery.ToArray();
+            var actual2 = myQuery2.ToArray();
+
+            // Assert
+            AssertExtensions.EqualByJson(expected, actual);
+            AssertExtensions.EqualByJson(expected, actual2);
+        }
+
+
+        [Fact]
+        public void select_with_grouping()
+        {
+            /* TODO.
+            var myQuery = 
+                from c in PsqlQueryFactory.Queryable<Customers>(connection)
+                group c by c.City into groups
+                select new 
+                {
+                    City = groups.Key,
+                    Customers = groups.ToArray()
+                };
+
+            var actual = myQuery.ToArray();
+            */
+        }
+
+        [Fact]
         public void select_with_case()
         {
             // Arrange
@@ -485,12 +520,12 @@ namespace Thesis.Relinq.Tests
             var myQuery2 = PsqlQueryFactory.Queryable<Employees>(connection)
                 .Where(e => e.EmployeeID < 8)
                 .Select(e => new
-                             {
-                                 EmployeeID = e.EmployeeID, 
-                                 CaseResult = (e.EmployeeID < 5 ? "smaller than five" :
-                                               e.EmployeeID == 5 ? "equal to five" :
-                                               "larger than five")
-                             });
+                {
+                    EmployeeID = e.EmployeeID, 
+                    CaseResult = (e.EmployeeID < 5 ? "smaller than five" :
+                                e.EmployeeID == 5 ? "equal to five" :
+                                "larger than five")
+                });
 
             var psqlCommand = 
                 "SELECT \"EmployeeID\", CASE " +

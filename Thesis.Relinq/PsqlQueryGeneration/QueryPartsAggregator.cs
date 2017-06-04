@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using Remotion.Linq.Clauses;
 
@@ -42,7 +43,7 @@ namespace Thesis.Relinq.PsqlQueryGeneration
             {
                 _subQueryExpressionPartsAggregator.SetSelectPart(selectPart);
             }
-            else
+            else if (!string.IsNullOrEmpty(selectPart))
             {
                 SelectPart = selectPart;
             }
@@ -75,7 +76,7 @@ namespace Thesis.Relinq.PsqlQueryGeneration
             {
                 _subQueryExpressionPartsAggregator.AddFromPart(fromPart);
             }
-            else
+            else if (FromParts.Where(x => x.Contains(fromPart)).Count() == 0)
             {
                 FromParts.Add(fromPart);
             }
@@ -169,8 +170,14 @@ namespace Thesis.Relinq.PsqlQueryGeneration
                 var index = FromParts.IndexOf(outerSource);
                 FromParts[index] = groupJoinPart;
 
-                OrderByParts.Add(outerMember);
-                OrderByParts.Add(innerMember);
+                var groupingPart = 
+                    $"(SELECT COUNT(*) FROM {innerSource} AS \"temp_{innerSource.Substring(1)} " +
+                    $"WHERE \"temp_{innerMember.Substring(1)} = {outerMember}) AS";
+                if (SelectPart.Contains(groupingPart))
+                {
+                    OrderByParts.Add(outerMember);
+                    OrderByParts.Add(innerMember);
+                }
             }
         }
 
@@ -190,24 +197,62 @@ namespace Thesis.Relinq.PsqlQueryGeneration
         }
 
         /// Opens a subquery parts aggregator.
+        ///
+        /// If a subquery parts aggregator is open and is also visiting a subquery, 
+        /// redirects the call to it instead.
         public void OpenSubQueryExpressionPartsAggregator()
         {
-            _visitingSubQueryExpression = true;
-            _subQueryExpressionPartsAggregator = new QueryPartsAggregator();
+            if (_visitingSubQueryExpression && _subQueryExpressionPartsAggregator._visitingSubQueryExpression)
+            {
+                _subQueryExpressionPartsAggregator.OpenSubQueryExpressionPartsAggregator();
+            }
+            else
+            {
+                _visitingSubQueryExpression = true;
+                _subQueryExpressionPartsAggregator = new QueryPartsAggregator();
+            }
         }
 
         /// Closes the subquery parts aggregator and adds a subquery as a part of this query.
+        ///
+        /// If a subquery parts aggregator is open and is also visiting a subquery, 
+        /// redirects the call to it instead.
         public void CloseSubQueryExpressionPartsAggregator()
         {
-            SubQueries.Add(_subQueryExpressionPartsAggregator.BuildQueryStatement().Trim(';'));
-            _visitingSubQueryExpression = false;
+            if (_visitingSubQueryExpression && _subQueryExpressionPartsAggregator._visitingSubQueryExpression)
+            {
+                _subQueryExpressionPartsAggregator.CloseSubQueryExpressionPartsAggregator();
+            }
+            else 
+            {
+                if (string.IsNullOrEmpty(SelectPart))
+                {
+                    SelectPart = _subQueryExpressionPartsAggregator.SelectPart;
+                }
+                else 
+                {
+                    SubQueries.Add(_subQueryExpressionPartsAggregator.BuildQueryStatement().Trim(';'));
+                }
+
+                _visitingSubQueryExpression = false;
+            }
         }
 
         /// Adds a format string that specifies an action to take with a previously generated subquery part.
+        ///
+        /// If a subquery parts aggregator is open and is also visiting a subquery, 
+        /// redirects the call to it instead.
         public void AddSubQueryLinkAction(string queryLinkAction)
         {
-            SubQueryLinkActions.Add(queryLinkAction);
-            _visitingSubQueryExpression = false;
+            if (_visitingSubQueryExpression && _subQueryExpressionPartsAggregator._visitingSubQueryExpression)
+            {
+                _subQueryExpressionPartsAggregator.AddSubQueryLinkAction(queryLinkAction);
+            }
+            else 
+            {
+                SubQueryLinkActions.Add(queryLinkAction);
+                _visitingSubQueryExpression = false;
+            }
         }
 
         /// Builds a SQL statement using all the query parts previously added.
@@ -250,6 +295,11 @@ namespace Thesis.Relinq.PsqlQueryGeneration
 
         private void WrapSubQueryExpressionsToQueryParts()
         {
+            if (_subQueryExpressionPartsAggregator != null)
+            {
+                _subQueryExpressionPartsAggregator.WrapSubQueryExpressionsToQueryParts();            
+            }
+
             if (SubQueries.Count != SubQueryLinkActions.Count)
             {
                 throw new ArgumentException(

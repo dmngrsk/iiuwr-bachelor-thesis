@@ -112,8 +112,6 @@ namespace Thesis.Relinq.PsqlQueryGeneration
             {
                 var insideType = expression.Type.GetGenericArguments()[0];
 
-                var sth = this.GetNestedPsqlExpression((expression.ReferencedQuerySource as MainFromClause).FromExpression);
-
                 var groupResultOperator = ((expression.ReferencedQuerySource as MainFromClause)
                     .FromExpression as SubQueryExpression)
                     .QueryModel.ResultOperators[0] as GroupResultOperator;
@@ -144,7 +142,7 @@ namespace Thesis.Relinq.PsqlQueryGeneration
                 var innerKeySelector = this.GetNestedPsqlExpression(joinClause.InnerKeySelector).Replace(tableName, $"temp_{tableName}");
                 
                 _psqlExpressionBuilder.Append(
-                    $", (SELECT COUNT(*) FROM {tableName} AS \"temp_{tableName}\" " + 
+                    $", (SELECT COUNT(*) FROM \"{tableName}\" AS \"temp_{tableName}\" " + 
                     $"WHERE {innerKeySelector} = {outerKeySelector}) " +
                     $"AS \"{itemType.Name}.__GROUP_COUNT\"");
             }
@@ -154,9 +152,9 @@ namespace Thesis.Relinq.PsqlQueryGeneration
                 var itemType = expression.ReferencedQuerySource.ItemType;
                 var tableName = _queryModelVisitor.DbSchema.GetMatchingTableName(itemType.Name);
 
-                var properties = itemType.GetPublicSettableProperties();
-                var rowNames = properties.Select(x =>
-                    $"\"{tableName}\".\"{_queryModelVisitor.DbSchema.GetMatchingColumnName(x.Name)}\" AS \"{x.Name}\"");
+                var rowNames = itemType
+                    .GetPublicSettableProperties()
+                    .Select(x => $"\"{tableName}\".\"{_queryModelVisitor.DbSchema.GetMatchingColumnName(x.Name)}\" AS \"{x.Name}\"");
 
                 _psqlExpressionBuilder.Append(string.Join(", ", rowNames));
             }

@@ -111,11 +111,6 @@ namespace Thesis.Relinq.PsqlQueryGeneration
             base.VisitJoinClause(joinClause, queryModel, index);
         }
 
-        public override void VisitJoinClause(JoinClause joinClause, QueryModel queryModel, GroupJoinClause groupJoinClause)
-        {
-            base.VisitJoinClause(joinClause, queryModel, groupJoinClause);
-        }
-
         public override void VisitAdditionalFromClause(AdditionalFromClause fromClause, QueryModel queryModel, int index)
         {
             var fromPart = fromClause.ItemType.Name;
