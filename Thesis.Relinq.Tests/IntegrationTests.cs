@@ -438,6 +438,7 @@ namespace Thesis.Relinq.Tests
         [Fact]
         public void select_with_outer_join()
         {
+            // Arrange
             var myQuery = 
                 from c in PsqlQueryFactory.Queryable<Customers>(connection)
                 join o in PsqlQueryFactory.Queryable<Orders>(connection)
@@ -482,24 +483,6 @@ namespace Thesis.Relinq.Tests
             // Assert
             AssertExtensions.EqualByJson(expected, actual);
             AssertExtensions.EqualByJson(expected, actual2);
-        }
-
-
-        [Fact]
-        public void select_with_grouping()
-        {
-            /* TODO.
-            var myQuery = 
-                from c in PsqlQueryFactory.Queryable<Customers>(connection)
-                group c by c.City into groups
-                select new 
-                {
-                    City = groups.Key,
-                    Customers = groups.ToArray()
-                };
-
-            var actual = myQuery.ToArray();
-            */
         }
 
         [Fact]

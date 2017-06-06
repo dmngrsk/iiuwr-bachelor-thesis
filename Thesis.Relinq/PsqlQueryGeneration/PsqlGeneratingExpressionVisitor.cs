@@ -102,28 +102,7 @@ namespace Thesis.Relinq.PsqlQueryGeneration
 
         protected override Expression VisitQuerySourceReference(QuerySourceReferenceExpression expression)
         {
-            if (_visitorTriggeredByMemberVisitor)
-            {
-                string typeName = expression.ReferencedQuerySource.ItemType.Name;
-                _psqlExpressionBuilder.Append($"\"{_queryModelVisitor.DbSchema.GetMatchingTableName(typeName)}\"");
-            }
-
-            else if (expression.Type.FullName.Contains("IGrouping")) // WIP.
-            {
-                var insideType = expression.Type.GetGenericArguments()[0];
-
-                var groupResultOperator = ((expression.ReferencedQuerySource as MainFromClause)
-                    .FromExpression as SubQueryExpression)
-                    .QueryModel.ResultOperators[0] as GroupResultOperator;
-
-                this.Visit(groupResultOperator.ElementSelector);
-                _psqlExpressionBuilder.Append(", ");
-                this.Visit(groupResultOperator.KeySelector);
-
-                // throw new NotImplementedException("This LINQ provider does not provide grouping yet.");
-            }
-
-            else if (expression.ReferencedQuerySource is GroupJoinClause)
+            if (expression.ReferencedQuerySource is GroupJoinClause)
             {
                 var itemType = expression.ReferencedQuerySource.ItemType.GetGenericArguments()[0];
                 var tableName = _queryModelVisitor.DbSchema.GetMatchingTableName(itemType.Name);
@@ -145,6 +124,12 @@ namespace Thesis.Relinq.PsqlQueryGeneration
                     $", (SELECT COUNT(*) FROM \"{tableName}\" AS \"temp_{tableName}\" " + 
                     $"WHERE {innerKeySelector} = {outerKeySelector}) " +
                     $"AS \"{itemType.Name}.__GROUP_COUNT\"");
+            }
+
+            else if (_visitorTriggeredByMemberVisitor)
+            {
+                string typeName = expression.ReferencedQuerySource.ItemType.Name;
+                _psqlExpressionBuilder.Append($"\"{_queryModelVisitor.DbSchema.GetMatchingTableName(typeName)}\"");
             }
 
             else
@@ -187,11 +172,6 @@ namespace Thesis.Relinq.PsqlQueryGeneration
             return expression;
         }
         
-        protected override Expression VisitBlock(BlockExpression expression)
-        {
-            return expression;
-        }
-        
         protected override Expression VisitConditional(ConditionalExpression expression)
         {
             var renamingColumnsAccumulator = _renamingColumns;
@@ -231,57 +211,6 @@ namespace Thesis.Relinq.PsqlQueryGeneration
             return expression;
         }
         
-        protected override Expression VisitDebugInfo(DebugInfoExpression expression)
-        {
-            return expression;
-        }
-        
-        protected override Expression VisitDefault(DefaultExpression expression)
-        {
-            return expression;
-        }
-        
-        protected override Expression VisitExtension(Expression expression)
-        {
-            Console.WriteLine("Hello, world!");
-            return expression;
-        }
-        
-        protected override Expression VisitGoto(GotoExpression expression)
-        {
-            return expression;                                        
-        }
-        
-        protected override Expression VisitIndex(IndexExpression expression)
-        {                    
-            return expression;
-        }
-        
-        protected override Expression VisitInvocation(InvocationExpression expression)
-        {
-            return expression;
-        }
-        
-        protected override Expression VisitLabel(LabelExpression expression)
-        {
-            return expression;
-        }
-        
-        protected override Expression VisitLambda<T>(Expression<T> expression)
-        {
-            return expression;
-        }
-        
-        protected override Expression VisitListInit(ListInitExpression expression)
-        {
-            return expression;
-        }
-        
-        protected override Expression VisitLoop(LoopExpression expression)
-        {
-            return expression;
-        }
-        
         protected override Expression VisitMember(MemberExpression expression)
         {
             if (expression.Expression.NodeType == ExpressionType.MemberAccess && expression.Member.Name == "Length")
@@ -295,20 +224,18 @@ namespace Thesis.Relinq.PsqlQueryGeneration
                 this.Visit(expression.Expression);
                 _visitorTriggeredByMemberVisitor = false;
 
-                var columnName = _queryModelVisitor.DbSchema.GetMatchingColumnName(expression.Member.Name);
+                if (!expression.Expression.Type.Name.Contains("IGrouping"))
+                {
+                    var columnName = _queryModelVisitor.DbSchema.GetMatchingColumnName(expression.Member.Name);
 
-                _psqlExpressionBuilder.Append($".\"{columnName}\"");
-                if (_renamingColumns) _psqlExpressionBuilder.Append($" AS \"{expression.Member.Name}\"");
+                    _psqlExpressionBuilder.Append($".\"{columnName}\"");
+                    if (_renamingColumns) _psqlExpressionBuilder.Append($" AS \"{expression.Member.Name}\"");
+                }
             }
 
             return expression;
         }
         
-        protected override Expression VisitMemberInit(MemberInitExpression expression)
-        {
-            return expression;
-        }
-
         protected override Expression VisitMethodCall(MethodCallExpression expression)
         {
             var methodName = expression.Method.Name;
@@ -382,36 +309,6 @@ namespace Thesis.Relinq.PsqlQueryGeneration
             }
 
             _renamingColumns = false;
-            return expression;
-        }
-        
-        protected override Expression VisitNewArray(NewArrayExpression expression)
-        {
-            return expression;
-        }
-        
-        protected override Expression VisitParameter(ParameterExpression expression)
-        {
-            return expression;
-        }
-
-        protected override Expression VisitRuntimeVariables(RuntimeVariablesExpression expression)
-        {
-            return expression;
-        }
-        
-        protected override Expression VisitSwitch(SwitchExpression expression)
-        {
-            return expression;
-        }
-        
-        protected override Expression VisitTry(TryExpression expression)
-        {
-            return expression;
-        }
-        
-        protected override Expression VisitTypeBinary(TypeBinaryExpression expression)
-        {
             return expression;
         }
         
