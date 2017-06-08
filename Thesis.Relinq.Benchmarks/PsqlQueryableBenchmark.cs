@@ -1,10 +1,8 @@
 using BenchmarkDotNet.Attributes;
-using Dapper;
 using Npgsql;
-using System;
 using System.Linq;
-using Thesis.Relinq.Tests.Helpers;
-using Thesis.Relinq.Tests.Models;
+using Thesis.Relinq.Benchmarks.Helpers;
+using Thesis.Relinq.Benchmarks.Models;
 
 namespace Thesis.Relinq.Benchmarks
 {

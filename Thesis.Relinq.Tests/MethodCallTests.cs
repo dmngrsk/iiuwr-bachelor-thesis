@@ -1,7 +1,5 @@
 using Dapper;
-using Npgsql;
 using System.Linq;
-using System.Reflection;
 using Thesis.Relinq.Tests.Helpers;
 using Thesis.Relinq.Tests.Models;
 using Xunit;

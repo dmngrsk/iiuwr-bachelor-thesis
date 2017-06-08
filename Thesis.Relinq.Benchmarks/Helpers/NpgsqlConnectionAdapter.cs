@@ -1,6 +1,6 @@
 using Npgsql;
 
-namespace Thesis.Relinq.Tests.Helpers
+namespace Thesis.Relinq.Benchmarks.Helpers
 {
     public class NpgsqlConnectionAdapter 
     {
