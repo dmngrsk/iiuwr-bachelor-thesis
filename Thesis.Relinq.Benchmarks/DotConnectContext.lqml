@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Database Name="northwind" EntityNamespace="NorthwindContext" ContextNamespace="NorthwindContext" Class="NorthwindDataContext" xmlns:ed="http://devart.com/schemas/EntityDeveloper/1.0" ed:Guid="9e7c20b5-7882-4ed6-bbb6-9836d44ada53" Provider="Devart.Data.PostgreSql.Linq.Provider.PgSqlDataProvider, Devart.Data.PostgreSql.Linq" Extended="true" xmlns="http://schemas.devart.com/linqconnect/mapping">
+  <Connection Mode="ConnectionString" ConnectionString="User Id=dmngrsk;Host=localhost;Database=northwind" Provider="Devart.Data.PostgreSql" />
+  <Table Name="public.categories" Member="Categories">
+    <Type Name="Category" ed:Guid="3578b56b-e785-4814-a669-7dc1f6d97bcf">
+      <Column Name="&quot;CategoryID&quot;" Member="CategoryID" Type="System.Int16" DbType="INT2 NOT NULL" IsPrimaryKey="true" CanBeNull="false" UpdateCheck="Always" ed:ValidateRequired="true" ed:Guid="38c9059c-90e4-4696-b832-659ae53e7579" />
+      <Column Name="&quot;CategoryName&quot;" Member="CategoryName" Type="System.String" DbType="VARCHAR(15) NOT NULL" CanBeNull="false" UpdateCheck="Never" MaxLength="15" Unicode="true" ed:ValidateMaxLength="15" ed:ValidateRequired="true" ed:Guid="a1a83d57-aa9d-47be-91a8-029202a50bf8" />
+      <Column Name="&quot;Description&quot;" Member="Description" Type="System.String" DbType="TEXT" CanBeNull="true" UpdateCheck="Never" Unicode="true" ed:ValidateRequired="false" ed:Guid="d8c2f382-5657-432d-a89c-95e58cd96ae7" />
+      <Column Name="&quot;Picture&quot;" Member="Picture" Type="System.Byte[]" DbType="BYTEA" CanBeNull="true" UpdateCheck="Never" ed:ValidateRequired="false" ed:Guid="ecd15e6b-1197-40b7-ae54-fee7301ac56b" />
+    </Type>
+  </Table>
+  <Table Name="public.customercustomerdemo" Member="Customercustomerdemos">
+    <Type Name="Customercustomerdemo" ed:Guid="2c886818-75ff-41f5-80d9-ff144bda121f">
+      <Column Name="&quot;CustomerID&quot;" Member="CustomerID" Type="System.String" DbType="CHAR NOT NULL" IsPrimaryKey="true" CanBeNull="false" UpdateCheck="Always" FixedLength="true" Unicode="true" ed:ValidateRequired="true" ed:Guid="f67bbae5-a5d0-4ec9-b221-0ddf93e26404" />
+      <Column Name="&quot;CustomerTypeID&quot;" Member="CustomerTypeID" Type="System.String" DbType="CHAR NOT NULL" IsPrimaryKey="true" CanBeNull="false" UpdateCheck="Always" FixedLength="true" Unicode="true" ed:ValidateRequired="true" ed:Guid="67487541-56b8-47cf-82c2-bbb36b36174c" />
+    </Type>
+  </Table>
+  <Table Name="public.customerdemographics" Member="Customerdemographics">
+    <Type Name="Customerdemographic" ed:Guid="9197d72b-46bb-4627-9de7-a1989ff9fea3">
+      <Column Name="&quot;CustomerTypeID&quot;" Member="CustomerTypeID" Type="System.String" DbType="CHAR NOT NULL" IsPrimaryKey="true" CanBeNull="false" UpdateCheck="Always" FixedLength="true" Unicode="true" ed:ValidateRequired="true" ed:Guid="aa32a1f6-9bc4-4cdb-bcb2-d230d4055c7c" />
+      <Column Name="&quot;CustomerDesc&quot;" Member="CustomerDesc" Type="System.String" DbType="TEXT" CanBeNull="true" UpdateCheck="Never" Unicode="true" ed:ValidateRequired="false" ed:Guid="2476461d-6421-43bc-8962-17d6580a057c" />
+    </Type>
+  </Table>
+  <Table Name="public.customers" Member="Customers">
+    <Type Name="Customer" ed:Guid="0456b119-f641-483a-b11b-8499df4ed557">
+      <Column Name="&quot;CustomerID&quot;" Member="CustomerID" Type="System.String" DbType="CHAR NOT NULL" IsPrimaryKey="true" CanBeNull="false" UpdateCheck="Always" FixedLength="true" Unicode="true" ed:ValidateRequired="true" ed:Guid="8df23d3b-bc91-45ee-8bf9-e03fafbd468e" />
+      <Column Name="&quot;CompanyName&quot;" Member="CompanyName" Type="System.String" DbType="VARCHAR(40) NOT NULL" CanBeNull="false" UpdateCheck="Never" MaxLength="40" Unicode="true" ed:ValidateMaxLength="40" ed:ValidateRequired="true" ed:Guid="4095f4be-dec8-441d-8d1d-7aad8f82c97c" />
+      <Column Name="&quot;ContactName&quot;" Member="ContactName" Type="System.String" DbType="VARCHAR(30)" CanBeNull="true" UpdateCheck="Never" MaxLength="30" Unicode="true" ed:ValidateMaxLength="30" ed:ValidateRequired="false" ed:Guid="5b45d5c4-c252-4cf3-b55d-4a767866a4eb" />
+      <Column Name="&quot;ContactTitle&quot;" Member="ContactTitle" Type="System.String" DbType="VARCHAR(30)" CanBeNull="true" UpdateCheck="Never" MaxLength="30" Unicode="true" ed:ValidateMaxLength="30" ed:ValidateRequired="false" ed:Guid="da4f8659-3dd4-4b1c-92a5-70fb1ef8a997" />
+      <Column Name="&quot;Address&quot;" Member="Address" Type="System.String" DbType="VARCHAR(60)" CanBeNull="true" UpdateCheck="Never" MaxLength="60" Unicode="true" ed:ValidateMaxLength="60" ed:ValidateRequired="false" ed:Guid="78fbce19-0844-4893-a4dd-cc2910dbc776" />
+      <Column Name="&quot;City&quot;" Member="City" Type="System.String" DbType="VARCHAR(15)" CanBeNull="true" UpdateCheck="Never" MaxLength="15" Unicode="true" ed:ValidateMaxLength="15" ed:ValidateRequired="false" ed:Guid="0179fc99-a123-413a-a0f2-1242ea57e178" />
+      <Column Name="&quot;Region&quot;" Member="Region" Type="System.String" DbType="VARCHAR(15)" CanBeNull="true" UpdateCheck="Never" MaxLength="15" Unicode="true" ed:ValidateMaxLength="15" ed:ValidateRequired="false" ed:Guid="cea735d1-96e0-4ccc-8be1-7b3bd295c33d" />
+      <Column Name="&quot;PostalCode&quot;" Member="PostalCode" Type="System.String" DbType="VARCHAR(10)" CanBeNull="true" UpdateCheck="Never" MaxLength="10" Unicode="true" ed:ValidateMaxLength="10" ed:ValidateRequired="false" ed:Guid="ed819fbd-66ad-4f6d-8d17-3eb8e76adbe5" />
+      <Column Name="&quot;Country&quot;" Member="Country" Type="System.String" DbType="VARCHAR(15)" CanBeNull="true" UpdateCheck="Never" MaxLength="15" Unicode="true" ed:ValidateMaxLength="15" ed:ValidateRequired="false" ed:Guid="15babbe1-bdee-40eb-9362-0dcbd066a6d9" />
+      <Column Name="&quot;Phone&quot;" Member="Phone" Type="System.String" DbType="VARCHAR(24)" CanBeNull="true" UpdateCheck="Never" MaxLength="24" Unicode="true" ed:ValidateMaxLength="24" ed:ValidateRequired="false" ed:Guid="ef928485-c7c6-4e42-b3a9-3fa024c7dcba" />
+      <Column Name="&quot;Fax&quot;" Member="Fax" Type="System.String" DbType="VARCHAR(24)" CanBeNull="true" UpdateCheck="Never" MaxLength="24" Unicode="true" ed:ValidateMaxLength="24" ed:ValidateRequired="false" ed:Guid="731ed5fc-ad18-4871-94ee-876680a00e47" />
+    </Type>
+  </Table>
+  <Table Name="public.employees" Member="Employees">
+    <Type Name="Employee" ed:Guid="25af56c7-a932-44e5-919d-cd030c8c776a">
+      <Column Name="&quot;EmployeeID&quot;" Member="EmployeeID" Type="System.Int16" DbType="INT2 NOT NULL" IsPrimaryKey="true" CanBeNull="false" UpdateCheck="Always" ed:ValidateRequired="true" ed:Guid="6fa30465-95b7-4262-924d-2cc2489d0f2b" />
+      <Column Name="&quot;LastName&quot;" Member="LastName" Type="System.String" DbType="VARCHAR(20) NOT NULL" CanBeNull="false" UpdateCheck="Never" MaxLength="20" Unicode="true" ed:ValidateMaxLength="20" ed:ValidateRequired="true" ed:Guid="27d4ba4d-f95c-4c34-a360-c36b2e5e5865" />
+      <Column Name="&quot;FirstName&quot;" Member="FirstName" Type="System.String" DbType="VARCHAR(10) NOT NULL" CanBeNull="false" UpdateCheck="Never" MaxLength="10" Unicode="true" ed:ValidateMaxLength="10" ed:ValidateRequired="true" ed:Guid="62f349a0-8fc7-4eda-9f72-173c41ed91fe" />
+      <Column Name="&quot;Title&quot;" Member="Title" Type="System.String" DbType="VARCHAR(30)" CanBeNull="true" UpdateCheck="Never" MaxLength="30" Unicode="true" ed:ValidateMaxLength="30" ed:ValidateRequired="false" ed:Guid="835ad48b-dca7-4971-b6aa-dc8a3b67c8a4" />
+      <Column Name="&quot;TitleOfCourtesy&quot;" Member="TitleOfCourtesy" Type="System.String" DbType="VARCHAR(25)" CanBeNull="true" UpdateCheck="Never" MaxLength="25" Unicode="true" ed:ValidateMaxLength="25" ed:ValidateRequired="false" ed:Guid="3e8eb4f9-5064-47ad-a609-bc219f7fccce" />
+      <Column Name="&quot;BirthDate&quot;" Member="BirthDate" Type="System.DateTime" DbType="DATE" CanBeNull="true" UpdateCheck="Never" ed:ValidateRequired="false" ed:Guid="5b68a03e-181d-41ab-8ad9-a766395322cd" />
+      <Column Name="&quot;HireDate&quot;" Member="HireDate" Type="System.DateTime" DbType="DATE" CanBeNull="true" UpdateCheck="Never" ed:ValidateRequired="false" ed:Guid="7ca183fb-6313-48a4-86bb-7c58e38336b2" />
+      <Column Name="&quot;Address&quot;" Member="Address" Type="System.String" DbType="VARCHAR(60)" CanBeNull="true" UpdateCheck="Never" MaxLength="60" Unicode="true" ed:ValidateMaxLength="60" ed:ValidateRequired="false" ed:Guid="4d46013d-f82d-4e66-9919-ffca3534abc0" />
+      <Column Name="&quot;City&quot;" Member="City" Type="System.String" DbType="VARCHAR(15)" CanBeNull="true" UpdateCheck="Never" MaxLength="15" Unicode="true" ed:ValidateMaxLength="15" ed:ValidateRequired="false" ed:Guid="fc9eab75-26fb-451c-a21c-673dd680b9d3" />
+      <Column Name="&quot;Region&quot;" Member="Region" Type="System.String" DbType="VARCHAR(15)" CanBeNull="true" UpdateCheck="Never" MaxLength="15" Unicode="true" ed:ValidateMaxLength="15" ed:ValidateRequired="false" ed:Guid="1e68cace-b81e-471f-aa83-01acaed47449" />
+      <Column Name="&quot;PostalCode&quot;" Member="PostalCode" Type="System.String" DbType="VARCHAR(10)" CanBeNull="true" UpdateCheck="Never" MaxLength="10" Unicode="true" ed:ValidateMaxLength="10" ed:ValidateRequired="false" ed:Guid="fd936db0-d7a5-4c69-84dc-0fc8211610fe" />
+      <Column Name="&quot;Country&quot;" Member="Country" Type="System.String" DbType="VARCHAR(15)" CanBeNull="true" UpdateCheck="Never" MaxLength="15" Unicode="true" ed:ValidateMaxLength="15" ed:ValidateRequired="false" ed:Guid="813ffc07-66d1-4868-b65d-46c80506c1ff" />
+      <Column Name="&quot;HomePhone&quot;" Member="HomePhone" Type="System.String" DbType="VARCHAR(24)" CanBeNull="true" UpdateCheck="Never" MaxLength="24" Unicode="true" ed:ValidateMaxLength="24" ed:ValidateRequired="false" ed:Guid="19225cf8-65c2-4bba-a584-605e1d459bca" />
+      <Column Name="&quot;Extension&quot;" Member="Extension" Type="System.String" DbType="VARCHAR(4)" CanBeNull="true" UpdateCheck="Never" MaxLength="4" Unicode="true" ed:ValidateMaxLength="4" ed:ValidateRequired="false" ed:Guid="920d32bb-0cb8-4f9f-ae91-c281bfff0c9c" />
+      <Column Name="&quot;Photo&quot;" Member="Photo" Type="System.Byte[]" DbType="BYTEA" CanBeNull="true" UpdateCheck="Never" ed:ValidateRequired="false" ed:Guid="a48cf5ba-61d4-4096-b39e-35ac72df4481" />
+      <Column Name="&quot;Notes&quot;" Member="Notes" Type="System.String" DbType="TEXT" CanBeNull="true" UpdateCheck="Never" Unicode="true" ed:ValidateRequired="false" ed:Guid="8f185adf-3753-4514-ab2a-94f58b39934d" />
+      <Column Name="&quot;ReportsTo&quot;" Member="ReportsTo" Type="System.Int16" DbType="INT2" CanBeNull="true" UpdateCheck="Never" ed:ValidateRequired="false" ed:Guid="71479c58-bd10-41d3-9ef4-11e73a582111" />
+      <Column Name="&quot;PhotoPath&quot;" Member="PhotoPath" Type="System.String" DbType="VARCHAR(255)" CanBeNull="true" UpdateCheck="Never" MaxLength="255" Unicode="true" ed:ValidateMaxLength="255" ed:ValidateRequired="false" ed:Guid="75107b93-bf1f-47f3-bb1d-a6f72ae29a9e" />
+    </Type>
+  </Table>
+  <Table Name="public.employeeterritories" Member="Employeeterritories">
+    <Type Name="Employeeterritory" ed:Guid="da10c280-1ca1-40b0-ac3c-efc9d4da3373">
+      <Column Name="&quot;EmployeeID&quot;" Member="EmployeeID" Type="System.Int16" DbType="INT2 NOT NULL" IsPrimaryKey="true" CanBeNull="false" UpdateCheck="Always" ed:ValidateRequired="true" ed:Guid="44524326-a04c-4d34-8087-fbac5c26f914" />
+      <Column Name="&quot;TerritoryID&quot;" Member="TerritoryID" Type="System.String" DbType="VARCHAR(20) NOT NULL" IsPrimaryKey="true" CanBeNull="false" UpdateCheck="Always" MaxLength="20" Unicode="true" ed:ValidateMaxLength="20" ed:ValidateRequired="true" ed:Guid="c958127c-6a1e-41ec-8291-098a4c0a78dd" />
+    </Type>
+  </Table>
+  <Table Name="public.order_details" Member="OrderDetails">
+    <Type Name="OrderDetail" ed:Guid="fd9c7ecd-842a-4f2d-ae00-162380379cfd">
+      <Column Name="&quot;OrderID&quot;" Member="OrderID" Type="System.Int16" DbType="INT2 NOT NULL" IsPrimaryKey="true" CanBeNull="false" UpdateCheck="Always" ed:ValidateRequired="true" ed:Guid="59577081-5f0e-4bf3-a658-5b2375c62758" />
+      <Column Name="&quot;ProductID&quot;" Member="ProductID" Type="System.Int16" DbType="INT2 NOT NULL" IsPrimaryKey="true" CanBeNull="false" UpdateCheck="Always" ed:ValidateRequired="true" ed:Guid="01b44cda-9e30-4ad3-bafd-3cc53760f668" />
+      <Column Name="&quot;UnitPrice&quot;" Member="UnitPrice" Type="System.Single" DbType="FLOAT4 NOT NULL" CanBeNull="false" UpdateCheck="Never" ed:ValidateRequired="true" ed:Guid="5dee5048-557f-48a0-997c-94dafdafbaae" />
+      <Column Name="&quot;Quantity&quot;" Member="Quantity" Type="System.Int16" DbType="INT2 NOT NULL" CanBeNull="false" UpdateCheck="Never" ed:ValidateRequired="true" ed:Guid="ee8c92a0-7f5d-4534-adfd-907985f986cd" />
+      <Column Name="&quot;Discount&quot;" Member="Discount" Type="System.Single" DbType="FLOAT4 NOT NULL" CanBeNull="false" UpdateCheck="Never" ed:ValidateRequired="true" ed:Guid="099be58c-ac67-48c3-871d-8002e496f14a" />
+    </Type>
+  </Table>
+  <Table Name="public.orders" Member="Orders">
+    <Type Name="Order" ed:Guid="97c9cce6-8d59-4fbb-bb57-d500b41745bd">
+      <Column Name="&quot;OrderID&quot;" Member="OrderID" Type="System.Int16" DbType="INT2 NOT NULL" IsPrimaryKey="true" CanBeNull="false" UpdateCheck="Always" ed:ValidateRequired="true" ed:Guid="0ef4e762-b35f-4725-8a09-6a2a9fff3701" />
+      <Column Name="&quot;CustomerID&quot;" Member="CustomerID" Type="System.String" DbType="CHAR" CanBeNull="true" UpdateCheck="Never" FixedLength="true" Unicode="true" ed:ValidateRequired="false" ed:Guid="fcd36434-27be-4269-90e7-d8d356e73a46" />
+      <Column Name="&quot;EmployeeID&quot;" Member="EmployeeID" Type="System.Int16" DbType="INT2" CanBeNull="true" UpdateCheck="Never" ed:ValidateRequired="false" ed:Guid="a094a9fd-de49-4fa6-9f87-9a3d44788234" />
+      <Column Name="&quot;OrderDate&quot;" Member="OrderDate" Type="System.DateTime" DbType="DATE" CanBeNull="true" UpdateCheck="Never" ed:ValidateRequired="false" ed:Guid="0258c625-4d4d-4f96-9094-5473db3deaa3" />
+      <Column Name="&quot;RequiredDate&quot;" Member="RequiredDate" Type="System.DateTime" DbType="DATE" CanBeNull="true" UpdateCheck="Never" ed:ValidateRequired="false" ed:Guid="7343bf29-c0a6-4f5f-9760-6a4cc2be9844" />
+      <Column Name="&quot;ShippedDate&quot;" Member="ShippedDate" Type="System.DateTime" DbType="DATE" CanBeNull="true" UpdateCheck="Never" ed:ValidateRequired="false" ed:Guid="b9dd55b5-41de-4acc-a095-a0d2f43783ee" />
+      <Column Name="&quot;ShipVia&quot;" Member="ShipVia" Type="System.Int16" DbType="INT2" CanBeNull="true" UpdateCheck="Never" ed:ValidateRequired="false" ed:Guid="0aaa9a6d-c889-44f9-b969-26e00cf9db76" />
+      <Column Name="&quot;Freight&quot;" Member="Freight" Type="System.Single" DbType="FLOAT4" CanBeNull="true" UpdateCheck="Never" ed:ValidateRequired="false" ed:Guid="85bda53e-5b79-48df-9bc0-dc7dee7117e6" />
+      <Column Name="&quot;ShipName&quot;" Member="ShipName" Type="System.String" DbType="VARCHAR(40)" CanBeNull="true" UpdateCheck="Never" MaxLength="40" Unicode="true" ed:ValidateMaxLength="40" ed:ValidateRequired="false" ed:Guid="06afe3ee-b0fa-4919-a713-fad55499b87a" />
+      <Column Name="&quot;ShipAddress&quot;" Member="ShipAddress" Type="System.String" DbType="VARCHAR(60)" CanBeNull="true" UpdateCheck="Never" MaxLength="60" Unicode="true" ed:ValidateMaxLength="60" ed:ValidateRequired="false" ed:Guid="cd66a087-6e39-41ef-baaa-c4ab2e33ebb0" />
+      <Column Name="&quot;ShipCity&quot;" Member="ShipCity" Type="System.String" DbType="VARCHAR(15)" CanBeNull="true" UpdateCheck="Never" MaxLength="15" Unicode="true" ed:ValidateMaxLength="15" ed:ValidateRequired="false" ed:Guid="6c477512-b602-492d-96e0-4181b0d1fcba" />
+      <Column Name="&quot;ShipRegion&quot;" Member="ShipRegion" Type="System.String" DbType="VARCHAR(15)" CanBeNull="true" UpdateCheck="Never" MaxLength="15" Unicode="true" ed:ValidateMaxLength="15" ed:ValidateRequired="false" ed:Guid="a12b89f3-0f80-429d-ab80-48f9b7bf96a5" />
+      <Column Name="&quot;ShipPostalCode&quot;" Member="ShipPostalCode" Type="System.String" DbType="VARCHAR(10)" CanBeNull="true" UpdateCheck="Never" MaxLength="10" Unicode="true" ed:ValidateMaxLength="10" ed:ValidateRequired="false" ed:Guid="df77078f-eda5-48f2-b6f9-f1353f452340" />
+      <Column Name="&quot;ShipCountry&quot;" Member="ShipCountry" Type="System.String" DbType="VARCHAR(15)" CanBeNull="true" UpdateCheck="Never" MaxLength="15" Unicode="true" ed:ValidateMaxLength="15" ed:ValidateRequired="false" ed:Guid="dfc2a8e4-0fc9-49bd-ad2f-3fb94fc4cf16" />
+    </Type>
+  </Table>
+  <Table Name="public.products" Member="Products">
+    <Type Name="Product" ed:Guid="26366f9b-2e2b-4409-b20d-a0da4deb889c">
+      <Column Name="&quot;ProductID&quot;" Member="ProductID" Type="System.Int16" DbType="INT2 NOT NULL" IsPrimaryKey="true" CanBeNull="false" UpdateCheck="Always" ed:ValidateRequired="true" ed:Guid="80bed877-0751-4669-8542-1d342102fbd1" />
+      <Column Name="&quot;ProductName&quot;" Member="ProductName" Type="System.String" DbType="VARCHAR(40) NOT NULL" CanBeNull="false" UpdateCheck="Never" MaxLength="40" Unicode="true" ed:ValidateMaxLength="40" ed:ValidateRequired="true" ed:Guid="5eb2e500-fb90-4942-a07b-7f5292c832e7" />
+      <Column Name="&quot;SupplierID&quot;" Member="SupplierID" Type="System.Int16" DbType="INT2" CanBeNull="true" UpdateCheck="Never" ed:ValidateRequired="false" ed:Guid="52bd23d8-683c-4c03-bbdc-c4c61f53192e" />
+      <Column Name="&quot;CategoryID&quot;" Member="CategoryID" Type="System.Int16" DbType="INT2" CanBeNull="true" UpdateCheck="Never" ed:ValidateRequired="false" ed:Guid="4b954653-32b1-4ed4-a9a6-7531538dac7f" />
+      <Column Name="&quot;QuantityPerUnit&quot;" Member="QuantityPerUnit" Type="System.String" DbType="VARCHAR(20)" CanBeNull="true" UpdateCheck="Never" MaxLength="20" Unicode="true" ed:ValidateMaxLength="20" ed:ValidateRequired="false" ed:Guid="28ce35d2-5bb7-4813-a999-dcb2663cb93b" />
+      <Column Name="&quot;UnitPrice&quot;" Member="UnitPrice" Type="System.Single" DbType="FLOAT4" CanBeNull="true" UpdateCheck="Never" ed:ValidateRequired="false" ed:Guid="cabd595e-e453-4f72-b6fb-c0171d22cd38" />
+      <Column Name="&quot;UnitsInStock&quot;" Member="UnitsInStock" Type="System.Int16" DbType="INT2" CanBeNull="true" UpdateCheck="Never" ed:ValidateRequired="false" ed:Guid="304fcfe3-d8fd-4d06-9fb5-af011b204d7d" />
+      <Column Name="&quot;UnitsOnOrder&quot;" Member="UnitsOnOrder" Type="System.Int16" DbType="INT2" CanBeNull="true" UpdateCheck="Never" ed:ValidateRequired="false" ed:Guid="ff976912-ef61-4aeb-be1e-af6311919c51" />
+      <Column Name="&quot;ReorderLevel&quot;" Member="ReorderLevel" Type="System.Int16" DbType="INT2" CanBeNull="true" UpdateCheck="Never" ed:ValidateRequired="false" ed:Guid="a172a20b-866e-4586-bfd1-c8401b60512c" />
+      <Column Name="&quot;Discontinued&quot;" Member="Discontinued" Type="System.Int32" DbType="INT4 NOT NULL" CanBeNull="false" UpdateCheck="Never" ed:ValidateRequired="true" ed:Guid="e96bbd8c-436e-411b-bc16-93ca530437c6" />
+    </Type>
+  </Table>
+  <Table Name="public.region" Member="Regions">
+    <Type Name="Region" ed:Guid="8ca586be-77fd-4649-9f2b-7b2002e88525">
+      <Column Name="&quot;RegionID&quot;" Member="RegionID" Type="System.Int16" DbType="INT2 NOT NULL" IsPrimaryKey="true" CanBeNull="false" UpdateCheck="Always" ed:ValidateRequired="true" ed:Guid="66534cea-4b7c-431e-9c42-c715a4ae5ecb" />
+      <Column Name="&quot;RegionDescription&quot;" Member="RegionDescription" Type="System.String" DbType="CHAR NOT NULL" CanBeNull="false" UpdateCheck="Never" FixedLength="true" Unicode="true" ed:ValidateRequired="true" ed:Guid="ec71fc0b-33dd-4c9c-b7f8-72862b808aa4" />
+    </Type>
+  </Table>
+  <Table Name="public.shippers" Member="Shippers">
+    <Type Name="Shipper" ed:Guid="33e352bd-5f90-4317-8bc5-c885e193edc8">
+      <Column Name="&quot;ShipperID&quot;" Member="ShipperID" Type="System.Int16" DbType="INT2 NOT NULL" IsPrimaryKey="true" CanBeNull="false" UpdateCheck="Always" ed:ValidateRequired="true" ed:Guid="c2672f98-59aa-49c1-89b7-2a826e45597f" />
+      <Column Name="&quot;CompanyName&quot;" Member="CompanyName" Type="System.String" DbType="VARCHAR(40) NOT NULL" CanBeNull="false" UpdateCheck="Never" MaxLength="40" Unicode="true" ed:ValidateMaxLength="40" ed:ValidateRequired="true" ed:Guid="5ad592e4-79c7-48ba-be3b-9bd91ae58880" />
+      <Column Name="&quot;Phone&quot;" Member="Phone" Type="System.String" DbType="VARCHAR(24)" CanBeNull="true" UpdateCheck="Never" MaxLength="24" Unicode="true" ed:ValidateMaxLength="24" ed:ValidateRequired="false" ed:Guid="9b3228fe-b62a-407a-b4f5-d359f72c509d" />
+    </Type>
+  </Table>
+  <Table Name="public.shippers_tmp" Member="ShippersTmps">
+    <Type Name="ShippersTmp" ed:Guid="7ede44a5-c0bc-413b-bf75-443e19ee4c31">
+      <Column Name="&quot;ShipperID&quot;" Member="ShipperID" Type="System.Int16" DbType="INT2 NOT NULL" IsPrimaryKey="true" CanBeNull="false" UpdateCheck="Always" ed:ValidateRequired="true" ed:Guid="33f634a1-dd8e-487a-9a35-e465c8b94679" />
+      <Column Name="&quot;CompanyName&quot;" Member="CompanyName" Type="System.String" DbType="VARCHAR(40) NOT NULL" CanBeNull="false" UpdateCheck="Never" MaxLength="40" Unicode="true" ed:ValidateMaxLength="40" ed:ValidateRequired="true" ed:Guid="b2ed3477-b1f2-47ec-a26f-661e59c27cab" />
+      <Column Name="&quot;Phone&quot;" Member="Phone" Type="System.String" DbType="VARCHAR(24)" CanBeNull="true" UpdateCheck="Never" MaxLength="24" Unicode="true" ed:ValidateMaxLength="24" ed:ValidateRequired="false" ed:Guid="9b27e00a-e00e-47ba-ac4c-42dd071affb1" />
+    </Type>
+  </Table>
+  <Table Name="public.suppliers" Member="Suppliers">
+    <Type Name="Supplier" ed:Guid="8b6f9380-0d17-4670-befb-ed6ac8be2be4">
+      <Column Name="&quot;SupplierID&quot;" Member="SupplierID" Type="System.Int16" DbType="INT2 NOT NULL" IsPrimaryKey="true" CanBeNull="false" UpdateCheck="Always" ed:ValidateRequired="true" ed:Guid="d84d7a90-b24b-44ad-922a-fc929c759fbb" />
+      <Column Name="&quot;CompanyName&quot;" Member="CompanyName" Type="System.String" DbType="VARCHAR(40) NOT NULL" CanBeNull="false" UpdateCheck="Never" MaxLength="40" Unicode="true" ed:ValidateMaxLength="40" ed:ValidateRequired="true" ed:Guid="9c595df6-6305-41eb-af8a-fc578ebe00bb" />
+      <Column Name="&quot;ContactName&quot;" Member="ContactName" Type="System.String" DbType="VARCHAR(30)" CanBeNull="true" UpdateCheck="Never" MaxLength="30" Unicode="true" ed:ValidateMaxLength="30" ed:ValidateRequired="false" ed:Guid="bdc70ee0-87d7-4d7a-ab3d-eb074b3ed9c5" />
+      <Column Name="&quot;ContactTitle&quot;" Member="ContactTitle" Type="System.String" DbType="VARCHAR(30)" CanBeNull="true" UpdateCheck="Never" MaxLength="30" Unicode="true" ed:ValidateMaxLength="30" ed:ValidateRequired="false" ed:Guid="b130da90-debc-4b06-9664-580555feab20" />
+      <Column Name="&quot;Address&quot;" Member="Address" Type="System.String" DbType="VARCHAR(60)" CanBeNull="true" UpdateCheck="Never" MaxLength="60" Unicode="true" ed:ValidateMaxLength="60" ed:ValidateRequired="false" ed:Guid="15156a1a-6a55-45ee-ac03-8215935305cb" />
+      <Column Name="&quot;City&quot;" Member="City" Type="System.String" DbType="VARCHAR(15)" CanBeNull="true" UpdateCheck="Never" MaxLength="15" Unicode="true" ed:ValidateMaxLength="15" ed:ValidateRequired="false" ed:Guid="c5c666c1-f861-4652-906a-e1f7e907280a" />
+      <Column Name="&quot;Region&quot;" Member="Region" Type="System.String" DbType="VARCHAR(15)" CanBeNull="true" UpdateCheck="Never" MaxLength="15" Unicode="true" ed:ValidateMaxLength="15" ed:ValidateRequired="false" ed:Guid="7002bcf5-0440-488f-b29e-e789a1cc5cad" />
+      <Column Name="&quot;PostalCode&quot;" Member="PostalCode" Type="System.String" DbType="VARCHAR(10)" CanBeNull="true" UpdateCheck="Never" MaxLength="10" Unicode="true" ed:ValidateMaxLength="10" ed:ValidateRequired="false" ed:Guid="3f81e654-8321-4221-9ef8-a356f9f61234" />
+      <Column Name="&quot;Country&quot;" Member="Country" Type="System.String" DbType="VARCHAR(15)" CanBeNull="true" UpdateCheck="Never" MaxLength="15" Unicode="true" ed:ValidateMaxLength="15" ed:ValidateRequired="false" ed:Guid="5a38c111-e7f7-45b1-a6f6-1746fc9b5b27" />
+      <Column Name="&quot;Phone&quot;" Member="Phone" Type="System.String" DbType="VARCHAR(24)" CanBeNull="true" UpdateCheck="Never" MaxLength="24" Unicode="true" ed:ValidateMaxLength="24" ed:ValidateRequired="false" ed:Guid="a1b22603-bc36-47be-bb02-f243e00a0909" />
+      <Column Name="&quot;Fax&quot;" Member="Fax" Type="System.String" DbType="VARCHAR(24)" CanBeNull="true" UpdateCheck="Never" MaxLength="24" Unicode="true" ed:ValidateMaxLength="24" ed:ValidateRequired="false" ed:Guid="61e18b58-3998-4b8b-b07a-6c0c3f38a8d1" />
+      <Column Name="&quot;HomePage&quot;" Member="HomePage" Type="System.String" DbType="TEXT" CanBeNull="true" UpdateCheck="Never" Unicode="true" ed:ValidateRequired="false" ed:Guid="1c99c57b-9af7-400d-a4a7-79aa0eba6f4e" />
+    </Type>
+  </Table>
+  <Table Name="public.territories" Member="Territories">
+    <Type Name="Territory" ed:Guid="e344aab0-2cf4-4225-a64a-1b0a8f75c11a">
+      <Column Name="&quot;TerritoryID&quot;" Member="TerritoryID" Type="System.String" DbType="VARCHAR(20) NOT NULL" IsPrimaryKey="true" CanBeNull="false" UpdateCheck="Always" MaxLength="20" Unicode="true" ed:ValidateMaxLength="20" ed:ValidateRequired="true" ed:Guid="0ccbf73b-16e3-466a-b6fe-49c240629901" />
+      <Column Name="&quot;TerritoryDescription&quot;" Member="TerritoryDescription" Type="System.String" DbType="CHAR NOT NULL" CanBeNull="false" UpdateCheck="Never" FixedLength="true" Unicode="true" ed:ValidateRequired="true" ed:Guid="5309785b-d7a1-4dc3-94f8-e0bd27a952a5" />
+      <Column Name="&quot;RegionID&quot;" Member="RegionID" Type="System.Int16" DbType="INT2 NOT NULL" CanBeNull="false" UpdateCheck="Never" ed:ValidateRequired="true" ed:Guid="2d15ea14-1df8-4e25-9d49-3af6cf53e121" />
+    </Type>
+  </Table>
+  <Table Name="public.usstates" Member="Usstates">
+    <Type Name="Usstate" ed:Guid="f000f281-d19f-464b-bbd3-ad67a2ec2416">
+      <Column Name="&quot;StateID&quot;" Member="StateID" Type="System.Int16" DbType="INT2 NOT NULL" CanBeNull="false" UpdateCheck="Never" ed:ValidateRequired="true" ed:Guid="fc9e9c7c-029c-4b08-880a-aa7dbe935ffe" />
+      <Column Name="&quot;StateName&quot;" Member="StateName" Type="System.String" DbType="VARCHAR(100)" CanBeNull="true" UpdateCheck="Never" MaxLength="100" Unicode="true" ed:ValidateMaxLength="100" ed:ValidateRequired="false" ed:Guid="b635d633-d92a-4793-8352-baf44efbd9ae" />
+      <Column Name="&quot;StateAbbr&quot;" Member="StateAbbr" Type="System.String" DbType="VARCHAR(2)" CanBeNull="true" UpdateCheck="Never" MaxLength="2" Unicode="true" ed:ValidateMaxLength="2" ed:ValidateRequired="false" ed:Guid="9d8aeec2-76e1-40b3-8eb7-04202cc45178" />
+      <Column Name="&quot;StateRegion&quot;" Member="StateRegion" Type="System.String" DbType="VARCHAR(50)" CanBeNull="true" UpdateCheck="Never" MaxLength="50" Unicode="true" ed:ValidateMaxLength="50" ed:ValidateRequired="false" ed:Guid="f9f6056a-c232-46e1-a586-f32c3161b512" />
+    </Type>
+  </Table>
+</Database>
