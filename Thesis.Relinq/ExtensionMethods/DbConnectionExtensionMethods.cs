@@ -53,7 +53,7 @@ namespace Thesis.Relinq
                 
                 for (int i = 0; i < rows.Length; i++)
                 {
-                    List<object> convertableRow = new List<object>(rows[i].Select(r => r.Value));
+                    var convertableRow = new List<object>(rows[i].Select(r => r.Value));
                     var groupedItemsCount = (long)rows[i][groupedType.Name + ".__GROUP_COUNT"];
                     var groupedItems = (IList)Activator.CreateInstance(genericListType);
 

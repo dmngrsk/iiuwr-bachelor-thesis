@@ -21,7 +21,7 @@ namespace Thesis.Relinq.PsqlQueryGeneration
         private bool _renamingColumns;
 
         /// Contains a map that translates binary expression types to equivalent PostgreSQL query parts.
-        private readonly static Dictionary<ExpressionType, string> _binaryExpressionOperatorsToString = 
+        private static readonly Dictionary<ExpressionType, string> BinaryExpressionOperatorsToString = 
             new Dictionary<ExpressionType, string>()
             {
                 { ExpressionType.Equal,                 " = " },
@@ -51,7 +51,7 @@ namespace Thesis.Relinq.PsqlQueryGeneration
             };
 
         /// Contains a map that translates a C# method name to a format string wrapping a PostgreSQL function and its parameters.
-        private readonly static Dictionary<string, string> _methodCallNamesToString = 
+        private static readonly Dictionary<string, string> MethodCallNamesToString = 
             new Dictionary<string, string>()
             {
                 { "Equals",                             "{0} = {1}" },
@@ -163,7 +163,10 @@ namespace Thesis.Relinq.PsqlQueryGeneration
                 (expression.Left.Type == typeof(string)
                 || expression.Right.Type == typeof(string));
                 
-            var middleDelimiter = isAddingStrings ? " || " : _binaryExpressionOperatorsToString[expression.NodeType];
+            var middleDelimiter = isAddingStrings 
+                ? " || " 
+                : BinaryExpressionOperatorsToString[expression.NodeType];
+
             _psqlExpressionBuilder.Append(middleDelimiter);
 
             this.Visit(expression.Right);
@@ -238,7 +241,7 @@ namespace Thesis.Relinq.PsqlQueryGeneration
         {
             var methodName = expression.Method.Name;
 
-            if (_methodCallNamesToString.ContainsKey(methodName))
+            if (MethodCallNamesToString.ContainsKey(methodName))
             {
                 this.Visit(expression.Object);
                 var expressionAccumulator = new List<object>(new object[] { _psqlExpressionBuilder.ToString() });
@@ -251,7 +254,7 @@ namespace Thesis.Relinq.PsqlQueryGeneration
                     _psqlExpressionBuilder.Clear();
                 }
 
-                var expectedArguments = Regex.Matches(_methodCallNamesToString[methodName], "\\{([^}]+)\\}");
+                var expectedArguments = Regex.Matches(MethodCallNamesToString[methodName], "\\{([^}]+)\\}");
 
                 while (expressionAccumulator.Count < expectedArguments.Count) 
                 {
@@ -263,28 +266,21 @@ namespace Thesis.Relinq.PsqlQueryGeneration
                     case "Concat":
                         expressionAccumulator.RemoveAt(0);
                         _psqlExpressionBuilder.AppendFormat(
-                            _methodCallNamesToString[methodName],
+                            MethodCallNamesToString[methodName],
                             string.Join(", ", expressionAccumulator.Select(x => x.ToString())));
                         break;
 
                     case "Substring":
-                        if (expressionAccumulator.Count == 3)
-                        {
-                            _psqlExpressionBuilder.AppendFormat(
-                                _methodCallNamesToString[methodName + "For"],
-                                expressionAccumulator.ToArray());
-                        }
-                        else // if (expressionAccumulator.Count == 2)
-                        {
-                            _psqlExpressionBuilder.AppendFormat(
-                                _methodCallNamesToString[methodName],
-                                expressionAccumulator.ToArray());
-                        }
+                        _psqlExpressionBuilder.AppendFormat(
+                            expressionAccumulator.Count == 3
+                                ? MethodCallNamesToString[methodName + "For"]
+                                : MethodCallNamesToString[methodName],
+                            expressionAccumulator.ToArray());
                         break;
 
                     default:
                         _psqlExpressionBuilder.AppendFormat(
-                            _methodCallNamesToString[methodName], 
+                            MethodCallNamesToString[methodName], 
                             expressionAccumulator.ToArray());
                         break;
                 }

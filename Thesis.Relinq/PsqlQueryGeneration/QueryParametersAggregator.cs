@@ -5,7 +5,7 @@ namespace Thesis.Relinq.PsqlQueryGeneration
     /// Aggregates parameters of a query while assigning them unique names to use in a raw statement.
     public class QueryParametersAggregator
     {
-        public Dictionary<string, object> Parameters { get; private set; } 
+        public Dictionary<string, object> Parameters { get; } 
 
         public QueryParametersAggregator()
         {

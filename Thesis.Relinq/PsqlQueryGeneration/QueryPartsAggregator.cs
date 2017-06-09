@@ -60,7 +60,7 @@ namespace Thesis.Relinq.PsqlQueryGeneration
             }
             else
             {
-                var renamingPartIndex = SelectPart.IndexOf("\" AS \"") + 1;
+                var renamingPartIndex = SelectPart.IndexOf("\" AS \"", StringComparison.Ordinal) + 1;
                 SelectPart = renamingPartIndex > 0 ? SelectPart.Substring(0, renamingPartIndex) : SelectPart;
 
                 SelectPart = string.Format(scalarPartFormat, SelectPart);
@@ -76,7 +76,7 @@ namespace Thesis.Relinq.PsqlQueryGeneration
             {
                 _subQueryExpressionPartsAggregator.AddFromPart(fromPart);
             }
-            else if (FromParts.Where(x => x.Contains(fromPart)).Count() == 0)
+            else if (FromParts.Count(x => x.Contains(fromPart)) == 0)
             {
                 FromParts.Add(fromPart);
             }

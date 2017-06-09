@@ -16,7 +16,7 @@ namespace Thesis.Relinq.PsqlQueryGeneration
         private readonly DbSchema _dbSchema;
 
         /// Contains a map that translates aggregating result operator types to a format string wrapping a PostgreSQL aggregating function and its parameters.
-        private readonly static Dictionary<Type, string> _aggretatingOperators =
+        private static readonly Dictionary<Type, string> AggretatingOperators =
             new Dictionary<Type, string>()
             {
                 { typeof(CountResultOperator),          "COUNT({0})" },
@@ -28,7 +28,7 @@ namespace Thesis.Relinq.PsqlQueryGeneration
             };
 
         /// Contains a map that translates set-based result operator types to a format string wrapping a PostgreSQL set operation and its parameters.
-        private readonly static Dictionary<Type, string> _setOperators = 
+        private static readonly Dictionary<Type, string> SetOperators = 
             new Dictionary<Type, string>
             {
                 { typeof(UnionResultOperator),          "({0}) UNION ({1})" },
@@ -37,9 +37,9 @@ namespace Thesis.Relinq.PsqlQueryGeneration
                 { typeof(ExceptResultOperator),         "({0}) EXCEPT ({1})" }
             };
 
-        public QueryPartsAggregator QueryParts { get { return _queryParts; } }
-        public QueryParametersAggregator ParameterAggregator { get { return _parameterAggregator; } }
-        public DbSchema DbSchema { get { return _dbSchema; } }
+        public QueryPartsAggregator QueryParts => _queryParts;
+        public QueryParametersAggregator ParameterAggregator => _parameterAggregator;
+        public DbSchema DbSchema => _dbSchema;
 
         public PsqlGeneratingQueryModelVisitor(DbSchema dbSchema) : base()
         {
@@ -128,21 +128,19 @@ namespace Thesis.Relinq.PsqlQueryGeneration
 
         public override void VisitResultOperator(ResultOperatorBase resultOperator, QueryModel queryModel, int index)
         {
-            // TODO: https://www.tutorialspoint.com/linq/linq_query_operators.htm
-
             var operatorType = resultOperator.GetType();
 
-            if (_aggretatingOperators.ContainsKey(operatorType))
+            if (AggretatingOperators.ContainsKey(operatorType))
             {
-                _queryParts.SetSelectPartAsScalar(_aggretatingOperators[operatorType]);
+                _queryParts.SetSelectPartAsScalar(AggretatingOperators[operatorType]);
                 base.VisitResultOperator(resultOperator, queryModel, index);
             }
 
-            else if (_setOperators.ContainsKey(operatorType))
+            else if (SetOperators.ContainsKey(operatorType))
             {
                 dynamic subQueryResultOperator = Convert.ChangeType(resultOperator, operatorType);
                 this.VisitSubQueryExpression(subQueryResultOperator.Source2); // Source2 is a SubQueryExpression.
-                _queryParts.AddSubQueryLinkAction(_setOperators[operatorType]);
+                _queryParts.AddSubQueryLinkAction(SetOperators[operatorType]);
                 base.VisitResultOperator(resultOperator, queryModel, index);
             }
 

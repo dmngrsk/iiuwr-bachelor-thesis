@@ -15,16 +15,16 @@ namespace Thesis.Relinq.Tests
         {
             // Arrange
             var myQuery = 
-                from c in PsqlQueryFactory.Queryable<Customers>(connection)
+                from c in PsqlQueryFactory.Queryable<Customers>(Connection)
                 select c.ContactName.ToLower();
 
-            var myQuery2 = PsqlQueryFactory.Queryable<Customers>(connection)
+            var myQuery2 = PsqlQueryFactory.Queryable<Customers>(Connection)
                 .Select(c => c.ContactName.ToLower());
             
             string psqlCommand = "SELECT LOWER(\"ContactName\") FROM Customers;";
 
             // Act
-            var expected = connection.Query<string>(psqlCommand).ToArray();
+            var expected = Connection.Query<string>(psqlCommand).ToArray();
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 
@@ -38,16 +38,16 @@ namespace Thesis.Relinq.Tests
         {
             // Arrange
             var myQuery = 
-                from c in PsqlQueryFactory.Queryable<Customers>(connection)
+                from c in PsqlQueryFactory.Queryable<Customers>(Connection)
                 select c.ContactName.ToUpper();
 
-            var myQuery2 = PsqlQueryFactory.Queryable<Customers>(connection)
+            var myQuery2 = PsqlQueryFactory.Queryable<Customers>(Connection)
                 .Select(c => c.ContactName.ToUpper());
             
             string psqlCommand = "SELECT UPPER(\"ContactName\") FROM Customers;";
 
             // Act
-            var expected = connection.Query<string>(psqlCommand).ToArray();
+            var expected = Connection.Query<string>(psqlCommand).ToArray();
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 
@@ -61,11 +61,11 @@ namespace Thesis.Relinq.Tests
         {
             // Arrange
             var myQuery = 
-                from c in PsqlQueryFactory.Queryable<Customers>(connection)
+                from c in PsqlQueryFactory.Queryable<Customers>(Connection)
                 where c.ContactName.Contains("A")
                 select c.ContactName;
 
-            var myQuery2 = PsqlQueryFactory.Queryable<Customers>(connection)
+            var myQuery2 = PsqlQueryFactory.Queryable<Customers>(Connection)
                 .Where(c => c.ContactName.Contains("A"))
                 .Select(c => c.ContactName);
             
@@ -74,7 +74,7 @@ namespace Thesis.Relinq.Tests
                 "WHERE \"ContactName\" LIKE '%A%';";
 
             // Act
-            var expected = connection.Query<string>(psqlCommand).ToArray();
+            var expected = Connection.Query<string>(psqlCommand).ToArray();
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 
@@ -88,11 +88,11 @@ namespace Thesis.Relinq.Tests
         {
             // Arrange
             var myQuery = 
-                from c in PsqlQueryFactory.Queryable<Customers>(connection)
+                from c in PsqlQueryFactory.Queryable<Customers>(Connection)
                 where c.ContactName.StartsWith("C")
                 select c.ContactName;
 
-            var myQuery2 = PsqlQueryFactory.Queryable<Customers>(connection)
+            var myQuery2 = PsqlQueryFactory.Queryable<Customers>(Connection)
                 .Where(c => c.ContactName.StartsWith("C"))
                 .Select(c => c.ContactName);
             
@@ -101,7 +101,7 @@ namespace Thesis.Relinq.Tests
                 "WHERE \"ContactName\" LIKE 'C%';";
 
             // Act
-            var expected = connection.Query<string>(psqlCommand).ToArray();
+            var expected = Connection.Query<string>(psqlCommand).ToArray();
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 
@@ -115,11 +115,11 @@ namespace Thesis.Relinq.Tests
         {
             // Arrange
             var myQuery = 
-                from c in PsqlQueryFactory.Queryable<Customers>(connection)
+                from c in PsqlQueryFactory.Queryable<Customers>(Connection)
                 where c.ContactName.EndsWith("e")
                 select c.ContactName;
 
-            var myQuery2 = PsqlQueryFactory.Queryable<Customers>(connection)
+            var myQuery2 = PsqlQueryFactory.Queryable<Customers>(Connection)
                 .Where(c => c.ContactName.EndsWith("e"))
                 .Select(c => c.ContactName);
             
@@ -128,7 +128,7 @@ namespace Thesis.Relinq.Tests
                 "WHERE \"ContactName\" LIKE '%e';";
 
             // Act
-            var expected = connection.Query<string>(psqlCommand).ToArray();
+            var expected = Connection.Query<string>(psqlCommand).ToArray();
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 
@@ -142,18 +142,18 @@ namespace Thesis.Relinq.Tests
         {
             // Arrange
             var myQuery = 
-                from c in PsqlQueryFactory.Queryable<Customers>(connection)
+                from c in PsqlQueryFactory.Queryable<Customers>(Connection)
                 select c.ContactName.Substring(1);
 
-            var myQuery2 = PsqlQueryFactory.Queryable<Customers>(connection)
+            var myQuery2 = PsqlQueryFactory.Queryable<Customers>(Connection)
                 .Select(x => x.CustomerID.Substring(0, 2));
 
             var psqlCommand = "SELECT SUBSTRING(\"ContactName\" FROM 2) FROM Customers;";
             var psqlCommand2 = "SELECT SUBSTRING(\"CustomerID\" FROM 1 FOR 2) FROM Customers;";
 
             // Act
-            var expected = connection.Query<string>(psqlCommand).ToArray();
-            var expected2 = connection.Query<string>(psqlCommand2);
+            var expected = Connection.Query<string>(psqlCommand).ToArray();
+            var expected2 = Connection.Query<string>(psqlCommand2);
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 
@@ -167,14 +167,14 @@ namespace Thesis.Relinq.Tests
         {
             // Arrange
             var myQuery =
-                from c in PsqlQueryFactory.Queryable<Customers>(connection)
+                from c in PsqlQueryFactory.Queryable<Customers>(Connection)
                 select new
                 {
                     Name = c.ContactName,
                     Length = c.ContactName.Length
                 };
 
-            var myQuery2 = PsqlQueryFactory.Queryable<Customers>(connection)
+            var myQuery2 = PsqlQueryFactory.Queryable<Customers>(Connection)
                 .Select(c => new 
                                {
                                    Name = c.ContactName,
@@ -187,7 +187,7 @@ namespace Thesis.Relinq.Tests
                 .MakeGenericMethod(myQuery.ElementType);
 
             // Act
-            var expected = queryMethod.Invoke(null, new object[] { connection, psqlCommand });
+            var expected = queryMethod.Invoke(null, new object[] { Connection, psqlCommand });
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 
@@ -201,16 +201,16 @@ namespace Thesis.Relinq.Tests
         {
             // Arrange
             var myQuery = 
-                from c in PsqlQueryFactory.Queryable<Customers>(connection)
+                from c in PsqlQueryFactory.Queryable<Customers>(Connection)
                 select c.CustomerID.Trim(new char[] { 'A', 'B' });
 
-            var myQuery2 = PsqlQueryFactory.Queryable<Customers>(connection)
+            var myQuery2 = PsqlQueryFactory.Queryable<Customers>(Connection)
                 .Select(c => c.CustomerID.Trim(new char[] { 'A', 'B' }));
             
             string psqlCommand = "SELECT TRIM(both 'AB' from \"CustomerID\") FROM Customers;";
 
             // Act
-            var expected = connection.Query<string>(psqlCommand).ToArray();
+            var expected = Connection.Query<string>(psqlCommand).ToArray();
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 
@@ -224,16 +224,16 @@ namespace Thesis.Relinq.Tests
         {
             // Arrange
             var myQuery = 
-                from c in PsqlQueryFactory.Queryable<Customers>(connection)
+                from c in PsqlQueryFactory.Queryable<Customers>(Connection)
                 select c.CustomerID.TrimStart(new char[] { 'A', 'B' });
 
-            var myQuery2 = PsqlQueryFactory.Queryable<Customers>(connection)
+            var myQuery2 = PsqlQueryFactory.Queryable<Customers>(Connection)
                 .Select(c => c.CustomerID.TrimStart(new char[] { 'A', 'B' }));
             
             string psqlCommand = "SELECT TRIM(leading 'AB' from \"CustomerID\") FROM Customers;";
 
             // Act
-            var expected = connection.Query<string>(psqlCommand).ToArray();
+            var expected = Connection.Query<string>(psqlCommand).ToArray();
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 
@@ -247,16 +247,16 @@ namespace Thesis.Relinq.Tests
         {
             // Arrange
             var myQuery = 
-                from c in PsqlQueryFactory.Queryable<Customers>(connection)
+                from c in PsqlQueryFactory.Queryable<Customers>(Connection)
                 select c.CustomerID.TrimEnd(new char[] { 'A', 'B' });
 
-            var myQuery2 = PsqlQueryFactory.Queryable<Customers>(connection)
+            var myQuery2 = PsqlQueryFactory.Queryable<Customers>(Connection)
                 .Select(c => c.CustomerID.TrimEnd(new char[] { 'A', 'B' }));
             
             string psqlCommand = "SELECT TRIM(trailing 'AB' from \"CustomerID\") FROM Customers;";
 
             // Act
-            var expected = connection.Query<string>(psqlCommand).ToArray();
+            var expected = Connection.Query<string>(psqlCommand).ToArray();
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 
@@ -270,16 +270,16 @@ namespace Thesis.Relinq.Tests
         {
             // Arrange
             var myQuery = 
-                from c in PsqlQueryFactory.Queryable<Customers>(connection)
+                from c in PsqlQueryFactory.Queryable<Customers>(Connection)
                 select c.CustomerID.Trim();
 
-            var myQuery2 = PsqlQueryFactory.Queryable<Customers>(connection)
+            var myQuery2 = PsqlQueryFactory.Queryable<Customers>(Connection)
                 .Select(c => c.CustomerID.Trim());
             
             string psqlCommand = "SELECT TRIM(both from \"CustomerID\") FROM Customers;";
 
             // Act
-            var expected = connection.Query<string>(psqlCommand).ToArray();
+            var expected = Connection.Query<string>(psqlCommand).ToArray();
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 
@@ -293,16 +293,16 @@ namespace Thesis.Relinq.Tests
         {
             // Arrange
             var myQuery = 
-                from c in PsqlQueryFactory.Queryable<Customers>(connection)
+                from c in PsqlQueryFactory.Queryable<Customers>(Connection)
                 select c.CustomerID.TrimStart();
 
-            var myQuery2 = PsqlQueryFactory.Queryable<Customers>(connection)
+            var myQuery2 = PsqlQueryFactory.Queryable<Customers>(Connection)
                 .Select(c => c.CustomerID.TrimStart());
             
             string psqlCommand = "SELECT TRIM(leading from \"CustomerID\") FROM Customers;";
 
             // Act
-            var expected = connection.Query<string>(psqlCommand).ToArray();
+            var expected = Connection.Query<string>(psqlCommand).ToArray();
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 
@@ -316,16 +316,16 @@ namespace Thesis.Relinq.Tests
         {
             // Arrange
             var myQuery = 
-                from c in PsqlQueryFactory.Queryable<Customers>(connection)
+                from c in PsqlQueryFactory.Queryable<Customers>(Connection)
                 select c.CustomerID.TrimEnd();
 
-            var myQuery2 = PsqlQueryFactory.Queryable<Customers>(connection)
+            var myQuery2 = PsqlQueryFactory.Queryable<Customers>(Connection)
                 .Select(c => c.CustomerID.TrimEnd());
             
             string psqlCommand = "SELECT TRIM(trailing from \"CustomerID\") FROM Customers;";
 
             // Act
-            var expected = connection.Query<string>(psqlCommand).ToArray();
+            var expected = Connection.Query<string>(psqlCommand).ToArray();
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 
@@ -339,10 +339,10 @@ namespace Thesis.Relinq.Tests
         {
             // Arrange
             var myQuery = 
-                from c in PsqlQueryFactory.Queryable<Customers>(connection)
+                from c in PsqlQueryFactory.Queryable<Customers>(Connection)
                 select string.Concat(c.ContactName, " is from ", c.Country);
 
-            var myQuery2 = PsqlQueryFactory.Queryable<Customers>(connection)
+            var myQuery2 = PsqlQueryFactory.Queryable<Customers>(Connection)
                 .Select(c => string.Concat(c.ContactName, " is from ", c.Country));
 
             var psqlCommand = 
@@ -350,7 +350,7 @@ namespace Thesis.Relinq.Tests
                 "FROM Customers;";
 
             // Act
-            var expected = connection.Query<string>(psqlCommand).ToArray();
+            var expected = Connection.Query<string>(psqlCommand).ToArray();
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 
@@ -364,18 +364,18 @@ namespace Thesis.Relinq.Tests
         {
             // Arrange
             var myQuery = 
-                from c in PsqlQueryFactory.Queryable<Customers>(connection)
+                from c in PsqlQueryFactory.Queryable<Customers>(Connection)
                 select c.CustomerID.Replace('A', '0');
 
-            var myQuery2 = PsqlQueryFactory.Queryable<Customers>(connection)
+            var myQuery2 = PsqlQueryFactory.Queryable<Customers>(Connection)
                 .Select(c => c.CustomerID.Replace("A", "Hello"));
 
             var psqlCommand = "SELECT REPLACE(\"CustomerID\", 'A', '0') FROM Customers;";
             var psqlCommand2 = "SELECT REPLACE(\"CustomerID\", 'A', 'Hello') FROM Customers;";
 
             // Act
-            var expected = connection.Query<string>(psqlCommand).ToArray();
-            var expected2 = connection.Query<string>(psqlCommand2);
+            var expected = Connection.Query<string>(psqlCommand).ToArray();
+            var expected2 = Connection.Query<string>(psqlCommand2);
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 

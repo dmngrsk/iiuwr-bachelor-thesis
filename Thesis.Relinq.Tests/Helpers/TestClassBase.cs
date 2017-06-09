@@ -5,11 +5,11 @@ namespace Thesis.Relinq.Tests.Helpers
 {
     public abstract class TestClassBase : IDisposable
     {
-        protected NpgsqlConnection connection;
+        protected readonly NpgsqlConnection Connection;
 
-        public TestClassBase()
+        protected TestClassBase()
         {
-            NpgsqlConnectionAdapter adapter = new NpgsqlConnectionAdapter
+            var adapter = new NpgsqlConnectionAdapter
             {
                 Server = "localhost",
                 Port = 5432,
@@ -18,14 +18,14 @@ namespace Thesis.Relinq.Tests.Helpers
                 Database = "northwind"
             };
             
-            connection = adapter.GetConnection();
+            Connection = adapter.GetConnection();
         }
 
         public void Dispose()
         {
-            if (connection != null)
+            if (Connection != null)
             {
-                connection.Dispose();
+                Connection.Dispose();
             }
         }
     }

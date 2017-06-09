@@ -3,7 +3,7 @@ using System.Data.Common;
 namespace Thesis.Relinq
 {
     /// Represents a factory of PsqlQueryable objects.
-    public class PsqlQueryFactory
+    public static class PsqlQueryFactory
     {
         /// Creates a new PsqlQueryable instance.
         public static PsqlQueryable<T> Queryable<T>(DbConnection connection)

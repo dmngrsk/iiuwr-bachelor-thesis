@@ -9,9 +9,9 @@ namespace Thesis.Relinq.PsqlQueryGeneration
     /// Represents a schema of a database and allows to fetch the names of its tables and their columns.
     public class DbSchema
     {
-        private DbConnection _connection;
+        private readonly DbConnection _connection;
         private List<string> _tables;
-        private Dictionary<string, List<string>> _columns;
+        private readonly Dictionary<string, List<string>> _columns;
 
         private string _lastVisitedTable;
         private static string _alphanumericFilter = @"[^a-zA-Z0-9]";
@@ -27,7 +27,7 @@ namespace Thesis.Relinq.PsqlQueryGeneration
         {
             if (_tables == null)
             {
-                var tablesQuery = "SELECT tablename FROM pg_tables WHERE schemaname = 'public';";
+                const string tablesQuery = "SELECT tablename FROM pg_tables WHERE schemaname = 'public';";
                 _tables = _connection.Query<string>(tablesQuery).AsList();
             }
 

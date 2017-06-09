@@ -13,17 +13,17 @@ namespace Thesis.Relinq.Tests
         {
             // Arrange
             var myQuery = 
-                from c in PsqlQueryFactory.Queryable<Employees>(connection)
+                from c in PsqlQueryFactory.Queryable<Employees>(Connection)
                 where c.EmployeeID == 7
                 select c;
 
-            var myQuery2 = PsqlQueryFactory.Queryable<Employees>(connection)
+            var myQuery2 = PsqlQueryFactory.Queryable<Employees>(Connection)
                 .Where(c => c.EmployeeID == 7);
             
             string psqlCommand = "SELECT * FROM Employees WHERE \"EmployeeID\" = 7;";
 
             // Act
-            var expected = connection.Query<Employees>(psqlCommand).ToArray();
+            var expected = Connection.Query<Employees>(psqlCommand).ToArray();
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 
@@ -37,17 +37,17 @@ namespace Thesis.Relinq.Tests
         {
             // Arrange
             var myQuery = 
-                from c in PsqlQueryFactory.Queryable<Employees>(connection)
+                from c in PsqlQueryFactory.Queryable<Employees>(Connection)
                 where c.EmployeeID != 7
                 select c;
 
-            var myQuery2 = PsqlQueryFactory.Queryable<Employees>(connection)
+            var myQuery2 = PsqlQueryFactory.Queryable<Employees>(Connection)
                 .Where(c => c.EmployeeID != 7);
             
             string psqlCommand = "SELECT * FROM Employees WHERE \"EmployeeID\" != 7;";
 
             // Act
-            var expected = connection.Query<Employees>(psqlCommand).ToArray();
+            var expected = Connection.Query<Employees>(psqlCommand).ToArray();
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 
@@ -61,17 +61,17 @@ namespace Thesis.Relinq.Tests
         {
             // Arrange
             var myQuery = 
-                from c in PsqlQueryFactory.Queryable<Employees>(connection)
+                from c in PsqlQueryFactory.Queryable<Employees>(Connection)
                 where c.EmployeeID > 7
                 select c;
 
-            var myQuery2 = PsqlQueryFactory.Queryable<Employees>(connection)
+            var myQuery2 = PsqlQueryFactory.Queryable<Employees>(Connection)
                 .Where(c => c.EmployeeID > 7);
             
             string psqlCommand = "SELECT * FROM Employees WHERE \"EmployeeID\" > 7;";
 
             // Act
-            var expected = connection.Query<Employees>(psqlCommand).ToArray();
+            var expected = Connection.Query<Employees>(psqlCommand).ToArray();
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 
@@ -85,17 +85,17 @@ namespace Thesis.Relinq.Tests
         {
             // Arrange
             var myQuery = 
-                from c in PsqlQueryFactory.Queryable<Employees>(connection)
+                from c in PsqlQueryFactory.Queryable<Employees>(Connection)
                 where c.EmployeeID >= 7
                 select c;
 
-            var myQuery2 = PsqlQueryFactory.Queryable<Employees>(connection)
+            var myQuery2 = PsqlQueryFactory.Queryable<Employees>(Connection)
                 .Where(c => c.EmployeeID >= 7);
             
             string psqlCommand = "SELECT * FROM Employees WHERE \"EmployeeID\" >= 7;";
 
             // Act
-            var expected = connection.Query<Employees>(psqlCommand).ToArray();
+            var expected = Connection.Query<Employees>(psqlCommand).ToArray();
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 
@@ -109,17 +109,17 @@ namespace Thesis.Relinq.Tests
         {
             // Arrange
             var myQuery = 
-                from c in PsqlQueryFactory.Queryable<Employees>(connection)
+                from c in PsqlQueryFactory.Queryable<Employees>(Connection)
                 where c.EmployeeID < 7
                 select c;
 
-            var myQuery2 = PsqlQueryFactory.Queryable<Employees>(connection)
+            var myQuery2 = PsqlQueryFactory.Queryable<Employees>(Connection)
                 .Where(c => c.EmployeeID < 7);
             
             string psqlCommand = "SELECT * FROM Employees WHERE \"EmployeeID\" < 7;";
 
             // Act
-            var expected = connection.Query<Employees>(psqlCommand).ToArray();
+            var expected = Connection.Query<Employees>(psqlCommand).ToArray();
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 
@@ -133,17 +133,17 @@ namespace Thesis.Relinq.Tests
         {
             // Arrange
             var myQuery = 
-                from c in PsqlQueryFactory.Queryable<Employees>(connection)
+                from c in PsqlQueryFactory.Queryable<Employees>(Connection)
                 where c.EmployeeID <= 7
                 select c;
 
-            var myQuery2 = PsqlQueryFactory.Queryable<Employees>(connection)
+            var myQuery2 = PsqlQueryFactory.Queryable<Employees>(Connection)
                 .Where(c => c.EmployeeID <= 7);
             
             string psqlCommand = "SELECT * FROM Employees WHERE \"EmployeeID\" <= 7;";
 
             // Act
-            var expected = connection.Query<Employees>(psqlCommand).ToArray();
+            var expected = Connection.Query<Employees>(psqlCommand).ToArray();
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 
@@ -157,17 +157,17 @@ namespace Thesis.Relinq.Tests
         {
             // Arrange
             var myQuery = 
-                from c in PsqlQueryFactory.Queryable<Employees>(connection)
+                from c in PsqlQueryFactory.Queryable<Employees>(Connection)
                 where (c.EmployeeID + 5) < 10
                 select c;
 
-            var myQuery2 = PsqlQueryFactory.Queryable<Employees>(connection)
+            var myQuery2 = PsqlQueryFactory.Queryable<Employees>(Connection)
                 .Where(c => (c.EmployeeID + 5) < 10);
             
             string psqlCommand = "SELECT * FROM Employees WHERE (\"EmployeeID\" + 5) < 10;";
 
             // Act
-            var expected = connection.Query<Employees>(psqlCommand).ToArray();
+            var expected = Connection.Query<Employees>(psqlCommand).ToArray();
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 
@@ -181,17 +181,17 @@ namespace Thesis.Relinq.Tests
         {
             // Arrange
             var myQuery = 
-                from c in PsqlQueryFactory.Queryable<Employees>(connection)
+                from c in PsqlQueryFactory.Queryable<Employees>(Connection)
                 where (c.EmployeeID - 5) > 0
                 select c;
 
-            var myQuery2 = PsqlQueryFactory.Queryable<Employees>(connection)
+            var myQuery2 = PsqlQueryFactory.Queryable<Employees>(Connection)
                 .Where(c => (c.EmployeeID - 5) > 0);
             
             string psqlCommand = "SELECT * FROM Employees WHERE (\"EmployeeID\" - 5) > 0;";
 
             // Act
-            var expected = connection.Query<Employees>(psqlCommand).ToArray();
+            var expected = Connection.Query<Employees>(psqlCommand).ToArray();
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 
@@ -205,17 +205,17 @@ namespace Thesis.Relinq.Tests
         {
             // Arrange
             var myQuery = 
-                from c in PsqlQueryFactory.Queryable<Employees>(connection)
+                from c in PsqlQueryFactory.Queryable<Employees>(Connection)
                 where (c.EmployeeID * 2) < 10
                 select c;
 
-            var myQuery2 = PsqlQueryFactory.Queryable<Employees>(connection)
+            var myQuery2 = PsqlQueryFactory.Queryable<Employees>(Connection)
                 .Where(c => (c.EmployeeID * 2) < 10);
             
             string psqlCommand = "SELECT * FROM Employees WHERE (\"EmployeeID\" * 2) < 10;";
 
             // Act
-            var expected = connection.Query<Employees>(psqlCommand).ToArray();
+            var expected = Connection.Query<Employees>(psqlCommand).ToArray();
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 
@@ -229,17 +229,17 @@ namespace Thesis.Relinq.Tests
         {
             // Arrange
             var myQuery = 
-                from c in PsqlQueryFactory.Queryable<Employees>(connection)
+                from c in PsqlQueryFactory.Queryable<Employees>(Connection)
                 where (c.EmployeeID / 5) > 0
                 select c;
 
-            var myQuery2 = PsqlQueryFactory.Queryable<Employees>(connection)
+            var myQuery2 = PsqlQueryFactory.Queryable<Employees>(Connection)
                 .Where(c => (c.EmployeeID / 5) > 0);
             
             string psqlCommand = "SELECT * FROM Employees WHERE (\"EmployeeID\" / 5) > 0;";
 
             // Act
-            var expected = connection.Query<Employees>(psqlCommand).ToArray();
+            var expected = Connection.Query<Employees>(psqlCommand).ToArray();
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 
@@ -253,17 +253,17 @@ namespace Thesis.Relinq.Tests
         {
             // Arrange
             var myQuery = 
-                from c in PsqlQueryFactory.Queryable<Employees>(connection)
+                from c in PsqlQueryFactory.Queryable<Employees>(Connection)
                 where (c.EmployeeID % 2) == 0
                 select c;
 
-            var myQuery2 = PsqlQueryFactory.Queryable<Employees>(connection)
+            var myQuery2 = PsqlQueryFactory.Queryable<Employees>(Connection)
                 .Where(c => (c.EmployeeID % 2) == 0);
             
             string psqlCommand = "SELECT * FROM Employees WHERE (\"EmployeeID\" % 2) = 0;";
 
             // Act
-            var expected = connection.Query<Employees>(psqlCommand).ToArray();
+            var expected = Connection.Query<Employees>(psqlCommand).ToArray();
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 
@@ -277,17 +277,17 @@ namespace Thesis.Relinq.Tests
         {
             // Arrange
             var myQuery = 
-                from c in PsqlQueryFactory.Queryable<Employees>(connection)
+                from c in PsqlQueryFactory.Queryable<Employees>(Connection)
                 where (c.EmployeeID & 4) == 0
                 select c;
 
-            var myQuery2 = PsqlQueryFactory.Queryable<Employees>(connection)
+            var myQuery2 = PsqlQueryFactory.Queryable<Employees>(Connection)
                 .Where(c => (c.EmployeeID & 4) == 0);
             
             string psqlCommand = "SELECT * FROM Employees WHERE (\"EmployeeID\" & 4) = 0;";
 
             // Act
-            var expected = connection.Query<Employees>(psqlCommand).ToArray();
+            var expected = Connection.Query<Employees>(psqlCommand).ToArray();
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 
@@ -301,17 +301,17 @@ namespace Thesis.Relinq.Tests
         {
             // Arrange
             var myQuery = 
-                from c in PsqlQueryFactory.Queryable<Employees>(connection)
+                from c in PsqlQueryFactory.Queryable<Employees>(Connection)
                 where (c.EmployeeID | 1) != c.EmployeeID
                 select c;
 
-            var myQuery2 = PsqlQueryFactory.Queryable<Employees>(connection)
+            var myQuery2 = PsqlQueryFactory.Queryable<Employees>(Connection)
                 .Where(c => (c.EmployeeID | 1) != c.EmployeeID);
             
             string psqlCommand = "SELECT * FROM Employees WHERE (\"EmployeeID\" | 1) != \"EmployeeID\";";
 
             // Act
-            var expected = connection.Query<Employees>(psqlCommand).ToArray();
+            var expected = Connection.Query<Employees>(psqlCommand).ToArray();
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 
@@ -325,17 +325,17 @@ namespace Thesis.Relinq.Tests
         {
             // Arrange
             var myQuery = 
-                from c in PsqlQueryFactory.Queryable<Employees>(connection)
+                from c in PsqlQueryFactory.Queryable<Employees>(Connection)
                 where (c.EmployeeID ^ 2) == 0
                 select c;
 
-            var myQuery2 = PsqlQueryFactory.Queryable<Employees>(connection)
+            var myQuery2 = PsqlQueryFactory.Queryable<Employees>(Connection)
                 .Where(c => (c.EmployeeID ^ 2) == 0);
             
             string psqlCommand = "SELECT * FROM Employees WHERE (\"EmployeeID\" # 2) = 0;";
 
             // Act
-            var expected = connection.Query<Employees>(psqlCommand).ToArray();
+            var expected = Connection.Query<Employees>(psqlCommand).ToArray();
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 
@@ -349,17 +349,17 @@ namespace Thesis.Relinq.Tests
         {
             // Arrange
             var myQuery = 
-                from c in PsqlQueryFactory.Queryable<Employees>(connection)
+                from c in PsqlQueryFactory.Queryable<Employees>(Connection)
                 where (c.EmployeeID << 2) < 16
                 select c;
 
-            var myQuery2 = PsqlQueryFactory.Queryable<Employees>(connection)
+            var myQuery2 = PsqlQueryFactory.Queryable<Employees>(Connection)
                 .Where(c => (c.EmployeeID << 2) < 16);
             
             string psqlCommand = "SELECT * FROM Employees WHERE (\"EmployeeID\" << 2) < 16;";
 
             // Act
-            var expected = connection.Query<Employees>(psqlCommand).ToArray();
+            var expected = Connection.Query<Employees>(psqlCommand).ToArray();
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 
@@ -373,17 +373,17 @@ namespace Thesis.Relinq.Tests
         {
             // Arrange
             var myQuery = 
-                from c in PsqlQueryFactory.Queryable<Employees>(connection)
+                from c in PsqlQueryFactory.Queryable<Employees>(Connection)
                 where (c.EmployeeID >> 3) > 0
                 select c;
 
-            var myQuery2 = PsqlQueryFactory.Queryable<Employees>(connection)
+            var myQuery2 = PsqlQueryFactory.Queryable<Employees>(Connection)
                 .Where(c => (c.EmployeeID >> 3) > 0);
             
             string psqlCommand = "SELECT * FROM Employees WHERE (\"EmployeeID\" >> 3) > 0;";
 
             // Act
-            var expected = connection.Query<Employees>(psqlCommand).ToArray();
+            var expected = Connection.Query<Employees>(psqlCommand).ToArray();
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 
@@ -397,11 +397,11 @@ namespace Thesis.Relinq.Tests
         {
             // Arrange
             var myQuery = 
-                from c in PsqlQueryFactory.Queryable<Employees>(connection)
+                from c in PsqlQueryFactory.Queryable<Employees>(Connection)
                 where c.EmployeeID < 7 && c.EmployeeID > 3
                 select c;
 
-            var myQuery2 = PsqlQueryFactory.Queryable<Employees>(connection)
+            var myQuery2 = PsqlQueryFactory.Queryable<Employees>(Connection)
                 .Where(c => c.EmployeeID < 7 && c.EmployeeID > 3);
             
             string psqlCommand = 
@@ -409,7 +409,7 @@ namespace Thesis.Relinq.Tests
                 "WHERE \"EmployeeID\" < 7 AND \"EmployeeID\" > 3;";
 
             // Act
-            var expected = connection.Query<Employees>(psqlCommand).ToArray();
+            var expected = Connection.Query<Employees>(psqlCommand).ToArray();
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 
@@ -423,11 +423,11 @@ namespace Thesis.Relinq.Tests
         {
             // Arrange
             var myQuery = 
-                from c in PsqlQueryFactory.Queryable<Employees>(connection)
+                from c in PsqlQueryFactory.Queryable<Employees>(Connection)
                 where c.EmployeeID > 7 || c.EmployeeID < 3
                 select c;
 
-            var myQuery2 = PsqlQueryFactory.Queryable<Employees>(connection)
+            var myQuery2 = PsqlQueryFactory.Queryable<Employees>(Connection)
                 .Where(c => c.EmployeeID > 7 || c.EmployeeID < 3);
             
             string psqlCommand = 
@@ -435,7 +435,7 @@ namespace Thesis.Relinq.Tests
                 "WHERE \"EmployeeID\" > 7 OR \"EmployeeID\" < 3;";
 
             // Act
-            var expected = connection.Query<Employees>(psqlCommand).ToArray();
+            var expected = Connection.Query<Employees>(psqlCommand).ToArray();
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 
