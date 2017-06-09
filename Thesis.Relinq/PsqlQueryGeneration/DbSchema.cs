@@ -1,8 +1,8 @@
-using Dapper;
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Text.RegularExpressions;
+using Dapper;
 
 namespace Thesis.Relinq.PsqlQueryGeneration
 {

@@ -1,8 +1,8 @@
-using Dapper;
-using Remotion.Linq;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
+using Dapper;
+using Remotion.Linq;
 using Thesis.Relinq.PsqlQueryGeneration;
 
 namespace Thesis.Relinq

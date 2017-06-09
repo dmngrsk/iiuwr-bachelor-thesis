@@ -1,13 +1,11 @@
-﻿using BenchmarkDotNet.Attributes;
-using NorthwindContext;
-using System.Linq;
+﻿using System.Linq;
+using BenchmarkDotNet.Attributes;
 
 namespace Thesis.Relinq.Benchmarks
 {
-    public class DotConnectBenchmark
+    public class LinqToDbBenchmark
     {
-        private static readonly NorthwindDataContext Context = new NorthwindDataContext();
-
+        private static readonly LinqToDbNorthwind Context = new LinqToDbNorthwind();
 
 
         [Benchmark]
@@ -86,27 +84,6 @@ namespace Thesis.Relinq.Benchmarks
         }
 
         [Benchmark]
-        public void handles_string_addition()
-        {
-            var myQuery =
-                from e in Context.Employees
-                select e.FirstName + " " + e.LastName + " has ID: " + e.EmployeeID;
-
-            var executedQuery = myQuery.ToArray();
-        }
-
-        [Benchmark]
-        public void logical_not_applied()
-        {
-            var myQuery =
-                from c in Context.Employees
-                where !(c.EmployeeID < 7 && c.EmployeeID > 3)
-                select c;
-
-            var executedQuery = myQuery.ToArray();
-        }
-
-        [Benchmark]
         public void select_with_multiple_orderings_joined()
         {
             var myQuery =
@@ -125,6 +102,14 @@ namespace Thesis.Relinq.Benchmarks
                 orderby e.EmployeeID descending
                 orderby e.City
                 select e;
+
+            var executedQuery = myQuery.ToArray();
+        }
+
+        [Benchmark]
+        public void select_with_take_while()
+        {
+            var myQuery = Context.Employees.TakeWhile(e => e.EmployeeID < 5);
 
             var executedQuery = myQuery.ToArray();
         }
@@ -195,7 +180,15 @@ namespace Thesis.Relinq.Benchmarks
         }
 
         [Benchmark]
-        public void any()
+        public void select_with_paging()
+        {
+            var myQuery = Context.Employees.Select(x => x).Take(5).Skip(3);
+
+            var executedQuery = myQuery.ToArray();
+        }
+
+        [Benchmark]
+        public void select_where_any_matches_condition()
         {
             var myQuery =
                 from c in Context.Customers
@@ -207,7 +200,7 @@ namespace Thesis.Relinq.Benchmarks
         }
 
         [Benchmark]
-        public void all()
+        public void select_where_all_match_condition()
         {
             var myQuery =
                 from c in Context.Customers
@@ -219,7 +212,7 @@ namespace Thesis.Relinq.Benchmarks
         }
 
         [Benchmark]
-        public void union()
+        public void select_with_union()
         {
             var myQuery =
                 (from c in Context.Customers
@@ -234,7 +227,7 @@ namespace Thesis.Relinq.Benchmarks
         }
 
         [Benchmark]
-        public void concat_as_union_all()
+        public void select_with_concat_as_union_all()
         {
             var myQuery =
                 (from c in Context.Customers
@@ -247,7 +240,7 @@ namespace Thesis.Relinq.Benchmarks
         }
 
         [Benchmark]
-        public void intersect()
+        public void select_with_intersect()
         {
             var myQuery =
                 (from e in Context.Employees
@@ -262,7 +255,7 @@ namespace Thesis.Relinq.Benchmarks
         }
 
         [Benchmark]
-        public void except()
+        public void select_with_except()
         {
             var myQuery =
                 (from e in Context.Employees

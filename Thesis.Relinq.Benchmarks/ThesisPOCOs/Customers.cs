@@ -1,4 +1,4 @@
-namespace Thesis.Relinq.Benchmarks.Models
+namespace Thesis.Relinq.Benchmarks.ThesisPOCOs
 {
     /*  CustomerID   | character
         CompanyName  | character varying

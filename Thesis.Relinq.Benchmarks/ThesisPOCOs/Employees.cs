@@ -1,6 +1,6 @@
 using System;
 
-namespace Thesis.Relinq.Benchmarks.Models
+namespace Thesis.Relinq.Benchmarks.ThesisPOCOs
 {
     /*  EmployeeID      | smallint
         LastName        | character varying

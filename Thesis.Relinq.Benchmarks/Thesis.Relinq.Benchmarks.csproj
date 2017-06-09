@@ -33,14 +33,14 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="BenchmarkDotNet, Version=0.10.7.0, Culture=neutral, PublicKeyToken=aa0ca2f9092cefc4, processorArchitecture=MSIL">
-      <HintPath>..\packages\BenchmarkDotNet.0.10.7\lib\net46\BenchmarkDotNet.dll</HintPath>
+    <Reference Include="BenchmarkDotNet, Version=0.10.8.0, Culture=neutral, PublicKeyToken=aa0ca2f9092cefc4, processorArchitecture=MSIL">
+      <HintPath>..\packages\BenchmarkDotNet.0.10.8\lib\net46\BenchmarkDotNet.dll</HintPath>
     </Reference>
-    <Reference Include="BenchmarkDotNet.Core, Version=0.10.7.0, Culture=neutral, PublicKeyToken=aa0ca2f9092cefc4, processorArchitecture=MSIL">
-      <HintPath>..\packages\BenchmarkDotNet.Core.0.10.7\lib\net46\BenchmarkDotNet.Core.dll</HintPath>
+    <Reference Include="BenchmarkDotNet.Core, Version=0.10.8.0, Culture=neutral, PublicKeyToken=aa0ca2f9092cefc4, processorArchitecture=MSIL">
+      <HintPath>..\packages\BenchmarkDotNet.Core.0.10.8\lib\net46\BenchmarkDotNet.Core.dll</HintPath>
     </Reference>
-    <Reference Include="BenchmarkDotNet.Toolchains.Roslyn, Version=0.10.7.0, Culture=neutral, PublicKeyToken=aa0ca2f9092cefc4, processorArchitecture=MSIL">
-      <HintPath>..\packages\BenchmarkDotNet.Toolchains.Roslyn.0.10.7\lib\net46\BenchmarkDotNet.Toolchains.Roslyn.dll</HintPath>
+    <Reference Include="BenchmarkDotNet.Toolchains.Roslyn, Version=0.10.8.0, Culture=neutral, PublicKeyToken=aa0ca2f9092cefc4, processorArchitecture=MSIL">
+      <HintPath>..\packages\BenchmarkDotNet.Toolchains.Roslyn.0.10.8\lib\net46\BenchmarkDotNet.Toolchains.Roslyn.dll</HintPath>
     </Reference>
     <Reference Include="Dapper, Version=1.50.2.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Dapper.1.50.2\lib\net451\Dapper.dll</HintPath>
@@ -49,6 +49,9 @@
     <Reference Include="Devart.Data.Linq, Version=4.7.1249.0, Culture=neutral, PublicKeyToken=09af7300eec23701, processorArchitecture=MSIL" />
     <Reference Include="Devart.Data.PostgreSql, Version=7.9.912.0, Culture=neutral, PublicKeyToken=09af7300eec23701, processorArchitecture=MSIL" />
     <Reference Include="Devart.Data.PostgreSql.Linq, Version=4.7.1249.0, Culture=neutral, PublicKeyToken=09af7300eec23701, processorArchitecture=MSIL" />
+    <Reference Include="linq2db, Version=1.8.2.0, Culture=neutral, PublicKeyToken=f19f8aed7feff67e, processorArchitecture=MSIL">
+      <HintPath>..\packages\linq2db.1.8.2\lib\net45\linq2db.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.CodeAnalysis, Version=2.2.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.CodeAnalysis.Common.2.2.0\lib\netstandard1.3\Microsoft.CodeAnalysis.dll</HintPath>
     </Reference>
@@ -61,23 +64,23 @@
     <Reference Include="Microsoft.DotNet.PlatformAbstractions, Version=1.1.2.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.DotNet.PlatformAbstractions.1.1.2\lib\net451\Microsoft.DotNet.PlatformAbstractions.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.Win32.Registry, Version=4.0.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Win32.Registry.4.3.0\lib\net46\Microsoft.Win32.Registry.dll</HintPath>
+    </Reference>
     <Reference Include="Npgsql, Version=3.2.3.0, Culture=neutral, PublicKeyToken=5d8b90d52f46fda7, processorArchitecture=MSIL">
       <HintPath>..\packages\Npgsql.3.2.3\lib\net451\Npgsql.dll</HintPath>
     </Reference>
-    <Reference Include="Platform, Version=1.2.1.288, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Platform.NET.1.2.1.288\lib\net452\Platform.dll</HintPath>
+    <Reference Include="Platform, Version=1.2.1.291, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Platform.NET.1.2.1.291\lib\net452\Platform.dll</HintPath>
     </Reference>
-    <Reference Include="Platform.Xml.Serialization, Version=1.2.1.288, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Platform.Xml.Serialization.1.2.1.288\lib\net452\Platform.Xml.Serialization.dll</HintPath>
+    <Reference Include="Platform.Xml.Serialization, Version=1.2.1.291, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Platform.Xml.Serialization.1.2.1.291\lib\net452\Platform.Xml.Serialization.dll</HintPath>
     </Reference>
     <Reference Include="Remotion.Linq, Version=2.1.0.0, Culture=neutral, PublicKeyToken=fee00910d6e5f53b, processorArchitecture=MSIL">
       <HintPath>..\packages\Remotion.Linq.2.1.1\lib\net45\Remotion.Linq.dll</HintPath>
     </Reference>
-    <Reference Include="Shaolinq, Version=1.3.0.1137, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Shaolinq.1.3.0.1137\lib\net452\Shaolinq.dll</HintPath>
-    </Reference>
-    <Reference Include="Shaolinq.Postgres, Version=1.3.0.1137, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Shaolinq.Postgres.1.3.0.1137\lib\net452\Shaolinq.Postgres.dll</HintPath>
+    <Reference Include="Shaolinq, Version=1.3.0.1141, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Shaolinq.1.3.0.1141\lib\net452\Shaolinq.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.AppContext, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
@@ -162,31 +165,35 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DotConnectBenchmark.cs" />
-    <Compile Include="DotConnectContext.Designer.cs">
+    <Compile Include="DevartLinqConnectBenchmark.cs" />
+    <Compile Include="DevartLinqConnectContext.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
-      <DependentUpon>DotConnectContext.lqml</DependentUpon>
+      <DependentUpon>DevartLinqConnectContext.lqml</DependentUpon>
     </Compile>
-    <Compile Include="Models\Customers.cs" />
-    <Compile Include="Models\Employees.cs" />
-    <Compile Include="Models\Orders.cs" />
+    <Compile Include="LinqToDbBenchmark.cs" />
+    <Compile Include="LinqToDbNorthwind.cs" />
+    <Compile Include="LinqToDbPOCOs\Customer.cs" />
+    <Compile Include="LinqToDbPOCOs\Employee.cs" />
+    <Compile Include="LinqToDbPOCOs\Order.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ThesisBenchmark.cs" />
-    <Compile Include="ShaolinqBenchmark.cs" />
+    <Compile Include="ThesisPOCOs\Customers.cs" />
+    <Compile Include="ThesisPOCOs\Employees.cs" />
+    <Compile Include="ThesisPOCOs\Orders.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <None Include="DotConnectContext.Diagram1.view">
-      <DependentUpon>DotConnectContext.lqml</DependentUpon>
+    <None Include="DevartLinqConnectContext.Diagram1.view">
+      <DependentUpon>DevartLinqConnectContext.lqml</DependentUpon>
     </None>
-    <None Include="DotConnectContext.edps">
-      <DependentUpon>DotConnectContext.lqml</DependentUpon>
+    <None Include="DevartLinqConnectContext.edps">
+      <DependentUpon>DevartLinqConnectContext.lqml</DependentUpon>
     </None>
-    <None Include="DotConnectContext.lqml">
+    <None Include="DevartLinqConnectContext.lqml">
       <Generator>DevartLinqToSqlGenerator</Generator>
-      <LastGenOutput>DotConnectContext.Designer.cs</LastGenOutput>
+      <LastGenOutput>DevartLinqConnectContext.Designer.cs</LastGenOutput>
     </None>
     <None Include="packages.config" />
   </ItemGroup>
