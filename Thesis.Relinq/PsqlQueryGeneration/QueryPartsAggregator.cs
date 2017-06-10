@@ -295,11 +295,6 @@ namespace Thesis.Relinq.PsqlQueryGeneration
 
         private void WrapSubQueryExpressionsToQueryParts()
         {
-            if (_subQueryExpressionPartsAggregator != null)
-            {
-                _subQueryExpressionPartsAggregator.WrapSubQueryExpressionsToQueryParts();            
-            }
-
             if (SubQueries.Count != SubQueryLinkActions.Count)
             {
                 throw new ArgumentException(

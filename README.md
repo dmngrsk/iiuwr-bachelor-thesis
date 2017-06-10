@@ -4,7 +4,7 @@ The topic of my bachelor's thesis was writing a library that uses the abstract s
 
 # Disclaimer
 
-If you are looking for a good LINQ provider for PostgreSQL, **you should definitely not** use mine - this program is nothing but a proof of concept and you probably are looking for a full-featured and faster alternative, like commercial [Devart's LinqConnect](https://www.devart.com/dotconnect/postgresql/articles/tutorial_linq.html), or open-source [Linq2Db](https://github.com/linq2db/linq2db).
+If you are looking for a good LINQ provider for PostgreSQL, **you should definitely not** use mine - this program is nothing but a proof of concept and you probably are looking for a full-featured and faster alternative, like commercial [Devart's LinqConnect](https://www.devart.com/dotconnect/postgresql/articles/tutorial_linq.html), or open-source [LinqToDB](https://github.com/linq2db/linq2db).
 
 # Used technologies and stuff
 

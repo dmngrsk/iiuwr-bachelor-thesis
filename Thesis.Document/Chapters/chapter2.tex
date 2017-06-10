@@ -2,47 +2,114 @@
 Znając sposób działania dostawców LINQ oraz budowę drzewa \texttt{QueryModel}, wystarczy opracować metodę przechodzenia przez te drzewa w celu budowy zapytania do bazy PostgreSQL. Punktem wejściowym dla projektu, który jest załącznikiem do niniejszej pracy, jest artykuł \cite{codeproject_nhibernate}, opisujący przykładową implementację dostawcy LINQ dla NHibernate.
 
 \section{Implementacja \texttt{QueryModelVisitorBase}}
-Korzystając z dotychczasowej wiedzy, następnym krokiem do wykonania jest implementacja metod odwiedzających nowe drzewo rozbioru składniowego. Również w tym przypadku biblioteka re-linq asystuje programistę w tym zadaniu, udostępniając klasę \href{https://github.com/re-motion/Relinq/blob/ab11f0997998a90e17e90dc58b215c3997d47311/Core/QueryModelVisitorBase.cs}{\texttt{QueryModelVisitorBase}}, która implementuje zbiór metod odwiedzających obiekt \texttt{QueryModel}. Klasa ta nie robi nic szczególnego, poza sprawdzeniem poprawności typu elementów przekazywanych w argumentach oraz ich zaakceptowaniu - typowa implementacja wzorca Odwiedzający (Visitor). Trzeba oczywiście napisać rozszerzenie tej klasy, która wykona dodatkową logikę na argumentach implementowanych metod, oraz wywoła bazową logikę z użyciem słowa kluczowego \texttt{base}.
+Korzystając z dotychczasowej wiedzy, następnym krokiem do wykonania jest implementacja metod odwiedzających nowe drzewo rozbioru składniowego. Również w tym przypadku biblioteka re-linq asystuje programistę w tym zadaniu, udostępniając klasę \href{https://github.com/re-motion/Relinq/blob/ab11f0997998a90e17e90dc58b215c3997d47311/Core/QueryModelVisitorBase.cs}{\texttt{QueryModelVisitorBase}}, która implementuje zbiór metod odwiedzających obiekt \texttt{QueryModel}. Stawianym przed programistą zadaniem jest napisanie klasy dziedziczącej po \texttt{QueryModelVisitorBase}, która wykona dodatkową logikę na argumentach implementowanych metod, oraz wywoła bazową logikę z użyciem słowa kluczowego \texttt{base} w celu akceptowania odwiedzanych elementów.
 
-Argumentami każdej z metod, które będą nadpisywane, są różne klauzule - skondensowane do postaci wygodnych obiektów - które występują w zapytaniu LINQ. Ich właściwościami są znane już obiekty \texttt{Expression}, jednak są one na tyle proste, że można łatwo się zająć ich odwiedzeniem, i o tym będzie traktować następna sekcja tego rozdziału. Na chwilę obecną załóżmy, że posiadamy generyczną metodę, która odwiedza każdy możliwy podtyp \texttt{Expression}, i na jego podstawie buduje fragment zapytania SQL-owego, który jest przekazywany do instancji klasy \texttt{QueryPartsAggregator}, służącej do łączenia takich fragmentów w pełne zapytanie SQL. Dokładna implementacja klasy, która jest tematem niniejszego podrozdziału, znajduje się w pliku \texttt{PsqlGeneratingQueryModelVisitor.cs}. Autor pracy zachęca czytelnika do zapoznawania się z nim w trakcie czytania następnych podsekcji.
+Argumentami każdej z metod, które będą nadpisywane, są różne klauzule - skondensowane do postaci wygodnych obiektów - które występują w zapytaniu LINQ. Ich właściwościami są znane już obiekty \texttt{Expression}, jednak są one na tyle proste, że można łatwo się zająć ich odwiedzeniem, i o tym będzie traktować następna sekcja tego rozdziału. Na chwilę obecną załóżmy, że posiadamy generyczną metodę, która odwiedza każdy możliwy podtyp \texttt{Expression}, i na jego podstawie buduje fragment zapytania SQL-owego. Taki fragment jest przekazywany do instancji klasy \texttt{QueryPartsAggregator}, służącej do łączenia takich fragmentów w pełne zapytanie SQL. Dokładna implementacja klasy, która jest tematem niniejszego podrozdziału, znajduje się w pliku \texttt{PsqlGeneratingQueryModelVisitor.cs}. Autor pracy zachęca czytelnika do zapoznawania się z nim w trakcie czytania następnych podsekcji.
 
 \subsection{Metoda \texttt{VisitQueryModel}}
-TODO.
+Punkt wejściowy dla całego procesu odwiedzania całego zapytania. Dla zadanego \texttt{QueryModel}, wywołuje metody \texttt{VisitSelectClause}, \texttt{VisitMainFromClause} oraz zbiór metod odwiedzających po kolei każdy z elementów właściwości \linebreak \texttt{BodyClauses} i \texttt{ResultOperators}.
 
 \subsection{Metoda \texttt{VisitSelectClause}}
-TODO.
+Odwiedza klauzulę \texttt{SelectClause}, która definiuje właściwości obiektu, który zostanie zbudowany w wyniku zapytania (buduje część \texttt{SELECT} zapytania SQL-owego).
 
 \subsection{Metoda \texttt{VisitMainFromClause}}
-TODO.
+Odwiedza klauzulę \texttt{MainFromClause}, która definiuje źródło, na podstawie którego obiekt zostanie zbudowany w wyniku zapytania (dodaje pierwszą tabelę do części \texttt{FROM} w zapytaniu SQL-owym).
 
 \subsection{Metoda \texttt{VisitWhereClause}}
-TODO.
+W przypadku, gdy kolekcja \texttt{BodyClauses} zawiera klauzulę \texttt{WhereClause} (inaczej - zapytanie LINQ zawiera metodę \texttt{Where}), dodaje warunek, który wybrane dane muszą spełniać (dodaje element do części \texttt{WHERE} zapytania SQL-owego).
 
 \subsection{Metoda \texttt{VisitOrderByClause}}
-TODO.
+W przypadku, gdy kolekcja \texttt{BodyClauses} zawiera klauzulę \texttt{OrderByClause} (zapytanie LINQ zawiera metodę \texttt{OrderBy} lub \texttt{OrderByDescending}), dodaje porządek, według którego dane zostaną posortowane (dodaje element do części \texttt{ORDER BY} zapytania SQL-owego).
 
 \subsection{Metoda \texttt{VisitJoinClause}}
-TODO.
+W przypadku, gdy kolekcja \texttt{BodyClauses} zawiera klauzulę \texttt{JoinClause} (zapytanie LINQ zawiera metodę \texttt{Join}), dodaje złączenie wewnętrzne (ang. \textit{inner join}) do poprzedniego dodanego źródła danych w zapytaniu (dokleja \texttt{INNER JOIN [table]} do odpowiedniej części \texttt{FROM} zapytania SQL-owego, a dokładniej do tabeli, która jest łączona).
 
 \subsection{Metoda \texttt{VisitAdditionalFromClause}}
-TODO.
+W przypadku, gdy kolekcja \texttt{BodyClauses} zawiera klauzulę \texttt{FromClause} (zapytanie LINQ zawiera więcej niż jedną część \texttt{from}, która została zakumulowana razem z poprzednimi do większego obiektu metodą \texttt{SelectMany}), dodaje następne źródło, na podstawie którego obiekt zostanie zbudowany w wyniku zapytania (dodaje następną tabelę do części \texttt{FROM} zapytania SQL-owego po przecinku, co w rezultacie tworzy iloczyn kartezjański dwóch tabel, ang. \textit{cross join}).
 
 \subsection{Metoda \texttt{VisitGroupJoinClause}}
-TODO.
+W przypadku, gdy kolekcja \texttt{BodyClauses} zawiera klauzulę \texttt{GroupJoinClause} (zapytanie LINQ zawiera metodę \texttt{GroupJoin}), dodaje lewostronne złączenie zewnętrzne (ang. \textit{left join}) do poprzedniego dodanego źródła danych w zapytaniu (dokleja \texttt{LEFT JOIN [table]} do odpowiedniej części \texttt{FROM} zapytania SQL-owego, a dokładniej do tabeli, która jest łączona).
 
 \subsection{Metoda \texttt{VisitResultOperator}}
-TODO.
+W odróżnieniu od wszystkich powyższych klauzul, które implementują \linebreak \href{https://github.com/re-motion/Relinq/blob/82fdca6a4bfd942bb4a71dd20ab9c5af0aea0541/Core/Clauses/IBodyClause.cs}{\texttt{IBodyClause}}, re-linq niestety nie udostępnia wygodnego modelu odwiedzania dla obiektów \href{https://github.com/re-motion/Relinq/blob/82fdca6a4bfd942bb4a71dd20ab9c5af0aea0541/Core/Clauses/ResultOperatorBase.cs}{\texttt{ResultOperatorBase}}, w związku z tym ta metoda jest wywoływana dla każdego obiektu zawartego we właściwości \texttt{QueryModel.ResultOperators}.
+
+Dostawca LINQ, który jest tematem niniejszej pracy, dzieli operatory wynikowe na pięć kategorii, zależnych od właściwego typu obiektu, który dziedziczy po \texttt{ResultOperatorBase} (każdy z nich nazywa się \texttt{SomeResultOperator}, dla prostoty każda nazwa została w poniższym spisie skrócona):
+
+\begin{enumerate}[a)]
+\item \texttt{Count}, \texttt{Average}, \texttt{Min}, \texttt{Max}, \texttt{Sum}, \texttt{Distinct} (operatory agregujące, które jako argument przyjmują zbiór wybranych danych i na ich podstawie zwraca pojedynczą wartość (w przypadku \texttt{Distinct} - unikatowe krotki)) - otacza wybraną część \texttt{SELECT} zapytania SQL-owego w odpowiadającą danemu operatorowi funkcję.
+\item \texttt{Union, Intersect, Concat, Except} (operatory, które jako argumenty przyjmują zbiory danych i zwracają nowy zbiór) - sygnatury odpowiadających w języku C\# metod w jednym ze swoich argumentów mają zbiór, na którym ma zostać wykonana dana operacja. Ten zbiór jest oczywiście kolejnym drzewem \texttt{Expression}, które zostaje przetłumaczone na \texttt{QueryModel}, w związku z tym budowane zostaje podzapytanie, a zapytanie końcowe jest wynikiem złączenia zapytania głównego i podrzędnego. 
+\item \texttt{Take}, \texttt{Skip} (operatory stronicowania) - dodaje do zapytania odpowiednią część odpowiedzialną za stronicowanie \texttt{(LIMIT X/OFFSET X)}.
+\item \texttt{Any} (operator określający istnieje obiektu, który spełnia pewien warunek) - dolecowo użyty do wybierania obiektu na podstawie stwierdzenia, czy istnieje obiekt w wyniku innego zapytaniu, który spełnia podany na zewnątrz warunek. Poniższe zapytanie LINQ:
+
+\begin{lstlisting}
+QueryFactory.CreateLinqQuery<Customer>()
+    .Where(c => QueryFactory.CreateLinqQuery<Order>()
+    .Any(o => o.CustomerID == c.CustomerID));
+\end{lstlisting}
+
+zostaje tłumaczone na odpowiadające mu zapytanie w SQL-u:
+
+\begin{lstlisting}
+SELECT * FROM customers WHERE EXISTS 
+  (SELECT * FROM orders WHERE
+    (customers.CustomerID = orders.CustomerID));
+\end{lstlisting}
+
+% p ^ q <=> ~p ^ ~q
+\item \texttt{All} (operator określający spełnienie pewnego warunku przez wszystkie obiekty w kolekcji) - dolecowo użyty do wybierania obiektu na podstawie stwierdzenia, czy wszystkie obiekty w wyniku innego zapytania spełniają podany na zewnątrz warunek. To stwierdzenie jest równoważne stwierdzeniu, że \textbf{nie istnieje} obiekt, który \textbf{nie spełnia} danego warunku (na zajęciach \textit{Logika dla informatyków} w IIUWr można dowiedzieć się, że $\forall x \phi \Leftrightarrow \neg \exists x \neg \phi$). Korzystając z tego faktu, poniższe zapytanie LINQ:
+
+\begin{lstlisting}
+QueryFactory.CreateLinqQuery<Customer>()
+    .Where(c => QueryFactory.CreateLinqQuery<Order>()
+    .All(o => o.CustomerID != c.CustomerID));
+\end{lstlisting}
+
+zostaje tłumaczone na następujące zapytanie w SQL-u:
+
+\begin{lstlisting}
+SELECT * FROM customers WHERE NOT EXISTS 
+  (SELECT * FROM orders WHERE NOT
+    (customers.CustomerID != orders.CustomerID));
+\end{lstlisting}
+
+\end{enumerate}
 
 \section{Implementacja \texttt{RelinqExpressionVisitor}}
+Implementacja klasy \texttt{QueryModelVisitorBase}, opisana w rozdziale 2.1, zajmuje się odwiedzaniem obiektu \texttt{QueryModel} oraz przetwarzaniem wygenerowanych części zapytania SQL-owego do postaci pary napisu przedstawiającego zapytanie oraz słownika z parametrami. W tym rozdziale opisana została implementacja udostępnianej przez re-linq klasy abstrakcyjnej \href{https://github.com/re-motion/Relinq/blob/82fdca6a4bfd942bb4a71dd20ab9c5af0aea0541/Core/Parsing/RelinqExpressionVisitor.cs}{\texttt{RelinqExpressionVisitor}}, która dziedziczy po .NET-owym \href{https://msdn.microsoft.com/en-us/library/system.linq.expressions.expressionvisitor(v=vs.110).aspx}{\texttt{ExpressionVisitor}}. Służy ona do generowania kluczowych części zapytania oraz parametrów, które dane zapytanie będzie wykorzystywać.
+
+Argumentami każdej z metod, które będą nadpisywane, są obiekty dziedziczące po \texttt{Expression}. Na ich podstawie budowany jest napis w klasie \href{https://msdn.microsoft.com/pl-pl/library/system.text.stringbuilder(v=vs.110).aspx}{\texttt{StringBuilder}}, który po zakończeniu odwiedzania wyrażenia zostaje przekazany do omawianej już implementacji \texttt{QueryModelVisitorBase}.
+
+\subsection{Metoda \texttt{VisitQuerySourceReference}}
+TODO.
+
+\subsection{Metoda \texttt{VisitSubQuery}}
 TODO.
 
 \subsection{Metoda \texttt{VisitBinary}}
 TODO.
 
-\section{Czynności następujące budowę zapytania}
+\subsection{Metoda \texttt{VisitConditional}}
+TODO.
+
+\subsection{Metoda \texttt{VisitConstant}}
+TODO.
+
+\subsection{Metoda \texttt{VisitMember}}
+TODO.
+
+\subsection{Metoda \texttt{VisitMethodCall}}
+TODO.
+
+\subsection{Metoda \texttt{VisitNew}}
+TODO.
+
+\subsection{Metoda \texttt{VisitUnary}}
+TODO.
+
+\section{Czynności wykonywane po budowie zapytania}
 Potrafiąc zbudować dowolne zapytanie SQL-owe na podstawie zapytania LINQ, pozostaje już tylko kwestia wykonania go i zwrócenia wyniku w postaci obiektowej. Autor pracy postanowił użyć do tego celu bibliotek \href{}{Npgsql} (połączenie z bazą PostgreSQL, wykonywanie zapytania) oraz \href{}{Dapper} (rozszerzenie umożliwiające wygodne mapowanie relacyjno-obiektowe).
 
-Z użyciem tych dwóch bibliotek, wykonanie zapytania i przetłumaczenie wyniku do postaci obiektowej jest bardzo proste - biblioteka Dapper rozszerza obiekt \texttt{NpgsqlConnection} służący do łączenia z bazą danych o metody \texttt{Query} i \texttt{Query<T>}, które umożliwiają automatyczne mapowanie wyniku do postaci obiektowej. Poniżej fragment kodu z przykładowej implementacji \texttt{IQueryExecutor}:
+Z użyciem tych dwóch bibliotek, wykonanie zapytania i przetłumaczenie wyniku do postaci obiektowej jest bardzo proste - biblioteka Dapper rozszerza obiekt \texttt{DbConnection}, służący do łączenia z bazą danych, o metody \texttt{Query} i \texttt{Query<T>}, które umożliwiają automatyczne mapowanie wyniku do postaci obiektowej. Poniżej fragment kodu z przykładowej implementacji \texttt{IQueryExecutor}:
 
 \begin{lstlisting}
 var commandData = SomeQueryModelVisitor.GenerateQuery(queryModel);
@@ -53,16 +120,6 @@ var p = commandData.Parameters;
 return connection.Query<SomeClass>(s, p);
 \end{lstlisting}
 
-W tym miejscu zmienna \texttt{result} jest typu \texttt{IEnumerable<SomeClass>}, gdzie \texttt{SomeClass} jest typem obiektu, który zwraca oryginalne zapytanie LINQ (jest ono typu \texttt{IQueryable<SomeClass>)}. Dapper wymaga, aby nazwy kolumn w relacjach mapowanych na obiekty były takie same, jak nazwy właściwości w klasie modelowej - stąd, podczas budowy zapytania, każda kolumna została przemianowana na nazwę odpowiadającej właściwości w klasie z użyciem słowa kluczowego \texttt{AS}.
+W tym miejscu zmienna \texttt{result} jest typu \texttt{IEnumerable<T>}, gdzie \texttt{T} jest typem obiektu, który zwraca oryginalne zapytanie LINQ (jest ono typu \texttt{IQueryable<T>)}. Dapper wymaga, aby nazwy kolumn w relacjach mapowanych na obiekty były takie same, jak nazwy właściwości w klasie modelowej - stąd, podczas budowy zapytania, każda kolumna została przemianowana na nazwę odpowiadającej właściwości w klasie z użyciem słowa kluczowego \texttt{AS}.
 
-Autorowi pracy niestety nie udało się dotrzeć do tego, w jaki sposób Dapper może mapować krotki na typy anonimowe, lecz znalazł obejście tego problemu. Algorytm składa się z następujących kroków:
-
-\begin{enumerate}
-\item Sprawdź, czy typ obiektu wyjściowego jest anonimowy. Jeśli nie, wykonaj metodę \texttt{Query<T>} i zwróć wynik.
-\item Wiadomo, że typ obiektu jest anonimowy. Wykonaj metodę \texttt{Query}, która zwraca wynik w postaci obiektów \texttt{DapperRow}. 
-\item Przetłumacz DapperRow na słownik \texttt{IDictionary}.
-\item Wyciągnij tylko i wyłącznie wartości każ Wewnętrzna implementacja \texttt{DapperRow} gwarantuje, że kolejność wartości z par kluczy-wartość będzie zgodna z kolejnością kolumn w wynikowym zapytania.
-\item Korzystając z klasy \texttt{Activator}, dla każdej krotki stwórz instancję typu \texttt{T}, której wartościami będzie krotka przekazywana jako argument do metody \texttt{Activator.CreateInstance}. Zwróć wynik.
-\end{enumerate}
-
-W ten sposób, implementacja \texttt{IQueryExecutor} jest w stanie przemapować \textit{prawie} każde zapytanie do postaci obiektowej. Trzeba jednak jeszcze rozpatrzyć przypadek, gdzie zapytanie LINQ wykorzystywało metodę \texttt{GroupBy}. TODO.
+Dapper niestety nie radzi sobie z typami anonimowymi ze względu na to, że nie istnieje publiczny konstruktor obiektów tego rodzaju. Obejściem tego problemu jest metoda rozszerzająca \texttt{QueryAnonymous<T>}. OPIS TODO.

@@ -159,16 +159,12 @@ namespace Thesis.Relinq.PsqlQueryGeneration
             {
                 _queryParts.AddSubQueryLinkAction("EXISTS ({0})");
             }
+
             else if (resultOperator is AllResultOperator)
             {
                 var subQuery = (resultOperator as AllResultOperator);
                 _queryParts.AddWherePart($"NOT ({GetPsqlExpression(subQuery.Predicate)})");
                 _queryParts.AddSubQueryLinkAction("NOT EXISTS ({0})");
-            }
-
-            else if (resultOperator is GroupResultOperator)
-            {
-                Console.WriteLine("foo");
             }
 
             else
