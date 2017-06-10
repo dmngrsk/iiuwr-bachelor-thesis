@@ -38,3 +38,34 @@ Z poprzedniej sekcji wynika, że przeciętny student informatyki w ciągu cztere
 
 W ramach sprawiedliwego pomiaru, każda z trzech bibliotek otrzymała identyczne zapytania do wykonania na tej samej bazie danych. Poniższa tabela przedstawia czasy wykonania pojedynczego zapytania określonego rodzaju (nazwy testów powinny mówić same za siebie):
 
+\vspace{0.2in}
+\begin{table}[h]
+\centering
+\begin{tabular}{l|ccc}
+\textbf{Nazwa testu}                    & \textbf{LinqConnect} & \textbf{linq2db} & \textbf{ThesisRelinq} \\
+\hline
+select\_all                             & 0,877 ms             & 1,443 ms          & 4,888 ms             \\
+select\_anonymous\_type                 & 0,658 ms             & 0,569 ms          & 4,226 ms             \\
+select\_with\_where                     & 0,594 ms             & 0,362 ms          & 3,874 ms             \\
+select\_with\_multiconditional\_where   & 0,682 ms             & 0,488 ms          & 4,518 ms             \\
+select\_with\_multiple\_wheres          & 0,703 ms             & 0,498 ms          & 4,399 ms             \\
+select\_with\_case                      & 0,659 ms             & N/A               & 4,034 ms             \\
+select\_with\_orderings\_joined         & 0,721 ms             & 0,637 ms          & 4,594 ms             \\
+select\_with\_orderings\_split          & 0,719 ms             & 0,630 ms          & 4,559 ms             \\
+select\_with\_take\_while               & N/A                  & N/A               & N/A                  \\
+select\_with\_cross\_join               & 2,873 ms             & 3,169 ms          & 11,570 ms            \\
+select\_with\_inner\_join               & 2,945 ms             & 3,544 ms          & 11,229 ms            \\
+select\_with\_group\_join               & 69,715 ms            & 74,779 ms         & 155,695 ms           \\
+select\_with\_outer\_join               & 3,036 ms             & 3,682 ms          & 10,984 ms            \\
+select\_with\_paging                    & 1,129 ms             & 0,444 ms          & 4,477 ms             \\
+select\_where\_any\_matches\_condition  & 1,820 ms             & 1,996 ms          & 8,493 ms             \\
+select\_where\_all\_match\_condition    & 1,416 ms             & 0,900 ms          & 7,224 ms             \\
+select\_with\_union                     & 0,890 ms             & N/A               & 4,565 ms             \\
+select\_with\_concat\_as\_union\_all    & 0,842 ms             & N/A               & 4,228 ms             \\
+select\_with\_intersect                 & 1,012 ms             & 1,229 ms          & 5,039 ms             \\
+select\_with\_except                    & 1,025 ms             & 0,683 ms          & 5,070 ms    
+\end{tabular}
+\end{table}
+
+\vspace{0.1in}
+Zakładając, że pierwsze dwie biblioteki działają w optymalnym czasie, można zauważyć, że dostawca LINQ autora pracy działa około pięć razy wolniej od rozwiązania wzorcowego.

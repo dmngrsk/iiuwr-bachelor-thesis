@@ -20,7 +20,7 @@ namespace Thesis.Relinq.Benchmarks
         }
 
         [Benchmark]
-        public void select_columns_creating_an_anonymous_type()
+        public void select_anonymous_type()
         {
             var myQuery =
                 from c in Context.Customers
@@ -87,7 +87,7 @@ namespace Thesis.Relinq.Benchmarks
         }
 
         [Benchmark]
-        public void select_with_multiple_orderings_joined()
+        public void select_with_orderings_joined()
         {
             var myQuery =
                 from e in Context.Employees
@@ -98,7 +98,7 @@ namespace Thesis.Relinq.Benchmarks
         }
 
         [Benchmark]
-        public void select_with_multiple_orderings_split()
+        public void select_with_orderings_split()
         {
             var myQuery =
                 from e in Context.Employees

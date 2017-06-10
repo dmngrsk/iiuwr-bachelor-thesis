@@ -1,22 +1,23 @@
-﻿using System.Linq;
+using System.Configuration;
+using System.Linq;
 using BenchmarkDotNet.Attributes;
-using NorthwindContext;
+using Npgsql;
 
 namespace Thesis.Relinq.Benchmarks
 {
-    public class DevartLinqConnectBenchmark
-    {
-        // Prerequisite: you need to install dotConnect for PostgreSQL 7.9 Professional Trial
-        // and its Visual Studio extensions in order to run this benchmark test.
+    public class ThesisRelinqBenchmark
+    {   
+        private static readonly NpgsqlConnection Connection = new NpgsqlConnection(
+            ConfigurationManager.ConnectionStrings["NorthwindDataContextConnectionString"].ConnectionString);
 
-        private static readonly NorthwindDataContext Context = new NorthwindDataContext();
+        private static readonly ThesisRelinqNorthwindContext Context = new ThesisRelinqNorthwindContext(Connection);
 
 
 
         [Benchmark]
         public void select_all()
         {
-            var myQuery =
+            var myQuery = 
                 from c in Context.Customers
                 select c;
 
@@ -26,7 +27,7 @@ namespace Thesis.Relinq.Benchmarks
         [Benchmark]
         public void select_anonymous_type()
         {
-            var myQuery =
+            var myQuery = 
                 from c in Context.Customers
                 select new
                 {
@@ -40,9 +41,9 @@ namespace Thesis.Relinq.Benchmarks
         [Benchmark]
         public void select_with_where()
         {
-            var myQuery =
+            var myQuery = 
                 from c in Context.Customers
-                where c.CustomerID == "PARIS"
+                where c.CustomerID == "PARIS" 
                 select c;
 
             var executedQuery = myQuery.ToArray();
@@ -51,9 +52,9 @@ namespace Thesis.Relinq.Benchmarks
         [Benchmark]
         public void select_with_multiconditional_where()
         {
-            var myQuery =
+            var myQuery = 
                 from e in Context.Employees
-                where e.EmployeeID > 5 && e.City == "London"
+                where e.EmployeeID > 5 && e.City == "London" 
                 select e;
 
             var executedQuery = myQuery.ToArray();
@@ -62,27 +63,27 @@ namespace Thesis.Relinq.Benchmarks
         [Benchmark]
         public void select_with_multiple_wheres()
         {
-            var myQuery =
+            var myQuery = 
                 from e in Context.Employees
                 where e.EmployeeID > 5
-                where e.City == "London"
+                where e.City == "London" 
                 select e;
 
             var executedQuery = myQuery.ToArray();
         }
-
+        
         [Benchmark]
         public void select_with_case()
         {
-            var myQuery =
+            var myQuery = 
                 from e in Context.Employees
                 where e.EmployeeID < 8
-                select new
+                select new 
                 {
-                    EmployeeID = e.EmployeeID,
-                    CaseResult = (e.EmployeeID < 5
-                        ? "smaller than five"
-                        : e.EmployeeID == 5
+                    EmployeeID = e.EmployeeID, 
+                    CaseResult = (e.EmployeeID < 5 
+                        ? "smaller than five" 
+                        : e.EmployeeID == 5 
                             ? "equal to five"
                             : "larger than five")
                 };
@@ -93,7 +94,7 @@ namespace Thesis.Relinq.Benchmarks
         [Benchmark]
         public void select_with_orderings_joined()
         {
-            var myQuery =
+            var myQuery = 
                 from e in Context.Employees
                 orderby e.City, e.EmployeeID descending
                 select e;
@@ -104,7 +105,7 @@ namespace Thesis.Relinq.Benchmarks
         [Benchmark]
         public void select_with_orderings_split()
         {
-            var myQuery =
+            var myQuery = 
                 from e in Context.Employees
                 orderby e.EmployeeID descending
                 orderby e.City
@@ -141,7 +142,7 @@ namespace Thesis.Relinq.Benchmarks
         [Benchmark]
         public void select_with_inner_join()
         {
-            var myQuery =
+            var myQuery = 
                 from c in Context.Customers
                 join o in Context.Orders
                 on c.CustomerID equals o.CustomerID
@@ -150,7 +151,7 @@ namespace Thesis.Relinq.Benchmarks
                     Name = c.ContactName,
                     Order = o.OrderID
                 };
-
+            
             var executedQuery = myQuery.ToArray();
         }
 
@@ -159,21 +160,21 @@ namespace Thesis.Relinq.Benchmarks
         {
             var myQuery =
                 from c in Context.Customers
-                join o in Context.Orders
+                join o in Context.Orders 
                 on c.CustomerID equals o.CustomerID into orders
                 select new
                 {
                     Customer = c.CustomerID,
                     Orders = orders
                 };
-
+                
             var executedQuery = myQuery.ToArray();
         }
 
         [Benchmark]
         public void select_with_outer_join()
         {
-            var myQuery =
+            var myQuery = 
                 from c in Context.Customers
                 join o in Context.Orders
                 on c.CustomerID equals o.CustomerID into joined
@@ -223,14 +224,14 @@ namespace Thesis.Relinq.Benchmarks
         [Benchmark]
         public void select_with_union()
         {
-            var myQuery =
+            var myQuery = 
                 (from c in Context.Customers
-                    where c.City == "London"
-                    select c)
-                .Union(
-                    from c in Context.Customers
-                    where c.City == "Paris"
-                    select c);
+                where c.City == "London"
+                select c)
+            .Union(
+                from c in Context.Customers
+                where c.City == "Paris"
+                select c);
 
             var executedQuery = myQuery.ToArray();
         }
@@ -238,12 +239,12 @@ namespace Thesis.Relinq.Benchmarks
         [Benchmark]
         public void select_with_concat_as_union_all()
         {
-            var myQuery =
+            var myQuery = 
                 (from c in Context.Customers
-                    select c.City)
-                .Concat(
-                    from c in Context.Customers
-                    select c.City);
+                select c.City)
+            .Concat(
+                (from c in Context.Customers
+                select c.City));
 
             var executedQuery = myQuery.ToArray();
         }
@@ -251,14 +252,14 @@ namespace Thesis.Relinq.Benchmarks
         [Benchmark]
         public void select_with_intersect()
         {
-            var myQuery =
+            var myQuery = 
                 (from e in Context.Employees
-                    where e.EmployeeID < 7
-                    select e)
-                .Intersect(
-                    from e in Context.Employees
-                    where e.EmployeeID > 3
-                    select e);
+                where e.EmployeeID < 7
+                select e)
+            .Intersect(
+                from e in Context.Employees
+                where e.EmployeeID > 3
+                select e);
 
             var executedQuery = myQuery.ToArray();
         }
@@ -268,11 +269,11 @@ namespace Thesis.Relinq.Benchmarks
         {
             var myQuery =
                 (from e in Context.Employees
-                    select e)
-                .Except(
-                    from e in Context.Employees
-                    where e.EmployeeID > 6
-                    select e);
+                select e)
+            .Except(
+                from e in Context.Employees
+                where e.EmployeeID > 6
+                select e);
 
             var executedQuery = myQuery.ToArray();
         }
