@@ -13,10 +13,10 @@ namespace Thesis.Relinq.Tests
         {
             // Arrange
             var myQuery = 
-                from c in PsqlQueryFactory.Queryable<Customers>(Connection)
+                from c in Context.Customers
                 select c;
 
-            var myQuery2 = PsqlQueryFactory.Queryable<Customers>(Connection)
+            var myQuery2 = Context.Customers
                 .Select(c => c);
             
             string psqlCommand = "SELECT COUNT(*) FROM Customers;";
@@ -36,10 +36,10 @@ namespace Thesis.Relinq.Tests
         {
             // Arrange
             var myQuery = 
-                from e in PsqlQueryFactory.Queryable<Employees>(Connection)
+                from e in Context.Employees
                 select new decimal(e.EmployeeID);
 
-            var myQuery2 = PsqlQueryFactory.Queryable<Employees>(Connection)
+            var myQuery2 = Context.Employees
                 .Select(e => new decimal(e.EmployeeID));
             
             string psqlCommand = "SELECT AVG(\"EmployeeID\") FROM Employees;";
@@ -59,10 +59,10 @@ namespace Thesis.Relinq.Tests
         {
             // Arrange
             var myQuery = 
-                from e in PsqlQueryFactory.Queryable<Employees>(Connection)
+                from e in Context.Employees
                 select (int)e.EmployeeID;
 
-            var myQuery2 = PsqlQueryFactory.Queryable<Employees>(Connection)
+            var myQuery2 = Context.Employees
                 .Select(e => (int)e.EmployeeID);
             
             string psqlCommand = "SELECT SUM(\"EmployeeID\") FROM Employees;";
@@ -82,10 +82,10 @@ namespace Thesis.Relinq.Tests
         {
             // Arrange
             var myQuery = 
-                from e in PsqlQueryFactory.Queryable<Employees>(Connection)
+                from e in Context.Employees
                 select (int)e.EmployeeID;
 
-            var myQuery2 = PsqlQueryFactory.Queryable<Employees>(Connection)
+            var myQuery2 = Context.Employees
                 .Select(e => (int)e.EmployeeID);
             
             string psqlCommand = "SELECT MIN(\"EmployeeID\") FROM Employees;";
@@ -105,10 +105,10 @@ namespace Thesis.Relinq.Tests
         {
             // Arrange
             var myQuery = 
-                from e in PsqlQueryFactory.Queryable<Employees>(Connection)
+                from e in Context.Employees
                 select (int)e.EmployeeID;
 
-            var myQuery2 = PsqlQueryFactory.Queryable<Employees>(Connection)
+            var myQuery2 = Context.Employees
                 .Select(e => (int)e.EmployeeID);
             
             string psqlCommand = "SELECT MAX(\"EmployeeID\") FROM Employees;";
@@ -128,10 +128,10 @@ namespace Thesis.Relinq.Tests
         {
             // Arrange
             var myQuery =
-                (from c in PsqlQueryFactory.Queryable<Customers>(Connection)
+                (from c in Context.Customers
                 select c.City).Distinct();
 
-            var myQuery2 = PsqlQueryFactory.Queryable<Customers>(Connection)
+            var myQuery2 = Context.Customers
                 .Select(c => c.City)
                 .Distinct();
 

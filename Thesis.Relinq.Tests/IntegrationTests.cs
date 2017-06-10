@@ -15,10 +15,10 @@ namespace Thesis.Relinq.Tests
         {
             // Arrange
             var myQuery = 
-                from c in PsqlQueryFactory.Queryable<Customers>(Connection)
+                from c in Context.Customers
                 select c;
 
-            var myQuery2 = PsqlQueryFactory.Queryable<Customers>(Connection)
+            var myQuery2 = Context.Customers
                 .Select(c => c);
             
             string psqlCommand = "SELECT * FROM Customers;";
@@ -38,14 +38,14 @@ namespace Thesis.Relinq.Tests
         {
             // Arrange
             var myQuery = 
-                from c in PsqlQueryFactory.Queryable<Customers>(Connection)
+                from c in Context.Customers
                 select new
                 {
                     Name = c.ContactName,
                     City = c.City
                 };
 
-            var myQuery2 = PsqlQueryFactory.Queryable<Customers>(Connection)
+            var myQuery2 = Context.Customers
                 .Select(c => new { Name = c.ContactName, City = c.City });
             
             string psqlCommand = "SELECT \"ContactName\", \"City\" FROM Customers;";
@@ -68,11 +68,11 @@ namespace Thesis.Relinq.Tests
         {
             // Arrange
             var myQuery = 
-                from c in PsqlQueryFactory.Queryable<Customers>(Connection)
+                from c in Context.Customers
                 where c.CustomerID == "PARIS" 
                 select c;
                 
-            var myQuery2 = PsqlQueryFactory.Queryable<Customers>(Connection)
+            var myQuery2 = Context.Customers
                 .Where(c => c.CustomerID == "PARIS");
             
             string psqlCommand = "SELECT * FROM Customers WHERE \"CustomerID\" = 'PARIS';";
@@ -92,11 +92,11 @@ namespace Thesis.Relinq.Tests
         {
             // Arrange
             var myQuery = 
-                from e in PsqlQueryFactory.Queryable<Employees>(Connection)
+                from e in Context.Employees
                 where e.EmployeeID > 5 && e.City == "London" 
                 select e;
 
-            var myQuery2 = PsqlQueryFactory.Queryable<Employees>(Connection)
+            var myQuery2 = Context.Employees
                 .Where(e => e.EmployeeID > 5 && e.City == "London");
 
             string psqlCommand = 
@@ -118,12 +118,12 @@ namespace Thesis.Relinq.Tests
         {
             // Arrange
             var myQuery = 
-                from e in PsqlQueryFactory.Queryable<Employees>(Connection)
+                from e in Context.Employees
                 where e.EmployeeID > 5
                 where e.City == "London" 
                 select e;
 
-            var myQuery2 = PsqlQueryFactory.Queryable<Employees>(Connection)
+            var myQuery2 = Context.Employees
                 .Where(e => e.EmployeeID > 5)
                 .Where(e => e.City == "London");
             
@@ -146,7 +146,7 @@ namespace Thesis.Relinq.Tests
         {
             // Arrange
             var myQuery = 
-                from e in PsqlQueryFactory.Queryable<Employees>(Connection)
+                from e in Context.Employees
                 where e.EmployeeID < 8
                 select new 
                 {
@@ -158,7 +158,7 @@ namespace Thesis.Relinq.Tests
                             : "larger than five")
                 };
 
-            var myQuery2 = PsqlQueryFactory.Queryable<Employees>(Connection)
+            var myQuery2 = Context.Employees
                 .Where(e => e.EmployeeID < 8)
                 .Select(e => new
                 {
@@ -194,7 +194,7 @@ namespace Thesis.Relinq.Tests
             // Arrange
             var rowCountBeforeQuery = Connection.Database.Count();
             var myQuery = 
-                from e in PsqlQueryFactory.Queryable<Employees>(Connection)
+                from e in Context.Employees
                 where e.City == "London'; DROP TABLE Employees;" 
                 select e;
 
@@ -213,10 +213,10 @@ namespace Thesis.Relinq.Tests
         public void handles_string_addition()
         {
             var myQuery = 
-                from e in PsqlQueryFactory.Queryable<Employees>(Connection)
+                from e in Context.Employees
                 select e.FirstName + " " + e.LastName + " has ID: " + e.EmployeeID;
 
-            var myQuery2 = PsqlQueryFactory.Queryable<Employees>(Connection)
+            var myQuery2 = Context.Employees
                 .Select(e => e.FirstName + " " + e.LastName + " has ID: " + e.EmployeeID);
 
             var psqlCommand = 
@@ -238,11 +238,11 @@ namespace Thesis.Relinq.Tests
         {
             // Arrange
             var myQuery = 
-                from c in PsqlQueryFactory.Queryable<Employees>(Connection)
+                from c in Context.Employees
                 where !(c.EmployeeID < 7 && c.EmployeeID > 3)
                 select c;
 
-            var myQuery2 = PsqlQueryFactory.Queryable<Employees>(Connection)
+            var myQuery2 = Context.Employees
                 .Where(c => !(c.EmployeeID < 7 && c.EmployeeID > 3));
             
             string psqlCommand = 
@@ -264,11 +264,11 @@ namespace Thesis.Relinq.Tests
         {
             // Arrange
             var myQuery = 
-                from e in PsqlQueryFactory.Queryable<Employees>(Connection)
+                from e in Context.Employees
                 where 3 > 5
                 select e;
 
-            var myQuery2 = PsqlQueryFactory.Queryable<Employees>(Connection)
+            var myQuery2 = Context.Employees
                 .Where(x => 3 > 5);
 
             string psqlCommand = "SELECT * FROM Employees WHERE 3 > 5;";
@@ -288,11 +288,11 @@ namespace Thesis.Relinq.Tests
         {
             // Arrange
             var myQuery = 
-                from e in PsqlQueryFactory.Queryable<Employees>(Connection)
+                from e in Context.Employees
                 orderby e.City, e.EmployeeID descending
                 select e;
 
-            var myQuery2 = PsqlQueryFactory.Queryable<Employees>(Connection)
+            var myQuery2 = Context.Employees
                 .OrderBy(e => e.City)
                 .ThenByDescending(e => e.EmployeeID);
 
@@ -315,12 +315,12 @@ namespace Thesis.Relinq.Tests
         {
             // Arrange
             var myQuery = 
-                from e in PsqlQueryFactory.Queryable<Employees>(Connection)
+                from e in Context.Employees
                 orderby e.EmployeeID descending
                 orderby e.City
                 select e;
 
-            var myQuery2 = PsqlQueryFactory.Queryable<Employees>(Connection)
+            var myQuery2 = Context.Employees
                 .OrderByDescending(e => e.EmployeeID)
                 .OrderBy(e => e.City);
 
@@ -343,8 +343,8 @@ namespace Thesis.Relinq.Tests
         {
             // Arrange
             var myQuery =
-                from o in PsqlQueryFactory.Queryable<Orders>(Connection)
-                from e in PsqlQueryFactory.Queryable<Employees>(Connection)
+                from o in Context.Orders
+                from e in Context.Employees
                 where o.EmployeeID == e.EmployeeID
                 select new
                 {
@@ -352,9 +352,9 @@ namespace Thesis.Relinq.Tests
                     Order = o.OrderID
                 };
 
-            var myQuery2 = PsqlQueryFactory.Queryable<Orders>(Connection)
+            var myQuery2 = Context.Orders
                 .SelectMany(o => 
-                    PsqlQueryFactory.Queryable<Employees>(Connection),
+                    Context.Employees,
                     (o, e) => new { o, e })
                 .Where(x => x.o.EmployeeID == x.e.EmployeeID)
                 .Select(x => new
@@ -385,8 +385,8 @@ namespace Thesis.Relinq.Tests
         {
             // Arrange
             var myQuery = 
-                from c in PsqlQueryFactory.Queryable<Customers>(Connection)
-                join o in PsqlQueryFactory.Queryable<Orders>(Connection)
+                from c in Context.Customers
+                join o in Context.Orders
                 on c.CustomerID equals o.CustomerID
                 select new
                 {
@@ -394,8 +394,8 @@ namespace Thesis.Relinq.Tests
                     Order = o.OrderID
                 };
             
-            var myQuery2 = PsqlQueryFactory.Queryable<Customers>(Connection)
-                .Join(PsqlQueryFactory.Queryable<Orders>(Connection),
+            var myQuery2 = Context.Customers
+                .Join(Context.Orders,
                     c => c.CustomerID,
                     o => o.CustomerID,
                     (c, o) => new 
@@ -427,8 +427,8 @@ namespace Thesis.Relinq.Tests
         {
             // Arrange
             var myQuery =
-                from c in PsqlQueryFactory.Queryable<Customers>(Connection)
-                join o in PsqlQueryFactory.Queryable<Orders>(Connection) 
+                from c in Context.Customers
+                join o in Context.Orders 
                 on c.CustomerID equals o.CustomerID into orders
                 select new
                 {
@@ -436,8 +436,8 @@ namespace Thesis.Relinq.Tests
                     Orders = orders
                 };
 
-            var myQuery2 = PsqlQueryFactory.Queryable<Customers>(Connection)
-                .GroupJoin(PsqlQueryFactory.Queryable<Orders>(Connection),
+            var myQuery2 = Context.Customers
+                .GroupJoin(Context.Orders,
                     c => c.CustomerID,
                     o => o.CustomerID,
                     (c, result) => new 
@@ -484,8 +484,8 @@ namespace Thesis.Relinq.Tests
         {
             // Arrange
             var myQuery = 
-                from c in PsqlQueryFactory.Queryable<Customers>(Connection)
-                join o in PsqlQueryFactory.Queryable<Orders>(Connection)
+                from c in Context.Customers
+                join o in Context.Orders
                 on c.CustomerID equals o.CustomerID into joined
                 from j in joined.DefaultIfEmpty()
                 select new
@@ -494,8 +494,8 @@ namespace Thesis.Relinq.Tests
                     OrderID = j.OrderID
                 };
 
-            var myQuery2 = PsqlQueryFactory.Queryable<Customers>(Connection)
-                .GroupJoin(PsqlQueryFactory.Queryable<Orders>(Connection),
+            var myQuery2 = Context.Customers
+                .GroupJoin(Context.Orders,
                     c => c.CustomerID,
                     o => o.CustomerID,
                     (c, os) => new 
@@ -524,50 +524,6 @@ namespace Thesis.Relinq.Tests
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 
-            // Assert
-            AssertExtensions.EqualByJson(expected, actual);
-            AssertExtensions.EqualByJson(expected, actual2);
-        }
-
-        [Fact]
-        public void fetches_data_from_tables_with_different_name_casing()
-        {
-            // Arrange
-            var newConnection = new NpgsqlConnectionAdapter()
-            {
-                Server = "localhost",
-                Port = 5432,
-                Username = "dmngrsk",
-                Password = "qwerty",
-                Database = "ii"
-            }
-            .GetConnection();
-
-            var myQuery = 
-                from g in PsqlQueryFactory.Queryable<Grupa>(newConnection)
-                where g.RodzajZajec.Equals('w')
-                select g;
-
-            var myQuery2 = PsqlQueryFactory.Queryable<Grupa>(newConnection)
-                .Where(g => g.RodzajZajec.Equals('w'));
-
-            var psqlCommand = // Required by the QueryAnonymous method to map properly.
-                "SELECT kod_grupy AS KodGrupy, " +
-                "kod_przed_sem AS KodPrzedSem, " +
-                "kod_uz AS KodUz, " +
-                "max_osoby AS MaxOsoby, " +
-                "rodzaj_zajec AS RodzajZajec, " +
-                "termin AS Termin, " +
-                "sala AS Sala " +
-                "FROM grupa WHERE grupa.rodzaj_zajec = 'w';";
-
-            // Act
-            newConnection.Open();
-            var expected = newConnection.Query<Grupa>(psqlCommand).ToArray();
-            newConnection.Close();
-            var actual = myQuery.ToArray();
-            var actual2 = myQuery2.ToArray();
-            
             // Assert
             AssertExtensions.EqualByJson(expected, actual);
             AssertExtensions.EqualByJson(expected, actual2);

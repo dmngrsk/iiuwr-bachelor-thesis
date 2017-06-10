@@ -15,10 +15,10 @@ namespace Thesis.Relinq.Tests
         {
             // Arrange
             var myQuery = 
-                from c in PsqlQueryFactory.Queryable<Customers>(Connection)
+                from c in Context.Customers
                 select c.ContactName.ToLower();
 
-            var myQuery2 = PsqlQueryFactory.Queryable<Customers>(Connection)
+            var myQuery2 = Context.Customers
                 .Select(c => c.ContactName.ToLower());
             
             string psqlCommand = "SELECT LOWER(\"ContactName\") FROM Customers;";
@@ -38,10 +38,10 @@ namespace Thesis.Relinq.Tests
         {
             // Arrange
             var myQuery = 
-                from c in PsqlQueryFactory.Queryable<Customers>(Connection)
+                from c in Context.Customers
                 select c.ContactName.ToUpper();
 
-            var myQuery2 = PsqlQueryFactory.Queryable<Customers>(Connection)
+            var myQuery2 = Context.Customers
                 .Select(c => c.ContactName.ToUpper());
             
             string psqlCommand = "SELECT UPPER(\"ContactName\") FROM Customers;";
@@ -61,11 +61,11 @@ namespace Thesis.Relinq.Tests
         {
             // Arrange
             var myQuery = 
-                from c in PsqlQueryFactory.Queryable<Customers>(Connection)
+                from c in Context.Customers
                 where c.ContactName.Contains("A")
                 select c.ContactName;
 
-            var myQuery2 = PsqlQueryFactory.Queryable<Customers>(Connection)
+            var myQuery2 = Context.Customers
                 .Where(c => c.ContactName.Contains("A"))
                 .Select(c => c.ContactName);
             
@@ -88,11 +88,11 @@ namespace Thesis.Relinq.Tests
         {
             // Arrange
             var myQuery = 
-                from c in PsqlQueryFactory.Queryable<Customers>(Connection)
+                from c in Context.Customers
                 where c.ContactName.StartsWith("C")
                 select c.ContactName;
 
-            var myQuery2 = PsqlQueryFactory.Queryable<Customers>(Connection)
+            var myQuery2 = Context.Customers
                 .Where(c => c.ContactName.StartsWith("C"))
                 .Select(c => c.ContactName);
             
@@ -115,11 +115,11 @@ namespace Thesis.Relinq.Tests
         {
             // Arrange
             var myQuery = 
-                from c in PsqlQueryFactory.Queryable<Customers>(Connection)
+                from c in Context.Customers
                 where c.ContactName.EndsWith("e")
                 select c.ContactName;
 
-            var myQuery2 = PsqlQueryFactory.Queryable<Customers>(Connection)
+            var myQuery2 = Context.Customers
                 .Where(c => c.ContactName.EndsWith("e"))
                 .Select(c => c.ContactName);
             
@@ -142,10 +142,10 @@ namespace Thesis.Relinq.Tests
         {
             // Arrange
             var myQuery = 
-                from c in PsqlQueryFactory.Queryable<Customers>(Connection)
+                from c in Context.Customers
                 select c.ContactName.Substring(1);
 
-            var myQuery2 = PsqlQueryFactory.Queryable<Customers>(Connection)
+            var myQuery2 = Context.Customers
                 .Select(x => x.CustomerID.Substring(0, 2));
 
             var psqlCommand = "SELECT SUBSTRING(\"ContactName\" FROM 2) FROM Customers;";
@@ -167,14 +167,14 @@ namespace Thesis.Relinq.Tests
         {
             // Arrange
             var myQuery =
-                from c in PsqlQueryFactory.Queryable<Customers>(Connection)
+                from c in Context.Customers
                 select new
                 {
                     Name = c.ContactName,
                     Length = c.ContactName.Length
                 };
 
-            var myQuery2 = PsqlQueryFactory.Queryable<Customers>(Connection)
+            var myQuery2 = Context.Customers
                 .Select(c => new 
                                {
                                    Name = c.ContactName,
@@ -201,10 +201,10 @@ namespace Thesis.Relinq.Tests
         {
             // Arrange
             var myQuery = 
-                from c in PsqlQueryFactory.Queryable<Customers>(Connection)
+                from c in Context.Customers
                 select c.CustomerID.Trim(new char[] { 'A', 'B' });
 
-            var myQuery2 = PsqlQueryFactory.Queryable<Customers>(Connection)
+            var myQuery2 = Context.Customers
                 .Select(c => c.CustomerID.Trim(new char[] { 'A', 'B' }));
             
             string psqlCommand = "SELECT TRIM(both 'AB' from \"CustomerID\") FROM Customers;";
@@ -224,10 +224,10 @@ namespace Thesis.Relinq.Tests
         {
             // Arrange
             var myQuery = 
-                from c in PsqlQueryFactory.Queryable<Customers>(Connection)
+                from c in Context.Customers
                 select c.CustomerID.TrimStart(new char[] { 'A', 'B' });
 
-            var myQuery2 = PsqlQueryFactory.Queryable<Customers>(Connection)
+            var myQuery2 = Context.Customers
                 .Select(c => c.CustomerID.TrimStart(new char[] { 'A', 'B' }));
             
             string psqlCommand = "SELECT TRIM(leading 'AB' from \"CustomerID\") FROM Customers;";
@@ -247,10 +247,10 @@ namespace Thesis.Relinq.Tests
         {
             // Arrange
             var myQuery = 
-                from c in PsqlQueryFactory.Queryable<Customers>(Connection)
+                from c in Context.Customers
                 select c.CustomerID.TrimEnd(new char[] { 'A', 'B' });
 
-            var myQuery2 = PsqlQueryFactory.Queryable<Customers>(Connection)
+            var myQuery2 = Context.Customers
                 .Select(c => c.CustomerID.TrimEnd(new char[] { 'A', 'B' }));
             
             string psqlCommand = "SELECT TRIM(trailing 'AB' from \"CustomerID\") FROM Customers;";
@@ -270,10 +270,10 @@ namespace Thesis.Relinq.Tests
         {
             // Arrange
             var myQuery = 
-                from c in PsqlQueryFactory.Queryable<Customers>(Connection)
+                from c in Context.Customers
                 select c.CustomerID.Trim();
 
-            var myQuery2 = PsqlQueryFactory.Queryable<Customers>(Connection)
+            var myQuery2 = Context.Customers
                 .Select(c => c.CustomerID.Trim());
             
             string psqlCommand = "SELECT TRIM(both from \"CustomerID\") FROM Customers;";
@@ -293,10 +293,10 @@ namespace Thesis.Relinq.Tests
         {
             // Arrange
             var myQuery = 
-                from c in PsqlQueryFactory.Queryable<Customers>(Connection)
+                from c in Context.Customers
                 select c.CustomerID.TrimStart();
 
-            var myQuery2 = PsqlQueryFactory.Queryable<Customers>(Connection)
+            var myQuery2 = Context.Customers
                 .Select(c => c.CustomerID.TrimStart());
             
             string psqlCommand = "SELECT TRIM(leading from \"CustomerID\") FROM Customers;";
@@ -316,10 +316,10 @@ namespace Thesis.Relinq.Tests
         {
             // Arrange
             var myQuery = 
-                from c in PsqlQueryFactory.Queryable<Customers>(Connection)
+                from c in Context.Customers
                 select c.CustomerID.TrimEnd();
 
-            var myQuery2 = PsqlQueryFactory.Queryable<Customers>(Connection)
+            var myQuery2 = Context.Customers
                 .Select(c => c.CustomerID.TrimEnd());
             
             string psqlCommand = "SELECT TRIM(trailing from \"CustomerID\") FROM Customers;";
@@ -339,10 +339,10 @@ namespace Thesis.Relinq.Tests
         {
             // Arrange
             var myQuery = 
-                from c in PsqlQueryFactory.Queryable<Customers>(Connection)
+                from c in Context.Customers
                 select string.Concat(c.ContactName, " is from ", c.Country);
 
-            var myQuery2 = PsqlQueryFactory.Queryable<Customers>(Connection)
+            var myQuery2 = Context.Customers
                 .Select(c => string.Concat(c.ContactName, " is from ", c.Country));
 
             var psqlCommand = 
@@ -364,10 +364,10 @@ namespace Thesis.Relinq.Tests
         {
             // Arrange
             var myQuery = 
-                from c in PsqlQueryFactory.Queryable<Customers>(Connection)
+                from c in Context.Customers
                 select c.CustomerID.Replace('A', '0');
 
-            var myQuery2 = PsqlQueryFactory.Queryable<Customers>(Connection)
+            var myQuery2 = Context.Customers
                 .Select(c => c.CustomerID.Replace("A", "Hello"));
 
             var psqlCommand = "SELECT REPLACE(\"CustomerID\", 'A', '0') FROM Customers;";

@@ -3,9 +3,9 @@ using LinqToDB.Data;
 
 namespace Thesis.Relinq.Benchmarks
 {
-    public class LinqToDbNorthwind : DataConnection
+    public class LinqToDbNorthwindContext : DataConnection
     {
-        public LinqToDbNorthwind() : base("NorthwindDataContextConnectionString") { }
+        public LinqToDbNorthwindContext() : base("NorthwindDataContextConnectionString") { }
 
         public ITable<LinqToDbPOCOs.Customer> Customers => GetTable<LinqToDbPOCOs.Customer>();
         public ITable<LinqToDbPOCOs.Employee> Employees => GetTable<LinqToDbPOCOs.Employee>();

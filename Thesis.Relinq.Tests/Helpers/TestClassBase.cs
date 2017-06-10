@@ -6,6 +6,7 @@ namespace Thesis.Relinq.Tests.Helpers
     public abstract class TestClassBase : IDisposable
     {
         protected readonly NpgsqlConnection Connection;
+        protected readonly NorthwindContext Context;
 
         protected TestClassBase()
         {
@@ -18,7 +19,8 @@ namespace Thesis.Relinq.Tests.Helpers
                 Database = "northwind"
             };
             
-            Connection = adapter.GetConnection();
+            this.Connection = adapter.GetConnection();
+            this.Context = new NorthwindContext(Connection);
         }
 
         public void Dispose()

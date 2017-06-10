@@ -5,7 +5,8 @@ namespace Thesis.Relinq.Benchmarks
 {
     public class LinqToDbBenchmark
     {
-        private static readonly LinqToDbNorthwind Context = new LinqToDbNorthwind();
+        private static readonly LinqToDbNorthwindContext Context = new LinqToDbNorthwindContext();
+
 
 
         [Benchmark]

@@ -11,13 +11,15 @@ namespace Thesis.Relinq.Benchmarks
         private static readonly NpgsqlConnection Connection = new NpgsqlConnection(
             ConfigurationManager.ConnectionStrings["NorthwindDataContextConnectionString"].ConnectionString);
 
+        private static readonly ThesisNorthwindContext Context = new ThesisNorthwindContext(Connection);
+
 
 
         [Benchmark]
         public void select_all()
         {
             var myQuery = 
-                from c in PsqlQueryFactory.Queryable<Customers>(Connection)
+                from c in Context.Customers
                 select c;
 
             var executedQuery = myQuery.ToArray();
@@ -27,7 +29,7 @@ namespace Thesis.Relinq.Benchmarks
         public void select_columns_creating_an_anonymous_type()
         {
             var myQuery = 
-                from c in PsqlQueryFactory.Queryable<Customers>(Connection)
+                from c in Context.Customers
                 select new
                 {
                     Name = c.ContactName,
@@ -41,7 +43,7 @@ namespace Thesis.Relinq.Benchmarks
         public void select_with_where()
         {
             var myQuery = 
-                from c in PsqlQueryFactory.Queryable<Customers>(Connection)
+                from c in Context.Customers
                 where c.CustomerID == "PARIS" 
                 select c;
 
@@ -52,7 +54,7 @@ namespace Thesis.Relinq.Benchmarks
         public void select_with_multiconditional_where()
         {
             var myQuery = 
-                from e in PsqlQueryFactory.Queryable<Employees>(Connection)
+                from e in Context.Employees
                 where e.EmployeeID > 5 && e.City == "London" 
                 select e;
 
@@ -63,7 +65,7 @@ namespace Thesis.Relinq.Benchmarks
         public void select_with_multiple_wheres()
         {
             var myQuery = 
-                from e in PsqlQueryFactory.Queryable<Employees>(Connection)
+                from e in Context.Employees
                 where e.EmployeeID > 5
                 where e.City == "London" 
                 select e;
@@ -75,7 +77,7 @@ namespace Thesis.Relinq.Benchmarks
         public void select_with_case()
         {
             var myQuery = 
-                from e in PsqlQueryFactory.Queryable<Employees>(Connection)
+                from e in Context.Employees
                 where e.EmployeeID < 8
                 select new 
                 {
@@ -94,7 +96,7 @@ namespace Thesis.Relinq.Benchmarks
         public void select_with_multiple_orderings_joined()
         {
             var myQuery = 
-                from e in PsqlQueryFactory.Queryable<Employees>(Connection)
+                from e in Context.Employees
                 orderby e.City, e.EmployeeID descending
                 select e;
 
@@ -105,7 +107,7 @@ namespace Thesis.Relinq.Benchmarks
         public void select_with_multiple_orderings_split()
         {
             var myQuery = 
-                from e in PsqlQueryFactory.Queryable<Employees>(Connection)
+                from e in Context.Employees
                 orderby e.EmployeeID descending
                 orderby e.City
                 select e;
@@ -116,7 +118,7 @@ namespace Thesis.Relinq.Benchmarks
         [Benchmark]
         public void select_with_take_while()
         {
-            var myQuery = PsqlQueryFactory.Queryable<Employees>(Connection)
+            var myQuery = Context.Employees
                 .TakeWhile(e => e.EmployeeID < 5);
 
             var executedQuery = myQuery.ToArray();
@@ -126,8 +128,8 @@ namespace Thesis.Relinq.Benchmarks
         public void select_with_additional_from_as_cross_join()
         {
             var myQuery =
-                from o in PsqlQueryFactory.Queryable<Orders>(Connection)
-                from e in PsqlQueryFactory.Queryable<Employees>(Connection)
+                from o in Context.Orders
+                from e in Context.Employees
                 where o.EmployeeID == e.EmployeeID
                 select new
                 {
@@ -142,8 +144,8 @@ namespace Thesis.Relinq.Benchmarks
         public void select_with_inner_join()
         {
             var myQuery = 
-                from c in PsqlQueryFactory.Queryable<Customers>(Connection)
-                join o in PsqlQueryFactory.Queryable<Orders>(Connection)
+                from c in Context.Customers
+                join o in Context.Orders
                 on c.CustomerID equals o.CustomerID
                 select new
                 {
@@ -158,8 +160,8 @@ namespace Thesis.Relinq.Benchmarks
         public void select_with_group_join()
         {
             var myQuery =
-                from c in PsqlQueryFactory.Queryable<Customers>(Connection)
-                join o in PsqlQueryFactory.Queryable<Orders>(Connection) 
+                from c in Context.Customers
+                join o in Context.Orders 
                 on c.CustomerID equals o.CustomerID into orders
                 select new
                 {
@@ -174,8 +176,8 @@ namespace Thesis.Relinq.Benchmarks
         public void select_with_outer_join()
         {
             var myQuery = 
-                from c in PsqlQueryFactory.Queryable<Customers>(Connection)
-                join o in PsqlQueryFactory.Queryable<Orders>(Connection)
+                from c in Context.Customers
+                join o in Context.Orders
                 on c.CustomerID equals o.CustomerID into joined
                 from j in joined.DefaultIfEmpty()
                 select new
@@ -190,7 +192,7 @@ namespace Thesis.Relinq.Benchmarks
         [Benchmark]
         public void select_with_paging()
         {
-            var myQuery = PsqlQueryFactory.Queryable<Employees>(Connection)
+            var myQuery = Context.Employees
                 .Select(x => x).Take(5).Skip(3);
 
             var executedQuery = myQuery.ToArray();
@@ -200,8 +202,8 @@ namespace Thesis.Relinq.Benchmarks
         public void select_where_any_matches_condition()
         {
             var myQuery =
-                from c in PsqlQueryFactory.Queryable<Customers>(Connection)
-                where PsqlQueryFactory.Queryable<Orders>(Connection)
+                from c in Context.Customers
+                where Context.Orders
                     .Any(o => o.CustomerID == c.CustomerID)
                 select c;
 
@@ -212,8 +214,8 @@ namespace Thesis.Relinq.Benchmarks
         public void select_where_all_match_condition()
         {
             var myQuery =
-                from c in PsqlQueryFactory.Queryable<Customers>(Connection)
-                where PsqlQueryFactory.Queryable<Orders>(Connection)
+                from c in Context.Customers
+                where Context.Orders
                     .All(o => o.CustomerID != c.CustomerID)
                 select c;
 
@@ -224,11 +226,11 @@ namespace Thesis.Relinq.Benchmarks
         public void select_with_union()
         {
             var myQuery = 
-                (from c in PsqlQueryFactory.Queryable<Customers>(Connection)
+                (from c in Context.Customers
                 where c.City == "London"
                 select c)
             .Union(
-                from c in PsqlQueryFactory.Queryable<Customers>(Connection)
+                from c in Context.Customers
                 where c.City == "Paris"
                 select c);
 
@@ -239,10 +241,10 @@ namespace Thesis.Relinq.Benchmarks
         public void select_with_concat_as_union_all()
         {
             var myQuery = 
-                (from c in PsqlQueryFactory.Queryable<Customers>(Connection)
+                (from c in Context.Customers
                 select c.City)
             .Concat(
-                (from c in PsqlQueryFactory.Queryable<Customers>(Connection)
+                (from c in Context.Customers
                 select c.City));
 
             var executedQuery = myQuery.ToArray();
@@ -252,11 +254,11 @@ namespace Thesis.Relinq.Benchmarks
         public void select_with_intersect()
         {
             var myQuery = 
-                (from e in PsqlQueryFactory.Queryable<Employees>(Connection)
+                (from e in Context.Employees
                 where e.EmployeeID < 7
                 select e)
             .Intersect(
-                from e in PsqlQueryFactory.Queryable<Employees>(Connection)
+                from e in Context.Employees
                 where e.EmployeeID > 3
                 select e);
 
@@ -267,10 +269,10 @@ namespace Thesis.Relinq.Benchmarks
         public void select_with_except()
         {
             var myQuery =
-                (from e in PsqlQueryFactory.Queryable<Employees>(Connection)
+                (from e in Context.Employees
                 select e)
             .Except(
-                from e in PsqlQueryFactory.Queryable<Employees>(Connection)
+                from e in Context.Employees
                 where e.EmployeeID > 6
                 select e);
 

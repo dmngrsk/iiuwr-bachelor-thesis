@@ -13,11 +13,11 @@ namespace Thesis.Relinq.Tests
         {
             // Arrange
             var myQuery = 
-                from c in PsqlQueryFactory.Queryable<Employees>(Connection)
+                from c in Context.Employees
                 where c.EmployeeID == 7
                 select c;
 
-            var myQuery2 = PsqlQueryFactory.Queryable<Employees>(Connection)
+            var myQuery2 = Context.Employees
                 .Where(c => c.EmployeeID == 7);
             
             string psqlCommand = "SELECT * FROM Employees WHERE \"EmployeeID\" = 7;";
@@ -37,11 +37,11 @@ namespace Thesis.Relinq.Tests
         {
             // Arrange
             var myQuery = 
-                from c in PsqlQueryFactory.Queryable<Employees>(Connection)
+                from c in Context.Employees
                 where c.EmployeeID != 7
                 select c;
 
-            var myQuery2 = PsqlQueryFactory.Queryable<Employees>(Connection)
+            var myQuery2 = Context.Employees
                 .Where(c => c.EmployeeID != 7);
             
             string psqlCommand = "SELECT * FROM Employees WHERE \"EmployeeID\" != 7;";
@@ -61,11 +61,11 @@ namespace Thesis.Relinq.Tests
         {
             // Arrange
             var myQuery = 
-                from c in PsqlQueryFactory.Queryable<Employees>(Connection)
+                from c in Context.Employees
                 where c.EmployeeID > 7
                 select c;
 
-            var myQuery2 = PsqlQueryFactory.Queryable<Employees>(Connection)
+            var myQuery2 = Context.Employees
                 .Where(c => c.EmployeeID > 7);
             
             string psqlCommand = "SELECT * FROM Employees WHERE \"EmployeeID\" > 7;";
@@ -85,11 +85,11 @@ namespace Thesis.Relinq.Tests
         {
             // Arrange
             var myQuery = 
-                from c in PsqlQueryFactory.Queryable<Employees>(Connection)
+                from c in Context.Employees
                 where c.EmployeeID >= 7
                 select c;
 
-            var myQuery2 = PsqlQueryFactory.Queryable<Employees>(Connection)
+            var myQuery2 = Context.Employees
                 .Where(c => c.EmployeeID >= 7);
             
             string psqlCommand = "SELECT * FROM Employees WHERE \"EmployeeID\" >= 7;";
@@ -109,11 +109,11 @@ namespace Thesis.Relinq.Tests
         {
             // Arrange
             var myQuery = 
-                from c in PsqlQueryFactory.Queryable<Employees>(Connection)
+                from c in Context.Employees
                 where c.EmployeeID < 7
                 select c;
 
-            var myQuery2 = PsqlQueryFactory.Queryable<Employees>(Connection)
+            var myQuery2 = Context.Employees
                 .Where(c => c.EmployeeID < 7);
             
             string psqlCommand = "SELECT * FROM Employees WHERE \"EmployeeID\" < 7;";
@@ -133,11 +133,11 @@ namespace Thesis.Relinq.Tests
         {
             // Arrange
             var myQuery = 
-                from c in PsqlQueryFactory.Queryable<Employees>(Connection)
+                from c in Context.Employees
                 where c.EmployeeID <= 7
                 select c;
 
-            var myQuery2 = PsqlQueryFactory.Queryable<Employees>(Connection)
+            var myQuery2 = Context.Employees
                 .Where(c => c.EmployeeID <= 7);
             
             string psqlCommand = "SELECT * FROM Employees WHERE \"EmployeeID\" <= 7;";
@@ -157,11 +157,11 @@ namespace Thesis.Relinq.Tests
         {
             // Arrange
             var myQuery = 
-                from c in PsqlQueryFactory.Queryable<Employees>(Connection)
+                from c in Context.Employees
                 where (c.EmployeeID + 5) < 10
                 select c;
 
-            var myQuery2 = PsqlQueryFactory.Queryable<Employees>(Connection)
+            var myQuery2 = Context.Employees
                 .Where(c => (c.EmployeeID + 5) < 10);
             
             string psqlCommand = "SELECT * FROM Employees WHERE (\"EmployeeID\" + 5) < 10;";
@@ -181,11 +181,11 @@ namespace Thesis.Relinq.Tests
         {
             // Arrange
             var myQuery = 
-                from c in PsqlQueryFactory.Queryable<Employees>(Connection)
+                from c in Context.Employees
                 where (c.EmployeeID - 5) > 0
                 select c;
 
-            var myQuery2 = PsqlQueryFactory.Queryable<Employees>(Connection)
+            var myQuery2 = Context.Employees
                 .Where(c => (c.EmployeeID - 5) > 0);
             
             string psqlCommand = "SELECT * FROM Employees WHERE (\"EmployeeID\" - 5) > 0;";
@@ -205,11 +205,11 @@ namespace Thesis.Relinq.Tests
         {
             // Arrange
             var myQuery = 
-                from c in PsqlQueryFactory.Queryable<Employees>(Connection)
+                from c in Context.Employees
                 where (c.EmployeeID * 2) < 10
                 select c;
 
-            var myQuery2 = PsqlQueryFactory.Queryable<Employees>(Connection)
+            var myQuery2 = Context.Employees
                 .Where(c => (c.EmployeeID * 2) < 10);
             
             string psqlCommand = "SELECT * FROM Employees WHERE (\"EmployeeID\" * 2) < 10;";
@@ -229,11 +229,11 @@ namespace Thesis.Relinq.Tests
         {
             // Arrange
             var myQuery = 
-                from c in PsqlQueryFactory.Queryable<Employees>(Connection)
+                from c in Context.Employees
                 where (c.EmployeeID / 5) > 0
                 select c;
 
-            var myQuery2 = PsqlQueryFactory.Queryable<Employees>(Connection)
+            var myQuery2 = Context.Employees
                 .Where(c => (c.EmployeeID / 5) > 0);
             
             string psqlCommand = "SELECT * FROM Employees WHERE (\"EmployeeID\" / 5) > 0;";
@@ -253,11 +253,11 @@ namespace Thesis.Relinq.Tests
         {
             // Arrange
             var myQuery = 
-                from c in PsqlQueryFactory.Queryable<Employees>(Connection)
+                from c in Context.Employees
                 where (c.EmployeeID % 2) == 0
                 select c;
 
-            var myQuery2 = PsqlQueryFactory.Queryable<Employees>(Connection)
+            var myQuery2 = Context.Employees
                 .Where(c => (c.EmployeeID % 2) == 0);
             
             string psqlCommand = "SELECT * FROM Employees WHERE (\"EmployeeID\" % 2) = 0;";
@@ -277,11 +277,11 @@ namespace Thesis.Relinq.Tests
         {
             // Arrange
             var myQuery = 
-                from c in PsqlQueryFactory.Queryable<Employees>(Connection)
+                from c in Context.Employees
                 where (c.EmployeeID & 4) == 0
                 select c;
 
-            var myQuery2 = PsqlQueryFactory.Queryable<Employees>(Connection)
+            var myQuery2 = Context.Employees
                 .Where(c => (c.EmployeeID & 4) == 0);
             
             string psqlCommand = "SELECT * FROM Employees WHERE (\"EmployeeID\" & 4) = 0;";
@@ -301,11 +301,11 @@ namespace Thesis.Relinq.Tests
         {
             // Arrange
             var myQuery = 
-                from c in PsqlQueryFactory.Queryable<Employees>(Connection)
+                from c in Context.Employees
                 where (c.EmployeeID | 1) != c.EmployeeID
                 select c;
 
-            var myQuery2 = PsqlQueryFactory.Queryable<Employees>(Connection)
+            var myQuery2 = Context.Employees
                 .Where(c => (c.EmployeeID | 1) != c.EmployeeID);
             
             string psqlCommand = "SELECT * FROM Employees WHERE (\"EmployeeID\" | 1) != \"EmployeeID\";";
@@ -325,11 +325,11 @@ namespace Thesis.Relinq.Tests
         {
             // Arrange
             var myQuery = 
-                from c in PsqlQueryFactory.Queryable<Employees>(Connection)
+                from c in Context.Employees
                 where (c.EmployeeID ^ 2) == 0
                 select c;
 
-            var myQuery2 = PsqlQueryFactory.Queryable<Employees>(Connection)
+            var myQuery2 = Context.Employees
                 .Where(c => (c.EmployeeID ^ 2) == 0);
             
             string psqlCommand = "SELECT * FROM Employees WHERE (\"EmployeeID\" # 2) = 0;";
@@ -349,11 +349,11 @@ namespace Thesis.Relinq.Tests
         {
             // Arrange
             var myQuery = 
-                from c in PsqlQueryFactory.Queryable<Employees>(Connection)
+                from c in Context.Employees
                 where (c.EmployeeID << 2) < 16
                 select c;
 
-            var myQuery2 = PsqlQueryFactory.Queryable<Employees>(Connection)
+            var myQuery2 = Context.Employees
                 .Where(c => (c.EmployeeID << 2) < 16);
             
             string psqlCommand = "SELECT * FROM Employees WHERE (\"EmployeeID\" << 2) < 16;";
@@ -373,11 +373,11 @@ namespace Thesis.Relinq.Tests
         {
             // Arrange
             var myQuery = 
-                from c in PsqlQueryFactory.Queryable<Employees>(Connection)
+                from c in Context.Employees
                 where (c.EmployeeID >> 3) > 0
                 select c;
 
-            var myQuery2 = PsqlQueryFactory.Queryable<Employees>(Connection)
+            var myQuery2 = Context.Employees
                 .Where(c => (c.EmployeeID >> 3) > 0);
             
             string psqlCommand = "SELECT * FROM Employees WHERE (\"EmployeeID\" >> 3) > 0;";
@@ -397,11 +397,11 @@ namespace Thesis.Relinq.Tests
         {
             // Arrange
             var myQuery = 
-                from c in PsqlQueryFactory.Queryable<Employees>(Connection)
+                from c in Context.Employees
                 where c.EmployeeID < 7 && c.EmployeeID > 3
                 select c;
 
-            var myQuery2 = PsqlQueryFactory.Queryable<Employees>(Connection)
+            var myQuery2 = Context.Employees
                 .Where(c => c.EmployeeID < 7 && c.EmployeeID > 3);
             
             string psqlCommand = 
@@ -423,11 +423,11 @@ namespace Thesis.Relinq.Tests
         {
             // Arrange
             var myQuery = 
-                from c in PsqlQueryFactory.Queryable<Employees>(Connection)
+                from c in Context.Employees
                 where c.EmployeeID > 7 || c.EmployeeID < 3
                 select c;
 
-            var myQuery2 = PsqlQueryFactory.Queryable<Employees>(Connection)
+            var myQuery2 = Context.Employees
                 .Where(c => c.EmployeeID > 7 || c.EmployeeID < 3);
             
             string psqlCommand = 

@@ -13,11 +13,11 @@ namespace Thesis.Relinq.Tests
         {
             // Arrange
             var myQuery = 
-                from e in PsqlQueryFactory.Queryable<Employees>(Connection)
+                from e in Context.Employees
                 where e.EmployeeID.Equals(5)
                 select e;
 
-            var myQuery2 = PsqlQueryFactory.Queryable<Employees>(Connection)
+            var myQuery2 = Context.Employees
                 .Where(e => e.EmployeeID.Equals(5));
             
             string psqlCommand = "SELECT * FROM Employees WHERE (\"EmployeeID\" = 5);";
@@ -37,10 +37,10 @@ namespace Thesis.Relinq.Tests
         {
             // Arrange
             var myQuery = 
-                from e in PsqlQueryFactory.Queryable<Employees>(Connection)
+                from e in Context.Employees
                 select e;
 
-            var myQuery2 = PsqlQueryFactory.Queryable<Employees>(Connection)
+            var myQuery2 = Context.Employees
                 .Select(x => x);
             
             string psqlCommand = "SELECT * FROM Employees LIMIT 5;";
@@ -60,10 +60,10 @@ namespace Thesis.Relinq.Tests
         {
             // Arrange
             var myQuery = 
-                from e in PsqlQueryFactory.Queryable<Employees>(Connection)
+                from e in Context.Employees
                 select e;
 
-            var myQuery2 = PsqlQueryFactory.Queryable<Employees>(Connection)
+            var myQuery2 = Context.Employees
                 .Select(x => x);
             
             string psqlCommand = "SELECT * FROM Employees OFFSET 5;";
@@ -83,10 +83,10 @@ namespace Thesis.Relinq.Tests
         {
             // Arrange
             var myQuery = 
-                from e in PsqlQueryFactory.Queryable<Employees>(Connection)
+                from e in Context.Employees
                 select e;
 
-            var myQuery2 = PsqlQueryFactory.Queryable<Employees>(Connection)
+            var myQuery2 = Context.Employees
                 .Select(x => x);
             
             string psqlCommand = "SELECT * FROM Employees OFFSET 5 LIMIT 3;";
@@ -106,14 +106,14 @@ namespace Thesis.Relinq.Tests
         {
             // Arrange
             var myQuery =
-                from c in PsqlQueryFactory.Queryable<Customers>(Connection)
-                where PsqlQueryFactory.Queryable<Orders>(Connection)
+                from c in Context.Customers
+                where Context.Orders
                     .Any(o => o.CustomerID == c.CustomerID)
                 select c;
 
             var myQuery2 = 
-                PsqlQueryFactory.Queryable<Customers>(Connection)
-                    .Where(c => PsqlQueryFactory.Queryable<Orders>(Connection)
+                Context.Customers
+                    .Where(c => Context.Orders
                         .Any(o => o.CustomerID == c.CustomerID));
 
             var psqlCommand = 
@@ -136,14 +136,14 @@ namespace Thesis.Relinq.Tests
         {
             // Arrange
             var myQuery =
-                from c in PsqlQueryFactory.Queryable<Customers>(Connection)
-                where PsqlQueryFactory.Queryable<Orders>(Connection)
+                from c in Context.Customers
+                where Context.Orders
                     .All(o => o.CustomerID != c.CustomerID)
                 select c;
 
             var myQuery2 = 
-                PsqlQueryFactory.Queryable<Customers>(Connection)
-                    .Where(c => PsqlQueryFactory.Queryable<Orders>(Connection)
+                Context.Customers
+                    .Where(c => Context.Orders
                         .All(o => o.CustomerID != c.CustomerID));
 
             var psqlCommand = 
@@ -166,17 +166,17 @@ namespace Thesis.Relinq.Tests
         {
             // Arrange
             var myQuery = 
-                (from c in PsqlQueryFactory.Queryable<Customers>(Connection)
+                (from c in Context.Customers
                 where c.City == "London"
                 select c)
             .Union(
-                from c in PsqlQueryFactory.Queryable<Customers>(Connection)
+                from c in Context.Customers
                 where c.City == "Paris"
                 select c);
 
-            var myQuery2 = PsqlQueryFactory.Queryable<Customers>(Connection)
+            var myQuery2 = Context.Customers
                 .Where(c => c.City == "London")
-            .Union(PsqlQueryFactory.Queryable<Customers>(Connection)
+            .Union(Context.Customers
                 .Where(c => c.City == "Paris"));
 
             var psqlCommand = 
@@ -199,15 +199,15 @@ namespace Thesis.Relinq.Tests
         {
             // Arrange
             var myQuery = 
-                    (from c in PsqlQueryFactory.Queryable<Customers>(Connection)
+                    (from c in Context.Customers
                     select c.City)
                 .Concat(
-                    (from c in PsqlQueryFactory.Queryable<Customers>(Connection)
+                    (from c in Context.Customers
                     select c.City));
 
-            var myQuery2 = PsqlQueryFactory.Queryable<Customers>(Connection)
+            var myQuery2 = Context.Customers
                 .Select(c => c.City)
-            .Concat(PsqlQueryFactory.Queryable<Customers>(Connection)
+            .Concat(Context.Customers
                 .Select(c => c.City));
 
             var psqlCommand = 
@@ -230,17 +230,17 @@ namespace Thesis.Relinq.Tests
         {
             // Arrange
             var myQuery = 
-                (from e in PsqlQueryFactory.Queryable<Employees>(Connection)
+                (from e in Context.Employees
                 where e.EmployeeID < 7
                 select e)
             .Intersect(
-                from e in PsqlQueryFactory.Queryable<Employees>(Connection)
+                from e in Context.Employees
                 where e.EmployeeID > 3
                 select e);
 
-            var myQuery2 = PsqlQueryFactory.Queryable<Employees>(Connection)
+            var myQuery2 = Context.Employees
                 .Where(e => e.EmployeeID < 7)
-            .Intersect(PsqlQueryFactory.Queryable<Employees>(Connection)
+            .Intersect(Context.Employees
                 .Where(e => e.EmployeeID > 3));
 
             var psqlCommand = 
@@ -263,16 +263,16 @@ namespace Thesis.Relinq.Tests
         {
             // Arrange
             var myQuery =
-                (from e in PsqlQueryFactory.Queryable<Employees>(Connection)
+                (from e in Context.Employees
                 select e)
             .Except(
-                from e in PsqlQueryFactory.Queryable<Employees>(Connection)
+                from e in Context.Employees
                 where e.EmployeeID > 6
                 select e);
 
-            var myQuery2 = PsqlQueryFactory.Queryable<Employees>(Connection)
+            var myQuery2 = Context.Employees
                 .Select(e => e)
-            .Except(PsqlQueryFactory.Queryable<Employees>(Connection)
+            .Except(Context.Employees
                 .Where(e => e.EmployeeID > 6));
 
             var psqlCommand = 
