@@ -142,6 +142,53 @@ namespace Thesis.Relinq.Tests
         }
 
         [Fact]
+        public void select_with_case()
+        {
+            // Arrange
+            var myQuery = 
+                from e in PsqlQueryFactory.Queryable<Employees>(Connection)
+                where e.EmployeeID < 8
+                select new 
+                {
+                    EmployeeID = e.EmployeeID, 
+                    CaseResult = (e.EmployeeID < 5 
+                        ? "smaller than five"
+                        : e.EmployeeID == 5 
+                            ? "equal to five"
+                            : "larger than five")
+                };
+
+            var myQuery2 = PsqlQueryFactory.Queryable<Employees>(Connection)
+                .Where(e => e.EmployeeID < 8)
+                .Select(e => new
+                {
+                    EmployeeID = e.EmployeeID, 
+                    CaseResult = (e.EmployeeID < 5 ? "smaller than five" :
+                                e.EmployeeID == 5 ? "equal to five" :
+                                "larger than five")
+                });
+
+            var psqlCommand = 
+                "SELECT \"EmployeeID\", CASE " +
+                "WHEN \"EmployeeID\" < 5 THEN 'smaller than five' " +
+                "WHEN \"EmployeeID\" = 5 THEN 'equal to five' " + 
+                "ELSE 'larger than five' END " +
+                "FROM employees WHERE \"EmployeeID\" < 8;";
+            var queryMethod = typeof(ExtensionMethods)
+                .GetMethod("QueryAnonymous", new[] { typeof(DbConnection), typeof(string) })
+                .MakeGenericMethod(myQuery.ElementType);
+
+            // Act
+            var expected = queryMethod.Invoke(null, new object[] { Connection, psqlCommand });
+            var actual = myQuery.ToArray();
+            var actual2 = myQuery2.ToArray();
+
+            // Assert
+            AssertExtensions.EqualByJson(expected, actual);
+            AssertExtensions.EqualByJson(expected, actual2);
+        }
+
+        [Fact]
         public void queries_are_sanitized()
         {
             // Arrange
@@ -468,51 +515,6 @@ namespace Thesis.Relinq.Tests
                 "SELECT customers.\"CustomerID\", \"OrderID\" " +
                 "FROM customers LEFT JOIN orders " +
                 "ON customers.\"CustomerID\" = orders.\"CustomerID\";";
-            var queryMethod = typeof(ExtensionMethods)
-                .GetMethod("QueryAnonymous", new[] { typeof(DbConnection), typeof(string) })
-                .MakeGenericMethod(myQuery.ElementType);
-
-            // Act
-            var expected = queryMethod.Invoke(null, new object[] { Connection, psqlCommand });
-            var actual = myQuery.ToArray();
-            var actual2 = myQuery2.ToArray();
-
-            // Assert
-            AssertExtensions.EqualByJson(expected, actual);
-            AssertExtensions.EqualByJson(expected, actual2);
-        }
-
-        [Fact]
-        public void select_with_case()
-        {
-            // Arrange
-            var myQuery = 
-                from e in PsqlQueryFactory.Queryable<Employees>(Connection)
-                where e.EmployeeID < 8
-                select new 
-                {
-                    EmployeeID = e.EmployeeID, 
-                    CaseResult = (e.EmployeeID < 5 ? "smaller than five" :
-                                  e.EmployeeID == 5 ? "equal to five" :
-                                  "larger than five")
-                };
-
-            var myQuery2 = PsqlQueryFactory.Queryable<Employees>(Connection)
-                .Where(e => e.EmployeeID < 8)
-                .Select(e => new
-                {
-                    EmployeeID = e.EmployeeID, 
-                    CaseResult = (e.EmployeeID < 5 ? "smaller than five" :
-                                e.EmployeeID == 5 ? "equal to five" :
-                                "larger than five")
-                });
-
-            var psqlCommand = 
-                "SELECT \"EmployeeID\", CASE " +
-                "WHEN \"EmployeeID\" < 5 THEN 'smaller than five' " +
-                "WHEN \"EmployeeID\" = 5 THEN 'equal to five' " + 
-                "ELSE 'larger than five' END " +
-                "FROM employees WHERE \"EmployeeID\" < 8;";
             var queryMethod = typeof(ExtensionMethods)
                 .GetMethod("QueryAnonymous", new[] { typeof(DbConnection), typeof(string) })
                 .MakeGenericMethod(myQuery.ElementType);

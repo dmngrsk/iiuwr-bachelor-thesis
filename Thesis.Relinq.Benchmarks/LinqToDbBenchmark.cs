@@ -75,9 +75,11 @@ namespace Thesis.Relinq.Benchmarks
                 select new
                 {
                     EmployeeID = e.EmployeeID,
-                    CaseResult = (e.EmployeeID < 5 ? "smaller than five" :
-                        e.EmployeeID == 5 ? "equal to five" :
-                            "larger than five")
+                    CaseResult = (e.EmployeeID < 5 
+                        ? "smaller than five"
+                        : e.EmployeeID == 5 
+                            ? "equal to five"
+                            : "larger than five")
                 };
 
             var executedQuery = myQuery.ToArray();

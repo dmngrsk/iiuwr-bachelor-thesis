@@ -80,31 +80,86 @@ Implementacja klasy \texttt{QueryModelVisitorBase}, opisana w rozdziale 2.1, zaj
 Argumentami każdej z metod, które będą nadpisywane, są obiekty dziedziczące po \texttt{Expression}. Na ich podstawie budowany jest napis w klasie \href{https://msdn.microsoft.com/pl-pl/library/system.text.stringbuilder(v=vs.110).aspx}{\texttt{StringBuilder}}, który po zakończeniu odwiedzania wyrażenia zostaje przekazany do omawianej już implementacji \texttt{QueryModelVisitorBase}.
 
 \subsection{Metoda \texttt{VisitQuerySourceReference}}
-TODO.
+Ta metoda odwiedza źródło danych, z którego wybrane zostaną dane. Rozpatrywane są dwa przypadki:
+
+\begin{enumerate}[a)]
+\item Źródło jest klauzulą \texttt{GroupJoinClause} - aby zrozumieć postać tej klauzuli, rozważmy najpierw następujące zapytanie:
+
+\begin{lstlisting}
+from c in QueryFactory.CreateLinqQuery<Customer>()
+join o in QueryFactory.CreateLinqQuery<Order>()
+on c.CustomerID equals o.CustomerID into orders
+select new
+{
+    Customer = c.CustomerID,
+    Orders = orders
+};
+\end{lstlisting}
+
+W niniejszym zapytaniu obiekt \texttt{orders} jest kolekcją \texttt{IEnumerable<Order>} zamówień wykonanych przez konkretnych użytkowników, a zapytanie wynikowe tworzy obiekty anonimowe postaci numeru ID klienta i kolekcji zamówień, które dany klient zamówił. Przetłumaczenie tego zapytania do SQL jest trudne, ze względu na konieczność grupowania kolekcji i zwrócenia jej w postaci obiektu. Rozwiązanie, które wykorzystuje \href{https://msdn.microsoft.com/pl-pl/library/bb882643(v=vs.110).aspx}{LINQ to SQL} - oraz biblioteka autora pracy - jest dosyć sprytne: wykonywane jest złączenie zewnętrzne lewostronne tablicy grupującej z grupowaną, całość zostaje posortowana względem porównywanych kluczy, oraz dodawana jest nowa kolumna, która jest wynikiem podzapytania zliczającego obiekty w każdej grupie. Powyższe zapytanie LINQ-owe tłumaczone jest na:
+
+\begin{lstlisting}
+SELECT 
+  customers.CustomerID AS CustomerID, [...], 
+  (SELECT COUNT(*) FROM orders AS temp 
+    WHERE temp.CustomerID = customers.CustomerID) 
+  AS Orders.__GROUP_COUNT
+FROM customers LEFT OUTER JOIN orders ON 
+  customers.CustomerID = orders.CustomerID
+ORDER BY customers.CustomerID, orders.CustomerID;
+\end{lstlisting}
+
+\texttt{GroupJoinClause} posiada właściwość \texttt{JoinClause}, z której wybierane są właściwości \texttt{[Outer/Inner]KeySelector}, na podstawie których doklejany zostaje powyższy kawałek zapytania umożliwiający grupowanie danych z poziomu LINQ.
+
+\item Źródło nie jest klauzulą \texttt{GroupJoinClause} - w tym przypadku odwiedzana jest po prostu tablica w bazie danych. W zależności od tego, czy obecne wywołanie metody zostało wykonane przez metodę \texttt{VisitMember} lub nie, do zapytania doklejana jest nazwa tablicy lub ciąg postaci \texttt{[tablica].[kolumna1], [tablica].[kolumna2], ...}, który definiuje całą tablicę \texttt{tablica}.
+\end{enumerate}
 
 \subsection{Metoda \texttt{VisitSubQuery}}
-TODO.
+Wyciąga z \texttt{SubQueryExpression} dodatkowy \texttt{QueryModel}, buduje na jego podstawie zapytanie i dodaje je do nadrzędnej klasy obsługującej budowę głównego zapytania. Jest to jedyna metoda, która nie generuje napisu w \texttt{StringBuilder}, a wykonuje logikę bezpośrednio na obiekcie odwiedzającym \texttt{QueryModel}. Takie zapytania są później łączone w całość za pomocą odpowiadających im operatorów wynikowych.
 
 \subsection{Metoda \texttt{VisitBinary}}
-TODO.
+Wyrażenia \texttt{BinaryExpression}, jak można się domyślić, mają jako właściwości wyrażenia \texttt{Left} i \texttt{Right} oraz operator łączący je. Odwiedza lewe wyrażenie, dokleja do wyniku napis odpowiadający operatorowi łączącemu, odwiedza prawe wyrażenie.
 
 \subsection{Metoda \texttt{VisitConditional}}
-TODO.
+Rozważmy następujące zapytanie LINQ:
+
+\begin{lstlisting}
+from e in QueryFactory.CreateLinqQuery<Entity>()
+select new
+{
+    Result = (e.Property < 5 
+        ? "less than five"
+        : e.Property == 5 
+            ? "five"
+            : "more than five")
+};
+\end{lstlisting}
+
+W ramach przypomnienia: operator \texttt{?} jest operatorem warunkowym, który ewaluuje wyrażenie boolowskie i zwraca wartość przed dwukropkiem dla prawdy, po dwukropku dla fałszu. W kontekście budowy zapytania, jest ono przetrzymywane w postaci \texttt{ConditionalExpression}, które zawiera właściwości \texttt{Test}, \texttt{IfTrue}, \texttt{IfFalse}. W szczególności, w \texttt{IfTrue} i \texttt{IfFalse} może być następne wyrażenie warunkowe. Metoda \texttt{VisitConditional} przechodzi po drzewie takich wyrażeń i tłumaczy je do SQL z użyciem funkcji \texttt{CASE}. Dla powyższego zapytania, odpowiadające mu zapytanie SQL wygląda następująco:
+
+\begin{lstlisting}
+SELECT
+  CASE WHEN entities.Property < 5 THEN 'less than five'
+       WHEN entities.Property = 5 THEN 'five'
+       ELSE 'more than five'
+  END AS "Result"
+FROM entities;
+\end{lstlisting}
 
 \subsection{Metoda \texttt{VisitConstant}}
-TODO.
+Aby zapobiec atakowi typu SQL injection, należy parametryzować zapytanie. Odwiedzając wartość stałą (jest nią np. napis, liczba, itp.), metoda tworzy nowy parametr w zapytaniu, nadaje mu nazwę i dokleja tą nazwę do zapytania.
 
 \subsection{Metoda \texttt{VisitMember}}
-TODO.
+Odwiedzana przy wyborze właściwości z modelu tabeli w bazie danych. Dokleja do zapytania (do części \texttt{SELECT}) napis \texttt{[table].[column]}, pozwalając na wybór pojedynczych kolumn w wyniku zapytania.
 
 \subsection{Metoda \texttt{VisitMethodCall}}
-TODO.
+Opakowuje metodę C\#-ową w odpowiadającą funkcję w zapytaniu SQL-owym. Przekazuje tej funkcji argumenty w sposób określony przez jej sygnaturę, po czym dopisuje dany fragment zapytania do bufora.
 
 \subsection{Metoda \texttt{VisitNew}}
-TODO.
+W przypadku, gdy zapytanie LINQ zwraca nowy obiekt anonimowy, ta metoda pozwala na przejście po wszystkich właściwościach nowego obiektu i ich odwiedzenie.
 
 \subsection{Metoda \texttt{VisitUnary}}
-TODO.
+Wykorzystywana w negacji wyrażenia boolowskiego lub do przekazania tego wyrażenia jako \texttt{MemberExpression}.
 
 \section{Czynności wykonywane po budowie zapytania}
 Potrafiąc zbudować dowolne zapytanie SQL-owe na podstawie zapytania LINQ, pozostaje już tylko kwestia wykonania go i zwrócenia wyniku w postaci obiektowej. Autor pracy postanowił użyć do tego celu bibliotek \href{}{Npgsql} (połączenie z bazą PostgreSQL, wykonywanie zapytania) oraz \href{}{Dapper} (rozszerzenie umożliwiające wygodne mapowanie relacyjno-obiektowe).

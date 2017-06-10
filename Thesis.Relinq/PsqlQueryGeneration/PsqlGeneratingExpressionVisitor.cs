@@ -225,13 +225,10 @@ namespace Thesis.Relinq.PsqlQueryGeneration
                 this.Visit(expression.Expression);
                 _visitorTriggeredByMemberVisitor = false;
 
-                if (!expression.Expression.Type.Name.Contains("IGrouping"))
-                {
-                    var columnName = _queryModelVisitor.DbSchema.GetMatchingColumnName(expression.Member.Name);
+                var columnName = _queryModelVisitor.DbSchema.GetMatchingColumnName(expression.Member.Name);
 
-                    _psqlExpressionBuilder.Append($".\"{columnName}\"");
-                    if (_renamingColumns) _psqlExpressionBuilder.Append($" AS \"{expression.Member.Name}\"");
-                }
+                _psqlExpressionBuilder.Append($".\"{columnName}\"");
+                if (_renamingColumns) _psqlExpressionBuilder.Append($" AS \"{expression.Member.Name}\"");
             }
 
             return expression;
