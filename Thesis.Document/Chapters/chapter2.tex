@@ -162,19 +162,14 @@ W przypadku, gdy zapytanie LINQ zwraca nowy obiekt anonimowy, ta metoda pozwala 
 Wykorzystywana w negacji wyrażenia boolowskiego lub do przekazania tego wyrażenia jako \texttt{MemberExpression}.
 
 \section{Czynności wykonywane po budowie zapytania}
-Potrafiąc zbudować dowolne zapytanie SQL-owe na podstawie zapytania LINQ, pozostaje już tylko kwestia wykonania go i zwrócenia wyniku w postaci obiektowej. Autor pracy postanowił użyć do tego celu bibliotek \href{}{Npgsql} (połączenie z bazą PostgreSQL, wykonywanie zapytania) oraz \href{}{Dapper} (rozszerzenie umożliwiające wygodne mapowanie relacyjno-obiektowe).
+Potrafiąc zbudować dowolne zapytanie SQL-owe na podstawie zapytania LINQ, pozostaje już tylko kwestia wykonania go i zwrócenia wyniku w postaci obiektowej. Zapytanie może wykonać dowolny obiekt \texttt{DbConnection} kompatybilny z PostgreSQL (na przykład pochodzący z biblioteki \href{http://www.npgsql.org/}{Npgsql}), rozszerzony przez bibliotekę \href{https://github.com/StackExchange/Dapper}{Dapper} o metody \texttt{Query} i \texttt{Query<T>}, które umożliwiają wykonanie zapytania, którego wynik jest automatycznie rzutowany do postaci obiektowej.
 
-Z użyciem tych dwóch bibliotek, wykonanie zapytania i przetłumaczenie wyniku do postaci obiektowej jest bardzo proste - biblioteka Dapper rozszerza obiekt \texttt{DbConnection}, służący do łączenia z bazą danych, o metody \texttt{Query} i \texttt{Query<T>}, które umożliwiają automatyczne mapowanie wyniku do postaci obiektowej. Poniżej fragment kodu z przykładowej implementacji \texttt{IQueryExecutor}:
+Korzystając z Dappera, wykonywanie i mapowanie zapytań jest banalnie proste:
 
 \begin{lstlisting}
-var commandData = SomeQueryModelVisitor.GenerateQuery(queryModel);
-
-var s = commandData.Statement;
-var p = commandData.Parameters;
-
-return connection.Query<SomeClass>(s, p);
+var result = connection.Query<T>(statement, parameters);
 \end{lstlisting}
 
 W tym miejscu zmienna \texttt{result} jest typu \texttt{IEnumerable<T>}, gdzie \texttt{T} jest typem obiektu, który zwraca oryginalne zapytanie LINQ (jest ono typu \texttt{IQueryable<T>)}. Dapper wymaga, aby nazwy kolumn w relacjach mapowanych na obiekty były takie same, jak nazwy właściwości w klasie modelowej - stąd, podczas budowy zapytania, każda kolumna została przemianowana na nazwę odpowiadającej właściwości w klasie z użyciem słowa kluczowego \texttt{AS}.
 
-Dapper niestety nie radzi sobie z typami anonimowymi ze względu na to, że nie istnieje publiczny konstruktor obiektów tego rodzaju. Obejściem tego problemu jest metoda rozszerzająca \texttt{QueryAnonymous<T>}. OPIS TODO.
+Dapper niestety nie radzi sobie z typami anonimowymi ze względu na to, że nie istnieje publiczny konstruktor obiektów tego rodzaju. Obejściem tego problemu jest dostarczona przez autora pracy metoda rozszerzająca \texttt{QueryAnonymous<T>}. Dla typów zawierających tylko i wyłącznie właściwości proste (inaczej mówiąc: dla krotek, które zawierają tylko kolumny z bazy danych), wystarczy każdą kolumnę przerzutować do postaci tablicy i za pomocą statycznej metody \texttt{Activator.CreateInstance} utworzyć nowy obiekt anonimowy. Metoda ta pozwala również na grupowanie obiektów dla zapytań używających metody \texttt{GroupJoin} (patrz: 2.2.1a), która korzysta z dodatkowego pola w celu określenia liczby obiektów grupowanych.
