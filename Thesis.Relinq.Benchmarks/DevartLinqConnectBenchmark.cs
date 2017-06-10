@@ -80,9 +80,9 @@ namespace Thesis.Relinq.Benchmarks
                 select new
                 {
                     EmployeeID = e.EmployeeID,
-                    CaseResult = (e.EmployeeID < 5 
+                    CaseResult = (e.EmployeeID < 5
                         ? "smaller than five"
-                        : e.EmployeeID == 5 
+                        : e.EmployeeID == 5
                             ? "equal to five"
                             : "larger than five")
                 };
@@ -116,7 +116,8 @@ namespace Thesis.Relinq.Benchmarks
         [Benchmark]
         public void select_with_take_while()
         {
-            var myQuery = Context.Employees.TakeWhile(e => e.EmployeeID < 5);
+            var myQuery = Context.Employees
+                .TakeWhile(e => e.EmployeeID < 5);
 
             var executedQuery = myQuery.ToArray();
         }
@@ -189,7 +190,8 @@ namespace Thesis.Relinq.Benchmarks
         [Benchmark]
         public void select_with_paging()
         {
-            var myQuery = Context.Employees.Select(x => x).Take(5).Skip(3);
+            var myQuery = Context.Employees
+                .Select(x => x).Take(5).Skip(3);
 
             var executedQuery = myQuery.ToArray();
         }
@@ -240,8 +242,8 @@ namespace Thesis.Relinq.Benchmarks
                 (from c in Context.Customers
                     select c.City)
                 .Concat(
-                    (from c in Context.Customers
-                        select c.City));
+                    from c in Context.Customers
+                    select c.City);
 
             var executedQuery = myQuery.ToArray();
         }

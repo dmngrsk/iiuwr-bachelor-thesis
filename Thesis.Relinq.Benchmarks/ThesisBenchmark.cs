@@ -2,7 +2,6 @@ using System.Configuration;
 using System.Linq;
 using BenchmarkDotNet.Attributes;
 using Npgsql;
-using Thesis.Relinq.Benchmarks.ThesisPOCOs;
 
 namespace Thesis.Relinq.Benchmarks
 {

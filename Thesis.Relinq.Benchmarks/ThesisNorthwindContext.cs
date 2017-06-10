@@ -1,5 +1,5 @@
 using System.Data.Common;
-using Thesis.Relinq.Tests.Models;
+using Thesis.Relinq.Benchmarks.ThesisPOCOs;
 
 namespace Thesis.Relinq.Benchmarks
 {
