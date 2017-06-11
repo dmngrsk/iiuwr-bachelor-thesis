@@ -1,8 +1,14 @@
-\chapter{Dodanie biblioteki do własnego projektu}
-Biblioteka \texttt{Thesis.Relinq} została napisana w .NET Standard 1.4, co oznacza, że jest kompatybilna z projektami napisanymi zarówno w .NET Framework, jak również .NET Core. Niniejszy dodatek opisuje instrukcję dodania \texttt{Thesis.Relinq} do własnego projektu.
+\chapter{Instrukcja dodania biblioteki do własnego projektu}
+Biblioteka \texttt{Thesis.Relinq} została napisana w .NET Standard 1.4, co oznacza, że jest kompatybilna z projektami napisanymi zarówno w .NET Framework, jak również .NET Core. Niniejszy dodatek opisuje instrukcję dodania \texttt{Thesis.Relinq} do własnego projektu. O ile klient nie posiada własnej implementacji \texttt{DbConnection}, zaleca się użycie obiektów \texttt{NpgsqlConnection} pochodzących z biblioteki \href{http://www.npgsql.org/}{\texttt{Npgsql}}.
 
 \section{.NET Framework}
-todo.
+Zakładam, że użytkownik korzysta z Visual Studio. 
 
 \section{.NET Core}
-todo.
+W pliku \texttt{.csproj}, który zawiera ustawienia projektu, wystarczy dodać zależność do lokalnego projektu na dysku:
+
+\begin{lstlisting}
+<ItemGroup>
+    <ProjectReference Include="path/to/Thesis.Relinq.csproj" />
+</ItemGroup>
+\end{lstlisting}
