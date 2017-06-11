@@ -123,7 +123,7 @@ namespace Thesis.Relinq.Benchmarks
         }
 
         [Benchmark]
-        public void select_with_additional_from_as_cross_join()
+        public void select_with_cross_join()
         {
             var myQuery =
                 from o in Context.Orders
