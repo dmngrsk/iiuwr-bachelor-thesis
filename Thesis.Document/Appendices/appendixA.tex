@@ -2,13 +2,33 @@
 Biblioteka \texttt{Thesis.Relinq} została napisana w .NET Standard 1.4, co oznacza, że jest kompatybilna z projektami napisanymi zarówno w .NET Framework, jak również .NET Core. Niniejszy dodatek opisuje instrukcję dodania \texttt{Thesis.Relinq} do własnego projektu. O ile klient nie posiada własnej implementacji \texttt{DbConnection}, zaleca się użycie obiektów \texttt{NpgsqlConnection} pochodzących z biblioteki \href{http://www.npgsql.org/}{\texttt{Npgsql}}.
 
 \section{.NET Framework}
-Zakładam, że użytkownik korzysta z Visual Studio. 
+Zakładam, że użytkownik korzysta z Visual Studio w wersji angielskiej. Wymagany jest .NET Framework w wersji 4.6 lub wyższej. Kroki do wykonania:
+
+\begin{enumerate}
+\setlength\itemsep{0em}
+\item Nacisnąć prawym przyciskiem myszy na rozwiązanie (ang. \textit{solution}), które zawiera projekt.
+\item Nacisnąć na przycisk \textbf{Add} $>$ \textbf{Existing Project...}
+\item Nawigować do folderu w projektem \texttt{Thesis.Relinq} i dodać go.
+\item Nacisnąć prawym przyciskiem myszy na \textbf{References} $>$ \textbf{Add Reference...} w projekcie, który ma używać biblioteki.
+\item Wybrać sekcję \textbf{Solution}. Zaznaczyć projekt \texttt{Thesis.Relinq}. Nacisnąć \textbf{OK}.
+\item Może okazać się potrzebne dodanie następujących pakietów NuGet (prawy przycisk myszy na projekt, opcja \textbf{Manage NuGet Packages...}):
+
+\begin{itemize}
+\setlength\itemsep{0em}
+\item \texttt{Remotion.Linq} w wersji 2.1.0.0,
+\item \texttt{Dapper} w wersji 1.50.2,
+\item \texttt{System.Data.Common} w wersji 4.1.0.0,
+\item \texttt{System.Reflection.TypeExtensions} w wersji 4.1.0.0.
+\end{itemize}
+\end{enumerate}
 
 \section{.NET Core}
-W pliku \texttt{.csproj}, który zawiera ustawienia projektu, wystarczy dodać zależność do lokalnego projektu na dysku:
+W przypadku .NET Core, dodanie biblioteki do projektu jest nieco prostsze. W pliku \texttt{.csproj}, który zawiera ustawienia projektu, wystarczy dodać zależność do lokalnego projektu na dysku:
 
 \begin{lstlisting}
 <ItemGroup>
     <ProjectReference Include="path/to/Thesis.Relinq.csproj" />
 </ItemGroup>
 \end{lstlisting}
+
+Następnie, w celu zintegrowania biblioteki z projektem, należy z linii poleceń uruchomić komendę \texttt{dotnet restore} w katalogu z plikiem konfiguracyjnym.
