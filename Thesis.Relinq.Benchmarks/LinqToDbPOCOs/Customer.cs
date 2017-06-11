@@ -2,7 +2,7 @@ using LinqToDB.Mapping;
 
 namespace Thesis.Relinq.Benchmarks.LinqToDbPOCOs
 {
-    [Table(Name="customers")]
+    [Table(Name = "customers")]
     public class Customer
     {
         [PrimaryKey, Identity]

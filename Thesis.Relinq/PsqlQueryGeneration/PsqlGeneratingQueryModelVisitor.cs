@@ -2,9 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using Remotion.Linq;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.ResultOperators;
+using Thesis.Relinq.Attributes;
 
 namespace Thesis.Relinq.PsqlQueryGeneration
 {
@@ -13,7 +15,6 @@ namespace Thesis.Relinq.PsqlQueryGeneration
     {
         private readonly QueryPartsAggregator _queryParts;
         private readonly QueryParametersAggregator _parameterAggregator;
-        private readonly DbSchema _dbSchema;
 
         /// Contains a map that translates aggregating result operator types to a format string wrapping a PostgreSQL aggregating function and its parameters.
         private static readonly Dictionary<Type, string> AggretatingOperators =
@@ -39,13 +40,11 @@ namespace Thesis.Relinq.PsqlQueryGeneration
 
         public QueryPartsAggregator QueryParts => _queryParts;
         public QueryParametersAggregator ParameterAggregator => _parameterAggregator;
-        public DbSchema DbSchema => _dbSchema;
 
-        public PsqlGeneratingQueryModelVisitor(DbSchema dbSchema) : base()
+        public PsqlGeneratingQueryModelVisitor() : base()
         {
             _queryParts = new QueryPartsAggregator();
             _parameterAggregator = new QueryParametersAggregator();
-            _dbSchema = dbSchema;
         }
 
         /// Returns the generated PostgreSQL query in the form of a raw statement and a dictionary of arguments it uses.
@@ -54,10 +53,10 @@ namespace Thesis.Relinq.PsqlQueryGeneration
             return new QueryCommand(_queryParts.BuildQueryStatement(), _parameterAggregator.Parameters);
         }
 
-        /// Creates an instance of the PsqlGenratingQueryModelVisitor based on provided DbSchema instance to visit the QueryModel provided as an argument and to generate a corresponding PostgreSQL query.
-        public static QueryCommand GeneratePsqlQuery(QueryModel queryModel, DbSchema dbSchema)
+        /// Creates an instance of the PsqlGenratingQueryModelVisitor to visit the QueryModel provided as an argument and to generate a corresponding PostgreSQL query.
+        public static QueryCommand GeneratePsqlQuery(QueryModel queryModel)
         {
-            var visitor = new PsqlGeneratingQueryModelVisitor(dbSchema);
+            var visitor = new PsqlGeneratingQueryModelVisitor();
             visitor.VisitQueryModel(queryModel);
             return visitor.GetPsqlCommand();
         }
@@ -80,8 +79,8 @@ namespace Thesis.Relinq.PsqlQueryGeneration
 
         public override void VisitMainFromClause(MainFromClause fromClause, QueryModel queryModel)
         {
-            var fromPart = fromClause.ItemType.Name;
-            _queryParts.AddFromPart($"\"{_dbSchema.GetMatchingTableName(fromPart)}\"");
+            var tableName = fromClause.ItemType.GetTypeInfo().GetCustomAttribute<TableAttribute>().Name;
+            _queryParts.AddFromPart($"\"{tableName}\"");
 
             base.VisitMainFromClause(fromClause, queryModel);
         }
@@ -111,8 +110,8 @@ namespace Thesis.Relinq.PsqlQueryGeneration
 
         public override void VisitAdditionalFromClause(AdditionalFromClause fromClause, QueryModel queryModel, int index)
         {
-            var fromPart = fromClause.ItemType.Name;
-            _queryParts.AddFromPart($"\"{_dbSchema.GetMatchingTableName(fromPart)}\"");
+            var tableName = fromClause.ItemType.GetTypeInfo().GetCustomAttribute<TableAttribute>().Name;
+            _queryParts.AddFromPart($"\"{tableName}\"");
 
             base.VisitAdditionalFromClause(fromClause, queryModel, index);
         }

@@ -179,10 +179,10 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ThesisBenchmark.cs" />
-    <Compile Include="ThesisNorthwindContext.cs" />
-    <Compile Include="ThesisPOCOs\Customers.cs" />
-    <Compile Include="ThesisPOCOs\Employees.cs" />
-    <Compile Include="ThesisPOCOs\Orders.cs" />
+    <Compile Include="ThesisPOCOs\Customer.cs" />
+    <Compile Include="ThesisPOCOs\Employee.cs" />
+    <Compile Include="ThesisPOCOs\Order.cs" />
+    <Compile Include="ThesisRelinqNorthwindContext.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

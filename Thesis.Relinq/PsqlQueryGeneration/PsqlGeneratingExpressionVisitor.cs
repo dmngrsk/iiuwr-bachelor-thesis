@@ -8,6 +8,7 @@ using System.Text.RegularExpressions;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.Expressions;
 using Remotion.Linq.Parsing;
+using Thesis.Relinq.Attributes;
 
 namespace Thesis.Relinq.PsqlQueryGeneration
 {
@@ -103,12 +104,12 @@ namespace Thesis.Relinq.PsqlQueryGeneration
             if (expression.ReferencedQuerySource is GroupJoinClause)
             {
                 var itemType = expression.ReferencedQuerySource.ItemType.GetGenericArguments()[0];
-                var tableName = _queryModelVisitor.DbSchema.GetMatchingTableName(itemType.Name);
+                var tableName = itemType.GetTypeInfo().GetCustomAttribute<TableAttribute>().Name;
 
                 var properties = itemType.GetPublicSettableProperties();
                 var rowNames = properties.Select(x =>
                 {
-                    var columnName = _queryModelVisitor.DbSchema.GetMatchingColumnName(x.Name);
+                    var columnName = x.GetCustomAttribute<ColumnAttribute>().Name;
                     return $"\"{tableName}\".\"{columnName}\" AS \"{itemType.Name}.{x.Name}\"";
                 });
 
@@ -126,18 +127,18 @@ namespace Thesis.Relinq.PsqlQueryGeneration
 
             else if (_visitorTriggeredByMemberVisitor)
             {
-                string typeName = expression.ReferencedQuerySource.ItemType.Name;
-                _psqlExpressionBuilder.Append($"\"{_queryModelVisitor.DbSchema.GetMatchingTableName(typeName)}\"");
+                var tableName = expression.ReferencedQuerySource.ItemType.GetTypeInfo().GetCustomAttribute<TableAttribute>().Name;
+                _psqlExpressionBuilder.Append($"\"{tableName}\"");
             }
 
             else
             {
                 var itemType = expression.ReferencedQuerySource.ItemType;
-                var tableName = _queryModelVisitor.DbSchema.GetMatchingTableName(itemType.Name);
+                var tableName = itemType.GetTypeInfo().GetCustomAttribute<TableAttribute>().Name;
 
                 var rowNames = itemType
                     .GetPublicSettableProperties()
-                    .Select(x => $"\"{tableName}\".\"{_queryModelVisitor.DbSchema.GetMatchingColumnName(x.Name)}\" AS \"{x.Name}\"");
+                    .Select(x => $"\"{tableName}\".\"{x.GetCustomAttribute<ColumnAttribute>().Name}\" AS \"{x.Name}\"");
 
                 _psqlExpressionBuilder.Append(string.Join(", ", rowNames));
             }
@@ -225,9 +226,9 @@ namespace Thesis.Relinq.PsqlQueryGeneration
                 this.Visit(expression.Expression);
                 _visitorTriggeredByMemberVisitor = false;
 
-                var columnName = _queryModelVisitor.DbSchema.GetMatchingColumnName(expression.Member.Name);
-
+                var columnName = expression.Member.GetCustomAttribute<ColumnAttribute>().Name;
                 _psqlExpressionBuilder.Append($".\"{columnName}\"");
+
                 if (_renamingColumns) _psqlExpressionBuilder.Append($" AS \"{expression.Member.Name}\"");
             }
 

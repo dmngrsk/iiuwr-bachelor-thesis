@@ -3,7 +3,7 @@ using LinqToDB.Mapping;
 
 namespace Thesis.Relinq.Benchmarks.LinqToDbPOCOs
 {
-    [Table(Name="orders")]
+    [Table(Name = "orders")]
     public class Order
     {
         [PrimaryKey, Identity]

@@ -24,12 +24,10 @@ namespace Thesis.Relinq
         {
             _connection.Open();
 
-            var dbSchema = new DbSchema(_connection);
-            var psqlCommand = PsqlGeneratingQueryModelVisitor.GeneratePsqlQuery(queryModel, dbSchema);
-
-            var result = typeof(T).IsAnonymous() ?
-                _connection.QueryAnonymous<T>(psqlCommand.Statement, psqlCommand.Parameters) :
-                _connection.Query<T>(psqlCommand.Statement, psqlCommand.Parameters);
+            var psqlCommand = PsqlGeneratingQueryModelVisitor.GeneratePsqlQuery(queryModel);
+            var result = typeof(T).IsAnonymous() 
+                ? _connection.QueryAnonymous<T>(psqlCommand.Statement, psqlCommand.Parameters)
+                : _connection.Query<T>(psqlCommand.Statement, psqlCommand.Parameters);
 
             _connection.Close();
             return result;

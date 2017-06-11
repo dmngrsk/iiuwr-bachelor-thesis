@@ -23,7 +23,7 @@ namespace Thesis.Relinq.Tests
             string psqlCommand = "SELECT * FROM Employees WHERE (\"EmployeeID\" = 5);";
 
             // Act
-            var expected = Connection.Query<Employees>(psqlCommand);
+            var expected = Connection.Query<Employee>(psqlCommand);
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 
@@ -46,7 +46,7 @@ namespace Thesis.Relinq.Tests
             string psqlCommand = "SELECT * FROM Employees LIMIT 5;";
 
             // Act
-            var expected = Connection.Query<Employees>(psqlCommand);
+            var expected = Connection.Query<Employee>(psqlCommand);
             var actual = myQuery.Take(5).ToArray();
             var actual2 = myQuery2.Take(5).ToArray();
 
@@ -69,7 +69,7 @@ namespace Thesis.Relinq.Tests
             string psqlCommand = "SELECT * FROM Employees OFFSET 5;";
 
             // Act
-            var expected = Connection.Query<Employees>(psqlCommand);
+            var expected = Connection.Query<Employee>(psqlCommand);
             var actual = myQuery.Skip(5).ToArray();
             var actual2 = myQuery2.Skip(5).ToArray();
 
@@ -92,7 +92,7 @@ namespace Thesis.Relinq.Tests
             string psqlCommand = "SELECT * FROM Employees OFFSET 5 LIMIT 3;";
 
             // Act
-            var expected = Connection.Query<Employees>(psqlCommand);
+            var expected = Connection.Query<Employee>(psqlCommand);
             var actual = myQuery.Skip(5).Take(3).ToArray();
             var actual2 = myQuery2.Take(3).Skip(5).ToArray();
 
@@ -122,7 +122,7 @@ namespace Thesis.Relinq.Tests
                 "customers.\"CustomerID\" = orders.\"CustomerID\");";
 
             // Act
-            var expected = Connection.Query<Customers>(psqlCommand);
+            var expected = Connection.Query<Customer>(psqlCommand);
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 
@@ -152,7 +152,7 @@ namespace Thesis.Relinq.Tests
                 "NOT (customers.\"CustomerID\" != orders.\"CustomerID\"))";
 
             // Act
-            var expected = Connection.Query<Customers>(psqlCommand);
+            var expected = Connection.Query<Customer>(psqlCommand);
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 
@@ -185,7 +185,7 @@ namespace Thesis.Relinq.Tests
                 "(SELECT * FROM Customers WHERE \"City\" = 'Paris');";
 
             // Act
-            var expected = Connection.Query<Customers>(psqlCommand);
+            var expected = Connection.Query<Customer>(psqlCommand);
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 
@@ -249,7 +249,7 @@ namespace Thesis.Relinq.Tests
                 "(SELECT * FROM Employees WHERE \"EmployeeID\" > 3);";
 
             // Act
-            var expected = Connection.Query<Employees>(psqlCommand);
+            var expected = Connection.Query<Employee>(psqlCommand);
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 
@@ -280,7 +280,7 @@ namespace Thesis.Relinq.Tests
                 "(SELECT * FROM Employees WHERE \"EmployeeID\" > 6);";
 
             // Act
-            var expected = Connection.Query<Employees>(psqlCommand);
+            var expected = Connection.Query<Employee>(psqlCommand);
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 

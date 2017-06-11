@@ -1,7 +1,6 @@
 using System.Linq;
 using Dapper;
 using Thesis.Relinq.Tests.Helpers;
-using Thesis.Relinq.Tests.Models;
 using Xunit;
 
 namespace Thesis.Relinq.Tests

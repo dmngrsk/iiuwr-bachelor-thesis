@@ -24,7 +24,7 @@ namespace Thesis.Relinq.Tests
             string psqlCommand = "SELECT * FROM Customers;";
 
             // Act
-            var expected = Connection.Query<Customers>(psqlCommand).ToArray();
+            var expected = Connection.Query<Customer>(psqlCommand).ToArray();
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 
@@ -78,7 +78,7 @@ namespace Thesis.Relinq.Tests
             string psqlCommand = "SELECT * FROM Customers WHERE \"CustomerID\" = 'PARIS';";
 
             // Act
-            var expected = Connection.Query<Customers>(psqlCommand).ToArray();
+            var expected = Connection.Query<Customer>(psqlCommand).ToArray();
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
             
@@ -104,7 +104,7 @@ namespace Thesis.Relinq.Tests
                 "WHERE \"EmployeeID\" > 5 AND \"City\" = 'London';";
 
             // Act
-            var expected = Connection.Query<Employees>(psqlCommand).ToArray();
+            var expected = Connection.Query<Employee>(psqlCommand).ToArray();
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
             
@@ -132,7 +132,7 @@ namespace Thesis.Relinq.Tests
                 "WHERE \"EmployeeID\" > 5 AND \"City\" = 'London';";
 
             // Act
-            var expected = Connection.Query<Employees>(psqlCommand).ToArray();
+            var expected = Connection.Query<Employee>(psqlCommand).ToArray();
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
             
@@ -201,7 +201,7 @@ namespace Thesis.Relinq.Tests
                 select e;
 
             // Act
-            var expected = new Employees[0];
+            var expected = new Employee[0];
             var actual = myQuery.ToArray();
             var rowCountAfterQuery = Connection.Database.Count();
 
@@ -252,7 +252,7 @@ namespace Thesis.Relinq.Tests
                 "WHERE NOT (\"EmployeeID\" < 7 AND \"EmployeeID\" > 3);";
 
             // Act
-            var expected = Connection.Query<Employees>(psqlCommand).ToArray();
+            var expected = Connection.Query<Employee>(psqlCommand).ToArray();
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 
@@ -276,7 +276,7 @@ namespace Thesis.Relinq.Tests
             string psqlCommand = "SELECT * FROM Employees WHERE 3 > 5;";
 
             // Act
-            var expected = Connection.Query<Employees>(psqlCommand).ToArray();
+            var expected = Connection.Query<Employee>(psqlCommand).ToArray();
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 
@@ -303,7 +303,7 @@ namespace Thesis.Relinq.Tests
                 "ORDER BY \"City\", \"EmployeeID\" DESC;";
 
             // Act
-            var expected = Connection.Query<Employees>(psqlCommand).ToArray();
+            var expected = Connection.Query<Employee>(psqlCommand).ToArray();
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 
@@ -331,7 +331,7 @@ namespace Thesis.Relinq.Tests
                 "ORDER BY \"City\", \"EmployeeID\" DESC;";
 
             // Act
-            var expected = Connection.Query<Employees>(psqlCommand).ToArray();
+            var expected = Connection.Query<Employee>(psqlCommand).ToArray();
             var actual = myQuery.ToArray();
             var actual2 = myQuery2.ToArray();
 
@@ -450,21 +450,21 @@ namespace Thesis.Relinq.Tests
 
             string psqlCommand = // Required by the QueryAnonymous method to map properly.
                 "SELECT \"customers\".\"CustomerID\" AS \"CustomerID\", " + 
-                "\"orders\".\"OrderID\" AS \"Orders.OrderID\", " +
-                "\"orders\".\"CustomerID\" AS \"Orders.CustomerID\", " +
-                "\"orders\".\"EmployeeID\" AS \"Orders.EmployeeID\", " + 
-                "\"orders\".\"OrderDate\" AS \"Orders.OrderDate\", " +
-                "\"orders\".\"RequiredDate\" AS \"Orders.RequiredDate\", " +
-                "\"orders\".\"ShippedDate\" AS \"Orders.ShippedDate\", " + 
-                "\"orders\".\"ShipVia\" AS \"Orders.ShipVia\", " +
-                "\"orders\".\"Freight\" AS \"Orders.Freight\", " +
-                "\"orders\".\"ShipName\" AS \"Orders.ShipName\", " +
-                "\"orders\".\"ShipAddress\" AS \"Orders.ShipAddress\", " +
-                "\"orders\".\"ShipCity\" AS \"Orders.ShipCity\", " + 
-                "\"orders\".\"ShipRegion\" AS \"Orders.ShipRegion\", " + 
-                "\"orders\".\"ShipPostalCode\" AS \"Orders.ShipPostalCode\", " +
-                "\"orders\".\"ShipCountry\" AS \"Orders.ShipCountry\", " +
-                "(SELECT COUNT(*) from orders AS temp1_orders WHERE temp1_orders.\"CustomerID\" = customers.\"CustomerID\") AS \"Orders.__GROUP_COUNT\" " +
+                "\"orders\".\"OrderID\" AS \"Order.OrderID\", " +
+                "\"orders\".\"CustomerID\" AS \"Order.CustomerID\", " +
+                "\"orders\".\"EmployeeID\" AS \"Order.EmployeeID\", " + 
+                "\"orders\".\"OrderDate\" AS \"Order.OrderDate\", " +
+                "\"orders\".\"RequiredDate\" AS \"Order.RequiredDate\", " +
+                "\"orders\".\"ShippedDate\" AS \"Order.ShippedDate\", " + 
+                "\"orders\".\"ShipVia\" AS \"Order.ShipVia\", " +
+                "\"orders\".\"Freight\" AS \"Order.Freight\", " +
+                "\"orders\".\"ShipName\" AS \"Order.ShipName\", " +
+                "\"orders\".\"ShipAddress\" AS \"Order.ShipAddress\", " +
+                "\"orders\".\"ShipCity\" AS \"Order.ShipCity\", " + 
+                "\"orders\".\"ShipRegion\" AS \"Order.ShipRegion\", " + 
+                "\"orders\".\"ShipPostalCode\" AS \"Order.ShipPostalCode\", " +
+                "\"orders\".\"ShipCountry\" AS \"Order.ShipCountry\", " +
+                "(SELECT COUNT(*) from orders AS temp1_orders WHERE temp1_orders.\"CustomerID\" = customers.\"CustomerID\") AS \"Order.__GROUP_COUNT\" " +
                 "FROM customers LEFT OUTER JOIN orders ON customers.\"CustomerID\" = orders.\"CustomerID\" " +
                 "ORDER BY customers.\"CustomerID\", orders.\"CustomerID\";";
             var queryMethod = typeof(ExtensionMethods)

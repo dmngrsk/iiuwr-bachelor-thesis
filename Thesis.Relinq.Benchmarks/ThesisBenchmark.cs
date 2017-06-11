@@ -10,7 +10,7 @@ namespace Thesis.Relinq.Benchmarks
         private static readonly NpgsqlConnection Connection = new NpgsqlConnection(
             ConfigurationManager.ConnectionStrings["NorthwindDataContextConnectionString"].ConnectionString);
 
-        private static readonly ThesisNorthwindContext Context = new ThesisNorthwindContext(Connection);
+        private static readonly ThesisRelinqNorthwindContext Context = new ThesisRelinqNorthwindContext(Connection);
 
 
 
