@@ -1,0 +1,54 @@
+\chapter{Użycie biblioteki w celu zapytania bazy danych}
+Po dodaniu biblioteki \texttt{Thesis.Relinq} do własnego projektu i dodaniu zależności do niej w kodzie klienckim (\texttt{using Thesis.Relinq}), dla każdej tabeli w bazie danych, z której użytkownik chce wyciągać dane, należy napisać klasę modelową, która jest udekorowana atrybutami \texttt{Table} i \texttt{Column}, które określają nazwę tabeli i jej kolumn w bazie danych. Przykładowa klasa modelowa wygląda następująco:
+
+\begin{lstlisting}
+[Table(Name = "people")]
+public class Person
+{
+    [Column(Name = "person_id")]
+    public int PersonId { get; set; }
+
+    [Column(Name = "first_name")]
+    public string FirstName { get; set; }
+
+    [Column(Name = "last_name")]
+    public string LastName { get; set; }
+}
+\end{lstlisting}
+
+Po opisaniu każdej z tabel, źródło danych w zapytaniu LINQ jest tworzone za pomocą metody \texttt{PsqlQueryFactory.Queryable<T>(DbConnection connection)}, która zwraca obiekty \texttt{PsqlQueryable}. Obiekt \texttt{DbConnection} powinien być kompatybilny z bazą PostgreSQL oraz zostać wcześniej z taką bazą połączony. O ile klient nie posiada własnej implementacji \texttt{DbConnection}, zaleca się użycie obiektów \texttt{NpgsqlConnection} pochodzących z biblioteki \href{http://www.npgsql.org/}{\texttt{Npgsql}}.
+
+Wszystkie obiekty \texttt{PsqlQueryable} można opakować w klasę kontekstową, która pozwola na o wiele czytelniejsze wykonywanie zapytań. Przykładowa klasa kontekstowa oraz jej wykorzystanie w zapytaniu wygląda następująco:
+
+\begin{lstlisting}
+public class NorthwindContext
+{
+    public PsqlQueryable<Order> Orders { get; }
+    public PsqlQueryable<Customer> Customers { get; }
+    public PsqlQueryable<Employee> Employees { get; }
+
+    public NorthwindContext(DbConnection connection)
+    {
+        this.Customers = PsqlQueryFactory
+            .Queryable<Customer>(connection);
+        this.Employees = PsqlQueryFactory
+            .Queryable<Employee>(connection);
+        this.Orders = PsqlQueryFactory
+            .Queryable<Order>(connection);
+    }
+}
+
+
+var connection = new SomePostgresConnection();
+var context = new NorthwindContext(connection);
+
+var myQuery =
+    from c in Context.Customers
+    join o in Context.Orders
+    on c.CustomerID equals o.CustomerID
+    select new
+    {
+        Name = c.ContactName,
+        Order = o.OrderID
+    };
+\end{lstlisting}

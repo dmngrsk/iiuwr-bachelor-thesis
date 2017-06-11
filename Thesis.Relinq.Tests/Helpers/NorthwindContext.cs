@@ -5,9 +5,9 @@ namespace Thesis.Relinq.Tests.Helpers
 {
     public class NorthwindContext
     {
-        public PsqlQueryable<Order> Orders { get; set; }
-        public PsqlQueryable<Customer> Customers { get; set; }
-        public PsqlQueryable<Employee> Employees { get; set; }
+        public PsqlQueryable<Order> Orders { get; }
+        public PsqlQueryable<Customer> Customers { get; }
+        public PsqlQueryable<Employee> Employees { get; }
 
         public NorthwindContext(DbConnection connection)
         {
