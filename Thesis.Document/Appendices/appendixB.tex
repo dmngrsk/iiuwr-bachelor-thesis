@@ -1,5 +1,5 @@
 \chapter{Instrukcja użycia biblioteki w celu wykonania zapytania}
-Po dodaniu biblioteki \texttt{Thesis.Relinq} do własnego projektu i dodaniu zależności do niej w kodzie klienckim (\texttt{using Thesis.Relinq}), dla każdej tabeli w bazie danych, z której użytkownik chce wyciągać dane, należy napisać klasę modelową, która jest udekorowana atrybutami \texttt{Table} i \texttt{Column}, które określają nazwę tabeli i jej kolumn w bazie danych. Przykładowa klasa modelowa wygląda następująco:
+Po dodaniu biblioteki \texttt{Thesis.Relinq} do własnego projektu i dodaniu zależności do niej w kodzie klienckim (\texttt{using Thesis.Relinq}), dla każdej tabeli w bazie danych, z której użytkownik chce wyciągać dane, należy napisać klasę modelową, która jest udekorowana atrybutami \texttt{Table} i \texttt{Column} określającymi nazwę tabeli i nazwy jej kolumn w bazie danych. Przykładowa klasa modelowa wygląda następująco:
 
 \begin{lstlisting}
 [Table(Name = "people")]
