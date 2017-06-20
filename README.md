@@ -1,4 +1,4 @@
-# iiuwr-thesis
+# iiuwr-bachelor-thesis
 
 The topic of my bachelor's thesis was writing a library that uses the abstract syntax trees provided by the [re-linq library](https://relinq.codeplex.com/) to translate LINQ queries to PostgreSQL queries, query a PostgreSQL database and convert the result into an entity. In other words, an ORM utility between .NET and PostgreSQL. If you want a deeper explanation on how it works, you can read about it in detail in the ```iithesis.pdf``` document inside ```Thesis.Document``` directory, which is my thesis paper (it's written in Polish).
 
